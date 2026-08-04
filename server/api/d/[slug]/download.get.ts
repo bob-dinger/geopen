@@ -14,6 +14,27 @@ import { db, pageAll, slugify } from '~~/server/utils/db'
 
 const LICENCE = 'CC0-1.0'
 
+/**
+ * Round coordinates in place.
+ *
+ * Raw appraisal and survey geometry carries 14+ decimal places — sub-micron
+ * precision on a parcel boundary, which is noise. Six decimals is roughly 10cm
+ * at this latitude, far finer than any source here is actually accurate.
+ *
+ * Worth knowing this is the SMALLER win: on the aquifer layer it saved 6%.
+ * The large one is serialising compactly — see below.
+ */
+function roundCoords(c: any, dp: number): any {
+  if (typeof c === 'number') return Number(c.toFixed(dp))
+  if (Array.isArray(c)) return c.map((x) => roundCoords(x, dp))
+  return c
+}
+
+function thinGeometry(geom: any, dp: number): any {
+  if (!geom?.coordinates) return geom
+  return { ...geom, coordinates: roundCoords(geom.coordinates, dp) }
+}
+
 function csvEscape(v: any): string {
   if (v === null || v === undefined) return ''
   const s = typeof v === 'object' ? JSON.stringify(v) : String(v)
@@ -96,9 +117,18 @@ export default defineEventHandler(async (event) => {
     sb.from('features').select('geometry,properties').eq('layer_uuid', layer.uuid).range(from, to),
   )
 
+  // `precision` is capped at 9 to stop a caller asking for a payload we then
+  // have to build; 6 is the sensible default for anything from a CAD or survey.
+  const rawDp = parseInt(String(getQuery(event).precision ?? 6))
+  const dp = Number.isFinite(rawDp) ? Math.min(Math.max(rawDp, 0), 9) : 6
+
   const feats = rows
     .filter((r) => r.geometry)
-    .map((r) => ({ type: 'Feature', geometry: r.geometry, properties: r.properties || {} }))
+    .map((r) => ({
+      type: 'Feature',
+      geometry: thinGeometry(r.geometry, dp),
+      properties: r.properties || {},
+    }))
 
   const base = slugify(layer.title) || layer.uuid
   const cfg = useRuntimeConfig()
@@ -116,13 +146,18 @@ export default defineEventHandler(async (event) => {
         page: pageUrl,
         licence: LICENCE,
         feature_count: feats.length,
+        coordinate_precision: dp,
         downloaded: retrieved,
       },
       features: feats,
     }
     setHeader(event, 'content-type', 'application/geo+json; charset=utf-8')
     setHeader(event, 'content-disposition', `attachment; filename="${base}.geojson"`)
-    return body
+    // Serialise compactly and return a string. Returning the object lets Nitro
+    // pretty-print it, and on geometry-heavy layers the indentation is most of
+    // the file: the Texas aquifers came to 76.8MB formatted against 20.7MB
+    // compact — 73% whitespace. Nobody reads a downloaded GeoJSON by eye.
+    return JSON.stringify(body)
   }
 
   if (format === 'csv') {
