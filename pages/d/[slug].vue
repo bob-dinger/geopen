@@ -80,6 +80,8 @@
 <script setup lang="ts">
 const route = useRoute()
 const cfg = useRuntimeConfig()
+// Trim: a stray space in the config var otherwise corrupts every canonical URL.
+const SITE = String(cfg.public.siteUrl || '').trim().replace(/\s+/g, '').replace(/\/+$/, '')
 
 const { data } = await useFetch<any>(() => `/api/d/${route.params.slug}`, {
   default: () => null as any,
@@ -96,7 +98,7 @@ const sourceHost = computed(() => {
 // file is, without parsing prose.
 useHead(() => {
   if (!d.value) return {}
-  const url = `${cfg.public.siteUrl}/d/${d.value.slug}`
+  const url = `${SITE}/d/${d.value.slug}`
   return {
     title: `${d.value.title} — geopen.io`,
     meta: [
@@ -117,7 +119,7 @@ useHead(() => {
         url,
         license: 'https://creativecommons.org/publicdomain/zero/1.0/',
         isAccessibleForFree: true,
-        creator: { '@type': 'Organization', name: 'geopen.io', url: cfg.public.siteUrl },
+        creator: { '@type': 'Organization', name: 'geopen.io', url: SITE },
         keywords: d.value.tags,
         ...(d.value.source_url ? { isBasedOn: d.value.source_url } : {}),
         ...(d.value.bbox ? {

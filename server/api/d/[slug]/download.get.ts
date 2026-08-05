@@ -1,4 +1,4 @@
-import { db, pageAll, slugify } from '~~/server/utils/db'
+import { db, pageAll, slugify, siteUrl } from '~~/server/utils/db'
 
 /**
  * GET /api/d/:slug/download?format=geojson|csv|kml
@@ -147,7 +147,7 @@ export default defineEventHandler(async (event) => {
 
   const base = slugify(layer.title) || layer.uuid
   const cfg = useRuntimeConfig()
-  const pageUrl = `${cfg.public.siteUrl}/d/${base}`
+  const pageUrl = `${siteUrl()}/d/${base}`
   const retrieved = new Date().toISOString().slice(0, 10)
 
   if (format === 'geojson') {

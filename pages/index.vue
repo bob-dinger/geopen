@@ -120,6 +120,8 @@ async function loadMore() {
 const millions = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : n.toLocaleString())
 
 const cfg = useRuntimeConfig()
+// Trim: a stray space in the config var otherwise corrupts every canonical URL.
+const SITE = String(cfg.public.siteUrl || '').trim().replace(/\s+/g, '').replace(/\/+$/, '')
 useHead({
   title: 'geopen.io — the open library of geographic information',
   meta: [
@@ -127,9 +129,9 @@ useHead({
       'Open, downloadable geographic data for Texas — land ownership, zoning, construction, water. ' +
       'Every dataset previews in the browser, cites its source, and downloads in one click. No account.' },
     { property: 'og:title', content: 'geopen.io — the open library of geographic information' },
-    { property: 'og:url', content: cfg.public.siteUrl },
+    { property: 'og:url', content: SITE },
   ],
-  link: [{ rel: 'canonical', href: cfg.public.siteUrl }],
+  link: [{ rel: 'canonical', href: SITE }],
   script: [{
     type: 'application/ld+json',
     innerHTML: JSON.stringify({
@@ -137,7 +139,7 @@ useHead({
       '@type': 'DataCatalog',
       name: 'geopen.io',
       description: 'The open library of geographic information.',
-      url: cfg.public.siteUrl,
+      url: SITE,
       license: 'https://creativecommons.org/publicdomain/zero/1.0/',
       isAccessibleForFree: true,
     }),

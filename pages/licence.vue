@@ -70,12 +70,14 @@
 
 <script setup lang="ts">
 const cfg = useRuntimeConfig()
+// Trim: a stray space in the config var otherwise corrupts every canonical URL.
+const SITE = String(cfg.public.siteUrl || '').trim().replace(/\s+/g, '').replace(/\/+$/, '')
 useHead({
   title: 'Licence — geopen.io',
   meta: [{ name: 'description', content:
     'Everything geopen.io derives is released CC0 — public domain, no attribution required. ' +
     'Source materials keep their own terms, noted per dataset.' }],
-  link: [{ rel: 'canonical', href: `${cfg.public.siteUrl}/licence` }],
+  link: [{ rel: 'canonical', href: `${SITE}/licence` }],
 })
 </script>
 

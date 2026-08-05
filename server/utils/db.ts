@@ -58,3 +58,16 @@ export function slugify(s: string): string {
     .slice(0, 80)
     .replace(/^-|-$/g, '')
 }
+
+/**
+ * Normalise the public site URL.
+ *
+ * Config vars get pasted by hand, and a trailing space or slash silently
+ * corrupts every URL built from them — "https://geopen.io /d/foo" ended up in
+ * download payloads and canonical tags before this existed. Since those URLs
+ * travel inside files people keep, a typo here is not self-correcting.
+ */
+export function siteUrl(): string {
+  const raw = String(useRuntimeConfig().public.siteUrl || '').trim()
+  return raw.replace(/\s+/g, '').replace(/\/+$/, '')
+}
