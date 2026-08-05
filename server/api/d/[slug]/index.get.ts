@@ -98,7 +98,8 @@ export default defineEventHandler(async (event) => {
       base_map: layer.base_map,
       lat: layer.lat, lng: layer.lng, zoom: layer.zoom,
       style: layer.maplibre_layers || null,
-      licence: 'CC0-1.0',
+      licence: /^(unspecified|unknown|none|n\/a|tbd|)$/i.test(String(layer.license ?? '').trim())
+        ? 'CC0-1.0' : String(layer.license).trim(),
       geometry_types: geometryTypes,
       bbox,
     },

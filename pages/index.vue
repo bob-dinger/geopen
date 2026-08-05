@@ -72,14 +72,14 @@
         <div>
           <h3 class="mono">Take it</h3>
           <p>GeoJSON, CSV, KML. One click, no account, no rate limit. Everything we derive is
-             released CC0.</p>
+             released CC0 — no attribution required.</p>
         </div>
       </section>
     </main>
 
     <footer class="wrap foot mono">
       <span>geopen.io — the open library of geographic information</span>
-      <NuxtLink to="/about">About</NuxtLink>
+      <NuxtLink to="/licence">Licence</NuxtLink>
     </footer>
   </div>
 </template>

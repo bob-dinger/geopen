@@ -12,7 +12,22 @@ import { db, pageAll, slugify } from '~~/server/utils/db'
  * (which the spec permits as a foreign member) as well as the filename.
  */
 
-const LICENCE = 'CC0-1.0'
+// Site default. Licensing is per-dataset by design: most of this is gathered
+// public record rather than authored work, so CC0 is both the honest claim and
+// the one that removes friction for machines. If a `license` column is added to
+// `layers` later — for something genuinely authored, or a source whose terms
+// forbid CC0 — it is respected without touching this file again.
+const DEFAULT_LICENCE = 'CC0-1.0'
+// The existing `layers.license` column is a placeholder on almost everything —
+// 'UNSPECIFIED' on 4,685 of 4,688 public layers. That is not a licence, and
+// publishing it as one is worse than saying nothing: an unclear licence is the
+// thing that makes a careful user walk away. Placeholders fall through to the
+// site default; genuine values (three layers carry CC-BY-4.0) are respected.
+const PLACEHOLDER = /^(unspecified|unknown|none|n\/a|tbd|)$/i
+function licenceOf(layer: any): string {
+  const v = String(layer?.license ?? layer?.licence ?? '').trim()
+  return PLACEHOLDER.test(v) ? DEFAULT_LICENCE : v
+}
 
 /**
  * Round coordinates in place.
@@ -144,7 +159,7 @@ export default defineEventHandler(async (event) => {
         source: layer.source_url || null,
         published_by: cfg.public.siteName,
         page: pageUrl,
-        licence: LICENCE,
+        licence: licenceOf(layer),
         feature_count: feats.length,
         coordinate_precision: dp,
         downloaded: retrieved,
@@ -182,7 +197,7 @@ export default defineEventHandler(async (event) => {
     // comment header rather than being dropped silently.
     return (
       `# ${layer.title}\n# source: ${layer.source_url || 'see ' + pageUrl}\n` +
-      `# licence: ${LICENCE}  downloaded: ${retrieved}  via: ${pageUrl}\n` +
+      `# licence: ${licenceOf(layer)}  downloaded: ${retrieved}  via: ${pageUrl}\n` +
       lines.join('\n')
     )
   }

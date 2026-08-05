@@ -4,7 +4,7 @@
       <NuxtLink to="/" class="brand mono">geopen<b>.io</b></NuxtLink>
       <nav class="mono">
         <NuxtLink to="/">Browse</NuxtLink>
-        <NuxtLink to="/about">About</NuxtLink>
+        <NuxtLink to="/licence">Licence</NuxtLink>
       </nav>
     </div>
   </header>
