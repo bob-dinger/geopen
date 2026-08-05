@@ -21,10 +21,16 @@ export default defineEventHandler((event) => {
   const url = getRequestURL(event)
   if (url.pathname.startsWith('/.well-known/acme-challenge/')) return
 
+  // Only external requests carry x-forwarded-proto — the Heroku router sets it.
+  // Nuxt's server-side $fetch calls its own API routes through this middleware
+  // with an internal host, and redirecting those hands the page a 301 body
+  // instead of its data. Absence of the header means "not from the internet".
   const proto = getRequestHeader(event, 'x-forwarded-proto')
+  if (!proto) return
+
   const host = (getRequestHeader(event, 'host') || '').toLowerCase().split(':')[0]
 
-  if ((proto && proto !== 'https') || (host && host !== CANONICAL_HOST)) {
+  if (proto !== 'https' || (host && host !== CANONICAL_HOST)) {
     return sendRedirect(event, `https://${CANONICAL_HOST}${url.pathname}${url.search}`, 301)
   }
 
