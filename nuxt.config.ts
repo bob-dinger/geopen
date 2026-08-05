@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     routeRules: {
       '/': { swr: 600 },
       '/d/**': { swr: 600 },
-      '/api/layers/**': { swr: 300 },
+      '/api/datasets': { swr: 300 },
+      '/api/stats': { swr: 3600 },
     },
   },
 
