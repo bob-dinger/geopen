@@ -58,11 +58,12 @@ Full terms: ${SITE}/licence
 
 ## How to get data
 
-Every dataset has a page and three download formats. Substitute the slug:
+Every dataset has a page and four download formats. Substitute the slug:
 
 - Page (HTML, with schema.org Dataset JSON-LD): ${SITE}/d/<slug>
 - GeoJSON: ${SITE}/api/d/<slug>/download?format=geojson
 - Shapefile (.zip with .shp/.shx/.dbf/.prj): ${SITE}/api/d/<slug>/download?format=shapefile
+- Excel (.xlsx, with a provenance sheet): ${SITE}/api/d/<slug>/download?format=xlsx
 - CSV (geometry reduced to a centroid): ${SITE}/api/d/<slug>/download?format=csv
 - KML: ${SITE}/api/d/<slug>/download?format=kml
 

@@ -170,10 +170,13 @@ ${feats.map(placemark).filter(Boolean).join('\n')}
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug') || ''
-  const raw = String(getQuery(event).format || 'geojson').toLowerCase()
-  // 'shp' and 'zip' are what people actually type for a shapefile.
-  const format = raw === 'shp' || raw === 'zip' ? 'shapefile' : raw
-  if (!['geojson', 'csv', 'kml', 'shapefile'].includes(format)) {
+  const asked = String(getQuery(event).format || 'geojson').toLowerCase()
+  // What people actually type, mapped onto what we serve.
+  const ALIAS: Record<string, string> = {
+    shp: 'shapefile', zip: 'shapefile', excel: 'xlsx', xls: 'xlsx', spreadsheet: 'xlsx',
+  }
+  const format = ALIAS[asked] || asked
+  if (!['geojson', 'csv', 'kml', 'shapefile', 'xlsx'].includes(format)) {
     throw createError({ statusCode: 400, statusMessage: `Unsupported format: ${format}` })
   }
 
@@ -333,6 +336,66 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'content-type', 'application/zip')
     setHeader(event, 'content-disposition', `attachment; filename="${base}-shapefile.zip"`)
     return out
+  }
+
+  if (format === 'xlsx') {
+    const ExcelJS = ((await import('exceljs')) as any).default
+
+    const keys = [...new Set(feats.flatMap((f) => Object.keys(f.properties)))]
+      .filter((k) => k !== 'uuid')
+
+    const wb = new ExcelJS.Workbook()
+    wb.creator = cfg.public.siteName as string
+    wb.created = new Date(retrieved)
+
+    // Provenance gets its own sheet rather than a comment row. A spreadsheet
+    // can hold it properly, and the point is that the file still explains
+    // itself once it is sitting on someone's desktop.
+    const meta = wb.addWorksheet('Source')
+    meta.columns = [{ width: 20 }, { width: 92 }]
+    for (const [k, v] of [
+      ['Title', layer.title],
+      ['Source', layer.source_url || `see ${pageUrl}`],
+      ['Licence', licenceOf(layer)],
+      ['Published by', cfg.public.siteName],
+      ['Page', pageUrl],
+      ['Downloaded', retrieved],
+      ['Features', feats.length],
+      ['Coordinates', 'WGS84 (EPSG:4326)'],
+      ['Note', 'Longitude and latitude are a representative point. Full geometry is in the GeoJSON or Shapefile download.'],
+    ] as [string, any][]) {
+      const row = meta.addRow([k, v])
+      row.getCell(1).font = { bold: true }
+      row.getCell(2).alignment = { wrapText: true, vertical: 'top' }
+    }
+
+    const ws = wb.addWorksheet('Data')
+    ws.addRow(['longitude', 'latitude', ...keys])
+    ws.getRow(1).font = { bold: true }
+    ws.views = [{ state: 'frozen', ySplit: 1 }]
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: keys.length + 2 } }
+
+    for (const f of feats) {
+      const c = centroid(f.geometry)
+      ws.addRow([
+        c ? Number(c[0].toFixed(6)) : null,
+        c ? Number(c[1].toFixed(6)) : null,
+        ...keys.map((k) => {
+          const v = f.properties[k]
+          if (v === null || v === undefined) return null
+          if (typeof v === 'number' || typeof v === 'boolean') return v
+          // Excel rejects a cell longer than 32,767 characters outright.
+          const s = typeof v === 'object' ? JSON.stringify(v) : String(v)
+          return s.length > 32000 ? s.slice(0, 32000) : s
+        }),
+      ])
+    }
+
+    const buf = await wb.xlsx.writeBuffer()
+    setHeader(event, 'content-type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    setHeader(event, 'content-disposition', `attachment; filename="${base}.xlsx"`)
+    return Buffer.from(buf)
   }
 
   setHeader(event, 'content-type', 'application/vnd.google-earth.kml+xml; charset=utf-8')

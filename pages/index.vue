@@ -83,8 +83,8 @@
                       research institutions, international sources, non-profits and
                       foundations, APIs and web services. Centre: geopen.io gathers,
                       verifies and standardises them — discover, verify, standardize,
-                      organize. Right: one place, downloadable as GeoJSON, Shapefile, KML
-                      and CSV. Open data, free to access and use; always sourced; built for
+                      organize. Right: one place, downloadable as GeoJSON, Shapefile,
+                      Excel, KML and CSV. Open data, free to access and use; always sourced; built for
                       planners, developers, researchers and citizens." />
           </picture>
         </figure>
@@ -103,7 +103,7 @@
         </div>
         <div>
           <h3 class="mono">Take it</h3>
-          <p>GeoJSON, Shapefile, CSV, KML. One click, no account, no rate limit. Everything we
+          <p>GeoJSON, Shapefile, Excel, CSV, KML. One click, no account, no rate limit. Everything we
              derive is released CC0 — no attribution required.</p>
         </div>
       </section>
