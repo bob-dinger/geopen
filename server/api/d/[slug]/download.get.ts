@@ -105,6 +105,43 @@ function explodeMultiPoint(feats: any[]): any[] {
 }
 
 /**
+ * Collapse each shapefile class to a single GeoJSON type.
+ *
+ * shp-write emits one file set per geometry TYPE and names it from
+ * options.types, keyed by shapefile class. Polygon and MultiPolygon are both
+ * class "polygon", so both file sets get the same name and the second silently
+ * overwrites the first inside the zip. The Texas aquifers layer — 124 Polygon
+ * plus 15 MultiPolygon — produced a shapefile containing 15 records, while the
+ * README dutifully reported 139.
+ *
+ * A shapefile polygon record already supports multiple parts, so promoting
+ * Polygon to MultiPolygon (and LineString to MultiLineString) loses nothing and
+ * leaves exactly one type per class.
+ */
+const SHP_CLASS: Record<string, 'point' | 'polyline' | 'polygon'> = {
+  Point: 'point',
+  LineString: 'polyline', MultiLineString: 'polyline',
+  Polygon: 'polygon', MultiPolygon: 'polygon',
+}
+
+function unifyGeometryTypes(feats: any[]): { features: any[]; classes: Set<string> } {
+  const classes = new Set<string>()
+  const features = feats.map((f) => {
+    const g = f.geometry
+    const cls = SHP_CLASS[g?.type]
+    if (cls) classes.add(cls)
+    if (g?.type === 'Polygon') {
+      return { ...f, geometry: { type: 'MultiPolygon', coordinates: [g.coordinates] } }
+    }
+    if (g?.type === 'LineString') {
+      return { ...f, geometry: { type: 'MultiLineString', coordinates: [g.coordinates] } }
+    }
+    return f
+  })
+  return { features, classes }
+}
+
+/**
  * Map property names onto what the DBF writer will actually accept.
  *
  * The DBF format permits 10-character field names; the `dbf` package this
@@ -268,13 +305,18 @@ export default defineEventHandler(async (event) => {
     const shpwrite = (await import('@mapbox/shp-write')) as any
     const JSZip = ((await import('jszip')) as any).default
 
-    const parts = explodeMultiPoint(feats)
+    const exploded = explodeMultiPoint(feats)
+    const { features: parts, classes } = unifyGeometryTypes(exploded)
     if (!parts.length) {
       throw createError({
         statusCode: 422,
         statusMessage: 'No shapefile-compatible geometry in this dataset',
       })
     }
+    // A shapefile holds one geometry class per file. When a layer has more than
+    // one, each class needs its own name or they overwrite inside the zip.
+    const many = classes.size > 1
+    const nameFor = (c: string) => (many ? `${base}-${c}` : base)
 
     // DBF caps text at 254 bytes and field names at 10 characters.
     const fieldMap = dbfFieldMap(parts)
@@ -295,10 +337,37 @@ export default defineEventHandler(async (event) => {
     // the only thing a shapefile can represent.
     const zipped = await shpwrite.zip(
       { type: 'FeatureCollection', features: shaped },
-      { outputType: 'nodebuffer', types: { point: base, polyline: base, polygon: base } },
+      {
+        outputType: 'nodebuffer',
+        types: {
+          point: nameFor('point'),
+          polyline: nameFor('line'),
+          polygon: nameFor('polygon'),
+        },
+      },
     )
 
     const zip = await JSZip.loadAsync(zipped)
+
+    // Count what was actually written, from the DBF headers, rather than
+    // reporting what we intended to write. Bytes 4-7 of a dBASE header are the
+    // record count, little-endian. This is the check that would have caught the
+    // aquifer layer shipping 15 records under a README claiming 139.
+    let written = 0
+    for (const path of Object.keys(zip.files)) {
+      if (!path.toLowerCase().endsWith('.dbf')) continue
+      const buf = await zip.files[path].async('nodebuffer')
+      if (buf.length >= 8) written += buf.readUInt32LE(4)
+    }
+    if (written !== parts.length) {
+      throw createError({
+        statusCode: 500,
+        statusMessage:
+          `Shapefile export dropped records (${written} written, ${parts.length} expected). ` +
+          'Refusing to serve an incomplete file — please report this dataset.',
+      })
+    }
+
     const renamed = [...fieldMap.entries()].filter(([a, b]) => a !== b)
     zip.file(
       'README.txt',
@@ -311,14 +380,18 @@ export default defineEventHandler(async (event) => {
         `retrieved: ${retrieved}`,
         '',
         `features in source:    ${feats.length}`,
-        `records in shapefile:  ${parts.length}`,
+        `records in shapefile:  ${written}`,
+        many
+          ? `\nThis dataset mixes geometry types, and a shapefile holds only one per\n` +
+            `file. It is split into ${classes.size} sets, one per type.`
+          : '',
         parts.length !== feats.length
-          ? 'Multipart geometry was split into single parts, so one source feature\n' +
-            'may appear as several records sharing identical attributes.'
+          ? '\nMultiPoint geometry was split into individual points, so one source\n' +
+            'feature may appear as several records sharing identical attributes.'
           : '',
         renamed.length
-          ? '\nField names were shortened to fit the 10-character DBF limit.\n' +
-            'See FIELDS.csv for the full mapping.'
+          ? '\nField names were shortened to fit the 8-character limit imposed by the\n' +
+            'DBF writer. See FIELDS.csv for the full mapping.'
           : '',
         '',
         'Coordinates are WGS84 (EPSG:4326).',
