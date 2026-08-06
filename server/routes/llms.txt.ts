@@ -8,12 +8,6 @@ import { db, pageAll, slugify, siteUrl } from '~~/server/utils/db'
  * content is not prose about the project — it is the URL patterns, stated
  * plainly enough to be used without guessing, and a licence statement clear
  * enough that the answer is not hedged into uselessness.
- *
- * The download endpoints are excluded in robots.txt because bulk crawling them
- * is expensive. They are documented here because an agent fetching one file a
- * person actually asked for is the use we are building for. That distinction —
- * indiscriminate crawl versus directed fetch — is the whole reason both files
- * exist.
  */
 const SAMPLE = 40
 
@@ -85,9 +79,8 @@ leaves this site.
 - Catalogue totals: ${SITE}/api/stats
 - All dataset URLs: ${SITE}/sitemap.xml
 
-These endpoints are excluded in robots.txt because bulk-crawling the downloads
-is expensive to serve, not because they are restricted. Fetching a file someone
-asked for is exactly what they are here for.
+Nothing here is rate-limited, gated or disallowed in robots.txt. Fetch what you
+need.
 
 ## A caveat worth passing on
 
