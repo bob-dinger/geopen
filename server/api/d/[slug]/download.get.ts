@@ -1,3 +1,4 @@
+import { Readable } from 'node:stream'
 import { db, pageAll, slugify, siteUrl, findLayerBySlug, parseGeometry } from '~~/server/utils/db'
 
 /**
@@ -226,53 +227,87 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'This dataset is not public' })
   }
 
-  const rows = await pageAll<any>((from, to) =>
-    sb.from('features').select('geometry,properties').eq('layer_uuid', layer.uuid).range(from, to),
-  )
-
   // `precision` is capped at 9 to stop a caller asking for a payload we then
   // have to build; 6 is the sensible default for anything from a CAD or survey.
   const rawDp = parseInt(String(getQuery(event).precision ?? 6))
   const dp = Number.isFinite(rawDp) ? Math.min(Math.max(rawDp, 0), 9) : 6
-
-  const feats = rows
-    .map((r) => ({ geom: parseGeometry(r.geometry), props: r.properties || {} }))
-    .filter((r) => r.geom)
-    .map((r) => ({
-      type: 'Feature',
-      geometry: thinGeometry(r.geom, dp),
-      properties: r.props,
-    }))
 
   const base = slugify(layer.title) || layer.uuid
   const cfg = useRuntimeConfig()
   const pageUrl = `${siteUrl()}/d/${base}`
   const retrieved = new Date().toISOString().slice(0, 10)
 
-  if (format === 'geojson') {
-    const body = {
-      type: 'FeatureCollection',
-      metadata: {
-        title: layer.title,
-        description: layer.description || null,
-        source: layer.source_url || null,
-        published_by: cfg.public.siteName,
-        page: pageUrl,
-        licence: licenceOf(layer),
-        feature_count: feats.length,
-        coordinate_precision: dp,
-        downloaded: retrieved,
-      },
-      features: feats,
+  /** One page of features at a time, converted and ready to emit. */
+  async function* featurePages(): AsyncGenerator<any[]> {
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb
+        .from('features')
+        .select('geometry,properties')
+        .eq('layer_uuid', layer.uuid)
+        .range(from, from + 999)
+      if (error) throw createError({ statusCode: 500, statusMessage: error.message })
+      if (!data?.length) return
+      const out: any[] = []
+      for (const r of data) {
+        const g = parseGeometry(r.geometry)
+        if (!g) continue
+        out.push({ type: 'Feature', geometry: thinGeometry(g, dp), properties: r.properties || {} })
+      }
+      yield out
+      if (data.length < 1000) return
     }
+  }
+
+  if (format === 'geojson') {
     setHeader(event, 'content-type', 'application/geo+json; charset=utf-8')
     setHeader(event, 'content-disposition', `attachment; filename="${base}.geojson"`)
-    // Serialise compactly and return a string. Returning the object lets Nitro
-    // pretty-print it, and on geometry-heavy layers the indentation is most of
-    // the file: the Texas aquifers came to 76.8MB formatted against 20.7MB
-    // compact — 73% whitespace. Nobody reads a downloaded GeoJSON by eye.
-    return JSON.stringify(body)
+
+    // Streamed, not buffered. Holding every row AND the serialised string at
+    // once is what pushed the dyno past its 512MB quota and killed the site:
+    // the Texas ZIP layer alone is 67MB of GeoJSON. Emitting page by page keeps
+    // peak memory at roughly one page regardless of layer size.
+    //
+    // metadata has to be written before the features, so the count comes from
+    // the layer row rather than from tallying as we go. That column is
+    // trigger-maintained and was audited across the whole catalogue on
+    // 2026-08-06, so it is trustworthy — but it is the layer's count, not a
+    // tally of what this response emitted, and features with unusable geometry
+    // are skipped. Named accordingly rather than implying an exact tally.
+    const meta = {
+      title: layer.title,
+      description: layer.description || null,
+      source: layer.source_url || null,
+      published_by: cfg.public.siteName,
+      page: pageUrl,
+      licence: licenceOf(layer),
+      features_in_layer: layer.feature_count ?? null,
+      coordinate_precision: dp,
+      downloaded: retrieved,
+    }
+
+    async function* body() {
+      // Compact serialisation throughout: on the aquifer layer, pretty-printing
+      // was 73% of the bytes (76.8MB against 20.7MB).
+      yield `{"type":"FeatureCollection","metadata":${JSON.stringify(meta)},"features":[`
+      let first = true
+      for await (const page of featurePages()) {
+        let chunk = ''
+        for (const f of page) {
+          chunk += (first ? '' : ',') + JSON.stringify(f)
+          first = false
+        }
+        if (chunk) yield chunk
+      }
+      yield ']}'
+    }
+
+    return sendStream(event, Readable.from(body()))
   }
+
+  // The remaining formats build a single in-memory artefact (a zip, a workbook,
+  // a joined string), so they still need the whole set.
+  const feats: any[] = []
+  for await (const page of featurePages()) feats.push(...page)
 
   if (format === 'csv') {
     const keys = [...new Set(feats.flatMap((f) => Object.keys(f.properties)))].filter(
