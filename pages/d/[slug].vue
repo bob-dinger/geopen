@@ -87,6 +87,15 @@ const { data } = await useFetch<any>(() => `/api/d/${route.params.slug}`, {
   default: () => null as any,
 })
 const d = computed(() => data.value?.dataset || null)
+
+// A missing dataset must answer 404, not 200. useFetch swallows the API's 404
+// into a null body, so without this the "Not found" page is served as a valid
+// document — and a crawler working through sitemap.xml would index thousands of
+// them as real content.
+if (import.meta.server && !d.value) {
+  const event = useRequestEvent()
+  if (event) setResponseStatus(event, 404)
+}
 const fields = computed(() => data.value?.fields || [])
 const sourceHost = computed(() => {
   try { return new URL(d.value.source_url).hostname.replace('www.', '') } catch { return d.value?.source_url }

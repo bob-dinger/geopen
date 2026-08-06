@@ -1,4 +1,4 @@
-import { db, pageAll, slugify, siteUrl } from '~~/server/utils/db'
+import { db, pageAll, slugify, siteUrl, findLayerBySlug } from '~~/server/utils/db'
 
 /**
  * GET /api/d/:slug/download?format=geojson|csv|kml
@@ -107,22 +107,8 @@ export default defineEventHandler(async (event) => {
 
   const sb = db()
 
-  // Slugs are derived from titles rather than stored, so resolve by uuid first
-  // and fall back to matching a slugified title.
-  const isUuid = /^[0-9a-f-]{36}$/i.test(slug)
-  let layer: any = null
-  if (isUuid) {
-    const { data } = await sb.from('layers').select('*').eq('uuid', slug).maybeSingle()
-    layer = data
-  }
-  if (!layer) {
-    const { data } = await sb
-      .from('layers')
-      .select('*')
-      .eq('visibility', 'public')
-      .limit(2000)
-    layer = (data || []).find((l: any) => slugify(l.title) === slug) || null
-  }
+  // Slugs are derived from titles rather than stored — see findLayerBySlug.
+  const layer = await findLayerBySlug(sb, slug)
   if (!layer) throw createError({ statusCode: 404, statusMessage: 'Dataset not found' })
   if (layer.visibility !== 'public') {
     throw createError({ statusCode: 403, statusMessage: 'This dataset is not public' })

@@ -1,4 +1,4 @@
-import { db, pageAll, slugify } from '~~/server/utils/db'
+import { db, pageAll, findLayerBySlug } from '~~/server/utils/db'
 
 /**
  * GET /api/d/:slug
@@ -13,20 +13,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug') || ''
   const sb = db()
 
-  const isUuid = /^[0-9a-f-]{36}$/i.test(slug)
-  let layer: any = null
-  if (isUuid) {
-    const { data } = await sb.from('layers').select('*').eq('uuid', slug).maybeSingle()
-    layer = data
-  }
-  if (!layer) {
-    const { data } = await sb
-      .from('layers')
-      .select('*')
-      .eq('visibility', 'public')
-      .limit(2000)
-    layer = (data || []).find((l: any) => slugify(l.title) === slug) || null
-  }
+  const layer = await findLayerBySlug(sb, slug)
   if (!layer || layer.visibility !== 'public') {
     throw createError({ statusCode: 404, statusMessage: 'Dataset not found' })
   }

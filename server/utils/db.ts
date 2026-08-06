@@ -60,6 +60,52 @@ export function slugify(s: string): string {
 }
 
 /**
+ * Resolve a URL slug to a layer row.
+ *
+ * There is no slug column, so a slug can only be matched by slugifying titles
+ * and comparing. The obvious way to do that — pull the catalogue and scan it —
+ * used to run `.limit(2000)` with no ORDER BY against 4,672 public layers.
+ * Postgres is free to return any 2,000 of them, so the majority of datasets
+ * were unreachable, and *which* ones varied between requests. That is invisible
+ * in testing, because whatever you check by hand tends to be recent.
+ *
+ * Instead, narrow in the database. Slugification is lossy but order-preserving:
+ * every word of the title survives, in sequence, so the title must match those
+ * words joined by wildcards. That turns a 2,000-row scan into a targeted query.
+ *
+ * The paged fallback exists because slugify() applies NFKD normalisation —
+ * "Café" becomes "cafe" in the slug, which no longer ILIKEs the accented title.
+ * Rare, but silent, so it gets a real fallback rather than a 404.
+ */
+export async function findLayerBySlug(sb: SupabaseClient, slug: string): Promise<any | null> {
+  if (/^[0-9a-f-]{36}$/i.test(slug)) {
+    const { data } = await sb.from('layers').select('*').eq('uuid', slug).maybeSingle()
+    if (data) return data
+  }
+
+  const words = slug.split('-').filter(Boolean)
+  if (!words.length) return null
+
+  // slugify() emits only [a-z0-9-], so no ILIKE wildcard can be injected here.
+  const { data: near } = await sb
+    .from('layers')
+    .select('*')
+    .eq('visibility', 'public')
+    .ilike('title', `%${words.join('%')}%`)
+    .limit(200)
+  const hit = (near || []).find((l: any) => slugify(l.title) === slug)
+  if (hit) return hit
+
+  // Last resort: page the whole catalogue for titles only, then fetch the one row.
+  const all = await pageAll<any>((from, to) =>
+    sb.from('layers').select('uuid,title').eq('visibility', 'public').range(from, to))
+  const match = all.find((l: any) => slugify(l.title) === slug)
+  if (!match) return null
+  const { data } = await sb.from('layers').select('*').eq('uuid', match.uuid).maybeSingle()
+  return data || null
+}
+
+/**
  * Normalise the public site URL.
  *
  * Config vars get pasted by hand, and a trailing space or slash silently
