@@ -112,6 +112,18 @@ export async function findLayerBySlug(sb: SupabaseClient, slug: string): Promise
   const words = slug.split('-').filter(Boolean)
   if (!words.length) return null
 
+  // Two layers can carry byte-identical titles, so a slug is not guaranteed
+  // unique. When that happens, prefer the one that actually has features: an
+  // abandoned empty duplicate otherwise shadows the real dataset at its own
+  // address, and the page renders as an empty map with a working download link
+  // that returns nothing. Exactly that hid a rebuilt 1,508-feature Zillow layer
+  // behind a zero-feature namesake.
+  const best = (rows: any[]) => {
+    const hits = rows.filter((l: any) => slugify(l.title) === slug)
+    if (!hits.length) return null
+    return hits.sort((a, b) => (b.feature_count || 0) - (a.feature_count || 0))[0]
+  }
+
   // slugify() emits only [a-z0-9-], so no ILIKE wildcard can be injected here.
   const { data: near } = await sb
     .from('layers')
@@ -119,13 +131,13 @@ export async function findLayerBySlug(sb: SupabaseClient, slug: string): Promise
     .eq('visibility', 'public')
     .ilike('title', `%${words.join('%')}%`)
     .limit(200)
-  const hit = (near || []).find((l: any) => slugify(l.title) === slug)
+  const hit = best(near || [])
   if (hit) return hit
 
   // Last resort: page the whole catalogue for titles only, then fetch the one row.
   const all = await pageAll<any>((from, to) =>
-    sb.from('layers').select('uuid,title').eq('visibility', 'public').range(from, to))
-  const match = all.find((l: any) => slugify(l.title) === slug)
+    sb.from('layers').select('uuid,title,feature_count').eq('visibility', 'public').range(from, to))
+  const match = best(all)
   if (!match) return null
   const { data } = await sb.from('layers').select('*').eq('uuid', match.uuid).maybeSingle()
   return data || null
