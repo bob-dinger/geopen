@@ -10,7 +10,9 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@mapbox/shp-write": "^0.4.3",
     "@supabase/supabase-js": "^2.45.0",
+    "jszip": "^3.10.1",
     "maplibre-gl": "^5.22.0",
     "nuxt": "^3.17.6",
     "pmtiles": "^4.3.0",

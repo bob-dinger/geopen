@@ -45,6 +45,32 @@ export async function pageAll<T = any>(
   return out
 }
 
+/**
+ * Coerce a stored geometry into a real GeoJSON object.
+ *
+ * Some layers hold geometry as a JSONB *string* rather than an object — the
+ * result of `json.dumps()` being passed to a client that serialises the payload
+ * itself, so the value gets encoded twice. MapLibre silently drops those
+ * features, and until this existed the download endpoints emitted them verbatim:
+ * `"geometry": "{\"type\": \"Point\", ...}"`, which is a 200-OK file, valid
+ * JSON, and invalid GeoJSON that no GIS tool will read.
+ *
+ * Returns null for anything that cannot be made into a geometry, so callers can
+ * filter rather than emit something broken.
+ */
+export function parseGeometry(g: any): any | null {
+  if (!g) return null
+  if (typeof g === 'string') {
+    try {
+      const p = JSON.parse(g)
+      return p && typeof p === 'object' && p.type ? p : null
+    } catch {
+      return null
+    }
+  }
+  return typeof g === 'object' && g.type ? g : null
+}
+
 /** "Dallas County — Government-Owned Parcels" -> "dallas-county-government-owned-parcels" */
 export function slugify(s: string): string {
   return (s || '')

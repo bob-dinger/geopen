@@ -46,22 +46,39 @@ export default defineCachedEventHandler(
       headCount('civic_documents'),
     ])
 
-    // The one that has to page. Selecting a single small column keeps the
-    // payload to a few hundred KB rather than several MB.
+    // The one that has to page. Selecting two small columns keeps the payload
+    // to a few hundred KB rather than several MB.
     let features = 0
+    const hosts = new Set<string>()
     for (let from = 0; ; from += 1000) {
       const { data, error } = await sb
         .from('layers')
-        .select('feature_count')
+        .select('feature_count,source_url')
         .eq('visibility', 'public')
         .gt('feature_count', 0)
         .range(from, from + 999)
       if (error || !data?.length) break
-      for (const l of data) features += l.feature_count || 0
+      for (const l of data) {
+        features += l.feature_count || 0
+        // Distinct publishing hostnames — the "scattered across N sites" claim
+        // on the front page. Computed rather than hardcoded so it cannot drift
+        // away from the catalogue it describes.
+        const u = String(l.source_url || '').trim()
+        if (u) {
+          try {
+            const h = new URL(u).hostname.replace(/^www\./, '')
+            if (h) hosts.add(h)
+          } catch { /* unparseable source_url — not a host */ }
+        }
+      }
       if (data.length < 1000) break
     }
 
-    return { layers: layerCount, features, tilesets, documents, computed: new Date().toISOString() }
+    return {
+      layers: layerCount, features, tilesets, documents,
+      sources: hosts.size,
+      computed: new Date().toISOString(),
+    }
   },
   {
     maxAge: TTL_SECONDS,

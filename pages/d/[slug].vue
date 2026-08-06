@@ -45,6 +45,7 @@
             <p class="lbl mono">Download</p>
             <a class="btn" :href="`/api/d/${d.slug}/download?format=geojson`">GeoJSON</a>
             <div class="alt">
+              <a :href="`/api/d/${d.slug}/download?format=shapefile`">Shapefile</a>
               <a :href="`/api/d/${d.slug}/download?format=csv`">CSV</a>
               <a :href="`/api/d/${d.slug}/download?format=kml`">KML</a>
             </div>
@@ -143,6 +144,8 @@ useHead(() => {
         distribution: [
           { '@type': 'DataDownload', encodingFormat: 'application/geo+json',
             contentUrl: `${url.replace('/d/', '/api/d/')}/download?format=geojson` },
+          { '@type': 'DataDownload', encodingFormat: 'application/zip',
+            contentUrl: `${url.replace('/d/', '/api/d/')}/download?format=shapefile` },
           { '@type': 'DataDownload', encodingFormat: 'text/csv',
             contentUrl: `${url.replace('/d/', '/api/d/')}/download?format=csv` },
         ],

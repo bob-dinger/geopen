@@ -62,6 +62,7 @@ Every dataset has a page and three download formats. Substitute the slug:
 
 - Page (HTML, with schema.org Dataset JSON-LD): ${SITE}/d/<slug>
 - GeoJSON: ${SITE}/api/d/<slug>/download?format=geojson
+- Shapefile (.zip with .shp/.shx/.dbf/.prj): ${SITE}/api/d/<slug>/download?format=shapefile
 - CSV (geometry reduced to a centroid): ${SITE}/api/d/<slug>/download?format=csv
 - KML: ${SITE}/api/d/<slug>/download?format=kml
 

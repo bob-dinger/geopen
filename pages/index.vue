@@ -58,6 +58,38 @@
         </div>
       </section>
 
+      <section class="pitch">
+        <h2>The data is already public. That's not the same as <em>available</em>.</h2>
+        <p>
+          Texas governments publish an enormous amount of geographic information. They
+          publish it on their own terms, in their own formats, at their own URLs, with no
+          index and no obligation to keep it there. Finding it is a research project.
+          Using it is a second one.
+        </p>
+        <p v-if="stats?.sources">
+          The {{ stats.layers.toLocaleString() }} datasets here were gathered from
+          <strong>{{ stats.sources }}</strong> separate publishers — county appraisal
+          districts, city GIS portals, state agencies, federal surveys — and rebuilt into
+          one shape, with the source kept attached to every one.
+        </p>
+
+        <figure class="shot">
+          <picture>
+            <source srcset="/img/geopen-overview.webp" type="image/webp" />
+            <img src="/img/geopen-overview.png" width="1536" height="1024" loading="lazy"
+                 decoding="async"
+                 alt="How geopen.io works. Left: thousands of sources — city and county
+                      government, open data portals, public databases, cloud storage,
+                      research institutions, international sources, non-profits and
+                      foundations, APIs and web services. Centre: geopen.io gathers,
+                      verifies and standardises them — discover, verify, standardize,
+                      organize. Right: one place, downloadable as GeoJSON, Shapefile, KML
+                      and CSV. Open data, free to access and use; always sourced; built for
+                      planners, developers, researchers and citizens." />
+          </picture>
+        </figure>
+      </section>
+
       <section class="promise">
         <div>
           <h3 class="mono">Preview</h3>
@@ -71,8 +103,8 @@
         </div>
         <div>
           <h3 class="mono">Take it</h3>
-          <p>GeoJSON, CSV, KML. One click, no account, no rate limit. Everything we derive is
-             released CC0 — no attribution required.</p>
+          <p>GeoJSON, Shapefile, CSV, KML. One click, no account, no rate limit. Everything we
+             derive is released CC0 — no attribution required.</p>
         </div>
       </section>
     </main>
@@ -195,6 +227,24 @@ h1 em { font-style: normal; color: var(--accent); }
 .more { display: flex; justify-content: center; margin-top: 26px; }
 .more button { font-size: 12.5px; padding: 10px 22px; cursor: pointer; background: var(--panel);
   color: var(--ink-2); border: 1px solid var(--rule); border-radius: 3px; }
+
+/* The argument, then the picture of it. Sits after the catalogue rather than
+   above it — someone who arrived to find a file should meet the search box
+   first, and the pitch is for whoever scrolled past it. */
+.pitch { max-width: 760px; margin-bottom: 46px; display: grid; gap: 14px; }
+.pitch h2 { font-family: var(--mono); font-size: clamp(21px, 2.9vw, 29px); font-weight: 600;
+  line-height: 1.16; letter-spacing: -.03em; text-wrap: balance; max-width: 21ch; }
+.pitch h2 em { font-style: normal; color: var(--accent); }
+.pitch p { font-size: 16.5px; color: var(--ink-2); }
+.pitch p strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.shot { margin-top: 14px; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+  background: #F7F8F4; }
+.shot img { display: block; width: 100%; height: auto; }
+/* The graphic is drawn on a light ground; on a dark page a hard white block is
+   harsh, so take a little brightness out rather than inverting it. */
+@media (prefers-color-scheme: dark) { .shot img { filter: brightness(.9); } }
+:root[data-theme="dark"] .shot img { filter: brightness(.9); }
+:root[data-theme="light"] .shot img { filter: none; }
 
 .promise { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule);
   border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin-bottom: 60px; }

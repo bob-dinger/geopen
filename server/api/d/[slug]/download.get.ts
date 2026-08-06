@@ -1,4 +1,4 @@
-import { db, pageAll, slugify, siteUrl, findLayerBySlug } from '~~/server/utils/db'
+import { db, pageAll, slugify, siteUrl, findLayerBySlug, parseGeometry } from '~~/server/utils/db'
 
 /**
  * GET /api/d/:slug/download?format=geojson|csv|kml
@@ -69,6 +69,76 @@ function centroid(geom: any): [number, number] | null {
   return [pts.reduce((a, p) => a + p[0], 0) / n, pts.reduce((a, p) => a + p[1], 0) / n]
 }
 
+/**
+ * Split MultiPoint into individual points.
+ *
+ * A note on why this is so narrow. The original `shp-write` (0.3.2) is broken
+ * for polygons in a way that produces a valid-looking file: three separate
+ * squares came back as ONE record with three parts, with the .shx offsets wrong
+ * so records 1+ were unreadable. The aquifer layer wrote 209 DBF rows against a
+ * single geometry. Nothing errored.
+ *
+ * `@mapbox/shp-write` (0.4.3) writes polygons and polylines correctly, and
+ * handles MultiPolygon and MultiLineString natively — which is better than
+ * exploding them, because multipart geometry stays one feature and attributes
+ * are not duplicated. MultiPoint is the one case it still drops, so it is the
+ * only one split here.
+ *
+ * GeometryCollection has no shapefile equivalent and is dropped.
+ */
+function explodeMultiPoint(feats: any[]): any[] {
+  const out: any[] = []
+  for (const f of feats) {
+    const g = f.geometry
+    if (!g?.type) continue
+    if (g.type === 'MultiPoint') {
+      for (const coords of g.coordinates || []) {
+        out.push({ ...f, geometry: { type: 'Point', coordinates: coords } })
+      }
+    } else if (g.type === 'GeometryCollection') {
+      continue
+    } else {
+      out.push(f)
+    }
+  }
+  return out
+}
+
+/**
+ * Map property names onto what the DBF writer will actually accept.
+ *
+ * The DBF format permits 10-character field names; the `dbf` package this
+ * depends on truncates to 8 (src/structure.js). Deduplicating at 10 and letting
+ * it cut to 8 silently recreates the collisions — a Richardson layer came back
+ * with DISTRICT twice, and the second column overwrote the first, so the
+ * district value was replaced by a URL. Truncate at the limit that is really
+ * enforced, not the documented one.
+ *
+ * Collisions resolve deterministically so a dataset always produces the same
+ * field names, and the full mapping ships as FIELDS.csv.
+ */
+const DBF_NAME_LIMIT = 8
+
+function dbfFieldMap(feats: any[]): Map<string, string> {
+  const keys = [...new Set(feats.flatMap((f) => Object.keys(f.properties || {})))]
+    .filter((k) => k !== 'uuid')
+  const map = new Map<string, string>()
+  const used = new Set<string>()
+  for (const k of keys) {
+    let n = k.replace(/[^A-Za-z0-9_]/g, '_').slice(0, DBF_NAME_LIMIT).replace(/^_+/, '') || 'FIELD'
+    if (used.has(n)) {
+      // Leave room for the numeric suffix inside the same 8-character budget.
+      const stem = n.slice(0, DBF_NAME_LIMIT - 2)
+      let i = 1
+      while (used.has(`${stem}_${i}`)) i++
+      n = `${stem}_${i}`
+    }
+    used.add(n)
+    map.set(k, n)
+  }
+  return map
+}
+
 function toKml(name: string, feats: any[]): string {
   const esc = (s: any) =>
     String(s ?? '').replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string))
@@ -100,8 +170,10 @@ ${feats.map(placemark).filter(Boolean).join('\n')}
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug') || ''
-  const format = String(getQuery(event).format || 'geojson').toLowerCase()
-  if (!['geojson', 'csv', 'kml'].includes(format)) {
+  const raw = String(getQuery(event).format || 'geojson').toLowerCase()
+  // 'shp' and 'zip' are what people actually type for a shapefile.
+  const format = raw === 'shp' || raw === 'zip' ? 'shapefile' : raw
+  if (!['geojson', 'csv', 'kml', 'shapefile'].includes(format)) {
     throw createError({ statusCode: 400, statusMessage: `Unsupported format: ${format}` })
   }
 
@@ -124,11 +196,12 @@ export default defineEventHandler(async (event) => {
   const dp = Number.isFinite(rawDp) ? Math.min(Math.max(rawDp, 0), 9) : 6
 
   const feats = rows
-    .filter((r) => r.geometry)
+    .map((r) => ({ geom: parseGeometry(r.geometry), props: r.properties || {} }))
+    .filter((r) => r.geom)
     .map((r) => ({
       type: 'Feature',
-      geometry: thinGeometry(r.geometry, dp),
-      properties: r.properties || {},
+      geometry: thinGeometry(r.geom, dp),
+      properties: r.props,
     }))
 
   const base = slugify(layer.title) || layer.uuid
@@ -186,6 +259,80 @@ export default defineEventHandler(async (event) => {
       `# licence: ${licenceOf(layer)}  downloaded: ${retrieved}  via: ${pageUrl}\n` +
       lines.join('\n')
     )
+  }
+
+  if (format === 'shapefile') {
+    const shpwrite = (await import('@mapbox/shp-write')) as any
+    const JSZip = ((await import('jszip')) as any).default
+
+    const parts = explodeMultiPoint(feats)
+    if (!parts.length) {
+      throw createError({
+        statusCode: 422,
+        statusMessage: 'No shapefile-compatible geometry in this dataset',
+      })
+    }
+
+    // DBF caps text at 254 bytes and field names at 10 characters.
+    const fieldMap = dbfFieldMap(parts)
+    const shaped = parts.map((f) => {
+      const props: Record<string, any> = {}
+      for (const [orig, short] of fieldMap) {
+        const v = f.properties?.[orig]
+        props[short] = typeof v === 'string' ? v.slice(0, 254)
+          : v === null || v === undefined ? ''
+          : typeof v === 'object' ? JSON.stringify(v).slice(0, 254)
+          : v
+      }
+      return { type: 'Feature', geometry: f.geometry, properties: props }
+    })
+
+    // options.types is dereferenced unconditionally, so every key must exist.
+    // A dataset with mixed geometry produces one file set per type, which is
+    // the only thing a shapefile can represent.
+    const zipped = await shpwrite.zip(
+      { type: 'FeatureCollection', features: shaped },
+      { outputType: 'nodebuffer', types: { point: base, polyline: base, polygon: base } },
+    )
+
+    const zip = await JSZip.loadAsync(zipped)
+    const renamed = [...fieldMap.entries()].filter(([a, b]) => a !== b)
+    zip.file(
+      'README.txt',
+      [
+        layer.title,
+        '',
+        `source:    ${layer.source_url || 'see ' + pageUrl}`,
+        `licence:   ${licenceOf(layer)}`,
+        `page:      ${pageUrl}`,
+        `retrieved: ${retrieved}`,
+        '',
+        `features in source:    ${feats.length}`,
+        `records in shapefile:  ${parts.length}`,
+        parts.length !== feats.length
+          ? 'Multipart geometry was split into single parts, so one source feature\n' +
+            'may appear as several records sharing identical attributes.'
+          : '',
+        renamed.length
+          ? '\nField names were shortened to fit the 10-character DBF limit.\n' +
+            'See FIELDS.csv for the full mapping.'
+          : '',
+        '',
+        'Coordinates are WGS84 (EPSG:4326).',
+      ].filter(Boolean).join('\n'),
+    )
+    if (renamed.length) {
+      zip.file(
+        'FIELDS.csv',
+        'shapefile_field,original_field\n' +
+          renamed.map(([a, b]) => `${csvEscape(b)},${csvEscape(a)}`).join('\n'),
+      )
+    }
+
+    const out = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' })
+    setHeader(event, 'content-type', 'application/zip')
+    setHeader(event, 'content-disposition', `attachment; filename="${base}-shapefile.zip"`)
+    return out
   }
 
   setHeader(event, 'content-type', 'application/vnd.google-earth.kml+xml; charset=utf-8')
