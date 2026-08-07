@@ -38,7 +38,7 @@
 
         <div class="grid">
           <NuxtLink v-for="d in datasets" :key="d.slug" class="card" :to="`/d/${d.slug}`">
-            <div class="shot" v-if="d.thumb">
+            <div class="thumb" v-if="d.thumb">
               <img :src="d.thumb" :alt="`Map preview of ${d.title}`" loading="lazy"
                    decoding="async" width="560" height="320" @error="hideShot" />
             </div>
@@ -160,7 +160,7 @@ async function loadMore() {
 
 // A dead Cloudinary URL should collapse the frame, not leave a grey hole.
 function hideShot(e: Event) {
-  const box = (e.target as HTMLElement)?.closest('.shot') as HTMLElement | null
+  const box = (e.target as HTMLElement)?.closest('.thumb') as HTMLElement | null
   if (box) box.style.display = 'none'
 }
 
@@ -233,12 +233,14 @@ h1 em { font-style: normal; color: var(--accent); }
   transition: border-color .15s; }
 .card:hover { border-color: var(--accent); }
 .card .body { padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-/* Fixed aspect box so a missing or slow image never reflows the grid. */
-.shot { aspect-ratio: 16 / 9; background: var(--rule-2); border-bottom: 1px solid var(--rule); }
-.shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-@media (prefers-color-scheme: dark) { .shot img { filter: brightness(.86); } }
-:root[data-theme="dark"] .shot img { filter: brightness(.86); }
-:root[data-theme="light"] .shot img { filter: none; }
+/* Fixed aspect box so a missing or slow image never reflows the grid.
+   Named .thumb, not .shot: the pitch section's overview graphic already uses
+   .shot, and sharing the name cropped that image to 16:9 via object-fit. */
+.thumb { aspect-ratio: 16 / 9; background: var(--rule-2); border-bottom: 1px solid var(--rule); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (prefers-color-scheme: dark) { .thumb img { filter: brightness(.86); } }
+:root[data-theme="dark"] .thumb img { filter: brightness(.86); }
+:root[data-theme="light"] .thumb img { filter: none; }
 .card h3 { font-size: 15.5px; font-weight: 600; line-height: 1.32; letter-spacing: -.01em; }
 .card p { font-size: 13px; color: var(--ink-2); line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
