@@ -38,11 +38,20 @@
 
         <div class="grid">
           <NuxtLink v-for="d in datasets" :key="d.slug" class="card" :to="`/d/${d.slug}`">
-            <h3>{{ d.title }}</h3>
-            <p v-if="d.description">{{ d.description }}</p>
-            <div class="meta mono nums">
-              <span>{{ (d.feature_count || 0).toLocaleString() }} features</span>
-              <span v-if="d.tags?.length" class="tag">{{ d.tags[0] }}</span>
+            <div class="shot" v-if="d.thumb">
+              <img :src="d.thumb" :alt="`Map preview of ${d.title}`" loading="lazy"
+                   decoding="async" width="560" height="320" @error="hideShot" />
+            </div>
+            <div class="body">
+              <h3>{{ d.title }}</h3>
+              <p v-if="d.description">{{ d.description }}</p>
+              <p class="src mono" v-if="d.source_host">
+                <span class="lbl">source</span>{{ d.source_host }}
+              </p>
+              <div class="meta mono nums">
+                <span>{{ (d.feature_count || 0).toLocaleString() }} features</span>
+                <span v-if="d.tags?.length" class="tag">{{ d.tags[0] }}</span>
+              </div>
             </div>
           </NuxtLink>
         </div>
@@ -149,6 +158,12 @@ async function loadMore() {
   } finally { pending.value = false }
 }
 
+// A dead Cloudinary URL should collapse the frame, not leave a grey hole.
+function hideShot(e: Event) {
+  const box = (e.target as HTMLElement)?.closest('.shot') as HTMLElement | null
+  if (box) box.style.display = 'none'
+}
+
 const millions = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : n.toLocaleString())
 
 const cfg = useRuntimeConfig()
@@ -214,12 +229,25 @@ h1 em { font-style: normal; color: var(--accent); }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 13px; }
 .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
-  padding: 15px 17px 13px; text-decoration: none; display: flex; flex-direction: column; gap: 8px;
+  text-decoration: none; display: flex; flex-direction: column; overflow: hidden;
   transition: border-color .15s; }
 .card:hover { border-color: var(--accent); }
+.card .body { padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+/* Fixed aspect box so a missing or slow image never reflows the grid. */
+.shot { aspect-ratio: 16 / 9; background: var(--rule-2); border-bottom: 1px solid var(--rule); }
+.shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (prefers-color-scheme: dark) { .shot img { filter: brightness(.86); } }
+:root[data-theme="dark"] .shot img { filter: brightness(.86); }
+:root[data-theme="light"] .shot img { filter: none; }
 .card h3 { font-size: 15.5px; font-weight: 600; line-height: 1.32; letter-spacing: -.01em; }
 .card p { font-size: 13px; color: var(--ink-2); line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* The publisher, stated plainly. Knowing a parcel file came from dallascad.org
+   rather than an unnamed aggregator is most of what makes it trustworthy. */
+.card p.src { font-size: 11.5px; color: var(--ink-3); display: flex; gap: 7px;
+  align-items: baseline; -webkit-line-clamp: 1; }
+.card p.src .lbl { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-4, var(--ink-3)); flex: none; }
 .meta { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--rule-2);
   display: flex; gap: 10px; font-size: 11px; color: var(--ink-3); }
 .tag { margin-left: auto; }
