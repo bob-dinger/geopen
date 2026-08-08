@@ -4,13 +4,16 @@
 
     <main class="wrap">
       <section class="hero">
-        <h1>The open library of <em>geographic files</em>.</h1>
-        <p class="lede">
-          Points, lines and polygons for the things governments record and rarely publish
-          well — land ownership, zoning, construction, water. Every dataset previews in the
-          browser, says where it came from, and downloads in one click. No account.
-          Coverage is deepest in Texas.
-        </p>
+        <h1>The open library<br /><em>of geographic files</em></h1>
+
+        <ul class="facts mono">
+          <li v-if="stats?.sources">
+            <strong class="nums">{{ stats.sources }}+</strong> sources, mostly Texas
+          </li>
+          <li>CC0 — public domain, no attribution required</li>
+          <li>Downloadable, no account required</li>
+          <li>GeoJSON · Shapefile · Excel · CSV · KML</li>
+        </ul>
 
         <form class="search" @submit.prevent="run">
           <input v-model="q" type="search" aria-label="Search datasets"
@@ -196,11 +199,22 @@ useHead({
 </script>
 
 <style scoped>
-.hero { padding: 64px 0 40px; display: grid; gap: 20px; }
+/* Tighter than before: the headline is a two-line lockup and the facts replace
+   a paragraph, so the whole block earns its space instead of filling it. */
+.hero { padding: 52px 0 30px; display: grid; gap: 18px; }
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
-     line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; max-width: 17ch; }
+     line-height: 1.06; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
-.lede { font-size: 17.5px; color: var(--ink-2); max-width: 62ch; }
+
+/* Four claims, not four sentences. Reads as a spec sheet, which is what someone
+   scanning for "can I actually take this file" wants. */
+.facts { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12.5px;
+  color: var(--ink-2); list-style: none; }
+.facts li { display: flex; align-items: baseline; gap: 7px; }
+.facts li::before { content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); flex: none; transform: translateY(-1px); }
+.facts strong { color: var(--ink); font-weight: 600; }
+@media (max-width: 560px) { .facts { gap: 5px 14px; font-size: 12px; } }
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
