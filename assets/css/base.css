@@ -34,8 +34,8 @@
   --panel: #FFFFFF;
   --rule: #CFD6CE;
   --rule-2: #E4E9E2;
-  --accent: #0E7C5A;
-  --accent-w: #E3F0EA;
+  --accent: #074223;
+  --accent-w: #E9F1ED;
   --signal: #B4531B;
 
   --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -47,18 +47,18 @@
   :root {
     --ink: #E8EDE9; --ink-2: #A9B5B0; --ink-3: #77837E; --ink-4: #5A6661;
     --ground: #0D1413; --panel: #141D1B; --rule: #29342F; --rule-2: #1E2825;
-    --accent: #3DBE8B; --accent-w: #14261F; --signal: #E2803F;
+    --accent: #4ABF82; --accent-w: #172B21; --signal: #E2803F;
   }
 }
 :root[data-theme='dark'] {
   --ink: #E8EDE9; --ink-2: #A9B5B0; --ink-3: #77837E; --ink-4: #5A6661;
   --ground: #0D1413; --panel: #141D1B; --rule: #29342F; --rule-2: #1E2825;
-  --accent: #3DBE8B; --accent-w: #14261F; --signal: #E2803F;
+  --accent: #4ABF82; --accent-w: #172B21; --signal: #E2803F;
 }
 :root[data-theme='light'] {
   --ink: #131C1A; --ink-2: #3D4A46; --ink-3: #6B7873; --ink-4: #9AA5A0;
   --ground: #F3F5F1; --panel: #FFFFFF; --rule: #CFD6CE; --rule-2: #E4E9E2;
-  --accent: #0E7C5A; --accent-w: #E3F0EA; --signal: #B4531B;
+  --accent: #074223; --accent-w: #E9F1ED; --signal: #B4531B;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

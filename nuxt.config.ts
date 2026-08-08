@@ -37,7 +37,11 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       ],
-      link: [{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
+      link: [
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'icon', href: '/img/geopen-logo-64.png', type: 'image/png', sizes: '64x64' },
+        { rel: 'apple-touch-icon', href: '/img/geopen-logo.png' },
+      ],
     },
   },
 

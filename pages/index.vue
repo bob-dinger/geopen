@@ -4,16 +4,26 @@
 
     <main class="wrap">
       <section class="hero">
-        <h1>The open library<br /><em>of geographic files</em></h1>
+        <div class="hero-copy">
+          <h1>The open library<br /><em>of geographic files</em></h1>
 
-        <ul class="facts mono">
-          <li v-if="stats?.sources">
-            <strong class="nums">{{ stats.sources }}+</strong> sources, mostly Texas
-          </li>
-          <li>CC0 — public domain, no attribution required</li>
-          <li>Downloadable, no account required</li>
-          <li>GeoJSON · Shapefile · Excel · CSV · KML</li>
-        </ul>
+          <ul class="facts mono">
+            <li v-if="stats?.sources">
+              <strong class="nums">{{ stats.sources }}+</strong> sources, mostly Texas
+            </li>
+            <li>CC0 — public domain, no attribution required</li>
+            <li>Downloadable, no account required</li>
+            <li>GeoJSON · Shapefile · Excel · CSV · KML</li>
+          </ul>
+        </div>
+
+        <!-- Decorative: the facts beside it carry the meaning, so it is hidden
+             from screen readers rather than described. -->
+        <picture class="hero-art" aria-hidden="true">
+          <source srcset="/img/geopen-hero.webp" type="image/webp" />
+          <img src="/img/geopen-hero.png" alt="" width="900" height="691"
+               decoding="async" fetchpriority="low" />
+        </picture>
 
         <form class="search" @submit.prevent="run">
           <input v-model="q" type="search" aria-label="Search datasets"
@@ -200,8 +210,27 @@ useHead({
 
 <style scoped>
 /* Pulled up off the header, with the two headline lines given room to breathe
-   between them rather than above them. */
-.hero { padding: 30px 0 30px; display: grid; gap: 20px; }
+   between them rather than above them.
+   Two columns on desktop: copy left, artwork right. The artwork drops out
+   entirely below 860px rather than stacking — on a phone the search box should
+   be the first thing under the headline, not a picture. */
+.hero { padding: 30px 0 30px; display: grid; gap: 20px 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+  grid-template-areas: "copy art" "search art" "egs art";
+  align-items: start; }
+.hero-copy { grid-area: copy; display: grid; gap: 20px; }
+.hero .search { grid-area: search; }
+.hero .egs { grid-area: egs; }
+.hero-art { grid-area: art; align-self: center; }
+.hero-art img { display: block; width: 100%; height: auto; }
+@media (prefers-color-scheme: dark) { .hero-art img { filter: brightness(.88) saturate(.95); } }
+:root[data-theme="dark"] .hero-art img { filter: brightness(.88) saturate(.95); }
+:root[data-theme="light"] .hero-art img { filter: none; }
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr;
+          grid-template-areas: "copy" "search" "egs"; }
+  .hero-art { display: none; }
+}
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
      line-height: 1.24; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
