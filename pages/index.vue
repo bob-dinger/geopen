@@ -199,22 +199,21 @@ useHead({
 </script>
 
 <style scoped>
-/* Tighter than before: the headline is a two-line lockup and the facts replace
-   a paragraph, so the whole block earns its space instead of filling it. */
-.hero { padding: 52px 0 30px; display: grid; gap: 18px; }
+/* Pulled up off the header, with the two headline lines given room to breathe
+   between them rather than above them. */
+.hero { padding: 30px 0 30px; display: grid; gap: 20px; }
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
-     line-height: 1.06; letter-spacing: -.035em; }
+     line-height: 1.24; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
 
-/* Four claims, not four sentences. Reads as a spec sheet, which is what someone
-   scanning for "can I actually take this file" wants. */
-.facts { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12.5px;
-  color: var(--ink-2); list-style: none; }
-.facts li { display: flex; align-items: baseline; gap: 7px; }
+/* Four claims, not four sentences. Stacked rather than in a row: a single
+   column is read, a row is skimmed, and these are the answers to the questions
+   someone actually arrives with. */
+.facts { display: grid; gap: 7px; font-size: 13px; color: var(--ink-2); list-style: none; }
+.facts li { display: flex; align-items: baseline; gap: 9px; }
 .facts li::before { content: ""; width: 5px; height: 5px; border-radius: 50%;
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
-@media (max-width: 560px) { .facts { gap: 5px 14px; font-size: 12px; } }
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
