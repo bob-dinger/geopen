@@ -4,11 +4,12 @@
 
     <main class="wrap">
       <section class="hero">
-        <h1>Texas, as <em>files you can take</em>.</h1>
+        <h1>The open library of <em>geographic files</em>.</h1>
         <p class="lede">
           Points, lines and polygons for the things governments record and rarely publish
           well — land ownership, zoning, construction, water. Every dataset previews in the
           browser, says where it came from, and downloads in one click. No account.
+          Coverage is deepest in Texas.
         </p>
 
         <form class="search" @submit.prevent="run">
