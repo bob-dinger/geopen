@@ -5,7 +5,7 @@
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <h1>The open library<br /><em>of geographic files</em></h1>
+          <h1>The open library<br />of <em>geographic files</em></h1>
 
           <ul class="facts mono">
             <li v-if="stats?.sources">
@@ -21,7 +21,7 @@
              from screen readers rather than described. -->
         <picture class="hero-art" aria-hidden="true">
           <source srcset="/img/geopen-hero.webp" type="image/webp" />
-          <img src="/img/geopen-hero.png" alt="" width="900" height="691"
+          <img src="/img/geopen-hero.png" alt="" width="900" height="796"
                decoding="async" fetchpriority="low" />
         </picture>
 
@@ -221,6 +221,8 @@ useHead({
 .hero-copy { grid-area: copy; display: grid; gap: 20px; }
 .hero .search { grid-area: search; }
 .hero .egs { grid-area: egs; }
+/* Cut-out artwork on a transparent background — it sits on the page ground
+   rather than in a frame. */
 .hero-art { grid-area: art; align-self: center; }
 .hero-art img { display: block; width: 100%; height: auto; }
 @media (prefers-color-scheme: dark) { .hero-art img { filter: brightness(.88) saturate(.95); } }
