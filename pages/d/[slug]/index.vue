@@ -42,6 +42,12 @@
 
         <aside class="side">
           <div class="dl">
+            <p class="lbl mono">Explore</p>
+            <NuxtLink class="btn" :to="`/d/${d.slug}/map`">View full map</NuxtLink>
+            <p class="free mono">Pan, zoom and click any feature.</p>
+          </div>
+
+          <div class="dl">
             <p class="lbl mono">Download</p>
             <a class="btn" :href="`/api/d/${d.slug}/download?format=geojson`">GeoJSON</a>
             <div class="alt">
@@ -182,20 +188,18 @@ onMounted(async () => {
   map.on('load', () => {
     map.addSource('d', { type: 'geojson', data: { type: 'FeatureCollection', features: data.value.features } })
     const t = d.value.geometry_types
+    // the dataset's own style when it has one — see utils/layerStyle
+    const st = (data.value as any)?.dataset?.style
     if (t.some((x: string) => x.includes('Polygon'))) {
-      map.addLayer({ id: 'fill', type: 'fill', source: 'd',
-        paint: { 'fill-color': '#0E7C5A', 'fill-opacity': 0.45 } })
-      map.addLayer({ id: 'line', type: 'line', source: 'd',
-        paint: { 'line-color': '#0E7C5A', 'line-width': 0.8 } })
+      map.addLayer({ id: 'fill', type: 'fill', source: 'd', paint: fillPaint(st) as any })
+      map.addLayer({ id: 'line', type: 'line', source: 'd', paint: fillStrokePaint() as any })
     }
     if (t.some((x: string) => x.includes('LineString'))) {
-      map.addLayer({ id: 'ln', type: 'line', source: 'd',
-        paint: { 'line-color': '#0E7C5A', 'line-width': 1.6 } })
+      map.addLayer({ id: 'ln', type: 'line', source: 'd', paint: linePaint(st, 2) as any })
     }
     if (t.some((x: string) => x.includes('Point'))) {
       map.addLayer({ id: 'pt', type: 'circle', source: 'd',
-        paint: { 'circle-radius': 4, 'circle-color': '#0E7C5A',
-                 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 } })
+        paint: circlePaint(st, 4) as any })
     }
     if (d.value.bbox) {
       map.fitBounds([[d.value.bbox[0], d.value.bbox[1]], [d.value.bbox[2], d.value.bbox[3]]],

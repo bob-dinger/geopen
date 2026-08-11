@@ -51,7 +51,13 @@
         </div>
 
         <div class="grid">
-          <NuxtLink v-for="d in datasets" :key="d.slug" class="card" :to="`/d/${d.slug}`">
+          <!--
+            A card is a map, so clicking one opens the map. The dataset page —
+            description, fields, provenance, downloads — stays one click back from
+            there, and remains the canonical URL that sitemap.xml and the
+            schema.org markup point at.
+          -->
+          <NuxtLink v-for="d in datasets" :key="d.slug" class="card" :to="`/d/${d.slug}/map`">
             <div class="thumb" v-if="d.thumb">
               <img :src="d.thumb" :alt="`Map preview of ${d.title}`" loading="lazy"
                    decoding="async" width="560" height="320" @error="hideShot" />
