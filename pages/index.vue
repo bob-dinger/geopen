@@ -57,23 +57,28 @@
             there, and remains the canonical URL that sitemap.xml and the
             schema.org markup point at.
           -->
-          <NuxtLink v-for="d in datasets" :key="d.slug" class="card" :to="`/d/${d.slug}/map`">
+          <article v-for="d in datasets" :key="d.slug" class="card">
             <div class="thumb" v-if="d.thumb">
               <img :src="d.thumb" :alt="`Map preview of ${d.title}`" loading="lazy"
                    decoding="async" width="560" height="320" @error="hideShot" />
             </div>
             <div class="body">
-              <h3>{{ d.title }}</h3>
+              <!--
+                The title carries the card's link and an overlay stretches it over
+                the whole card, so the source can be its own button without
+                nesting one anchor inside another.
+              -->
+              <h3><NuxtLink class="stretch" :to="`/d/${d.slug}/map`">{{ d.title }}</NuxtLink></h3>
               <p v-if="d.description">{{ d.description }}</p>
-              <p class="src mono" v-if="d.source_host">
-                <span class="lbl">source</span>{{ d.source_host }}
-              </p>
+              <NuxtLink v-if="d.source_host" class="srcbtn mono"
+                        :to="`/source/${d.source_host}`"
+                        :title="`Every dataset from ${d.source_host}`">{{ d.source_host }}</NuxtLink>
               <div class="meta mono nums">
                 <span>{{ (d.feature_count || 0).toLocaleString() }} features</span>
                 <span v-if="d.tags?.length" class="tag">{{ d.tags[0] }}</span>
               </div>
             </div>
-          </NuxtLink>
+          </article>
         </div>
 
         <p v-if="!pending && !datasets.length" class="none">
@@ -279,7 +284,7 @@ h1 em { font-style: normal; color: var(--accent); }
 .clear { background: none; border: 0; cursor: pointer; font-size: 12px; color: var(--accent); }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 13px; }
-.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
+.card { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
   text-decoration: none; display: flex; flex-direction: column; overflow: hidden;
   transition: border-color .15s; }
 .card:hover { border-color: var(--accent); }
@@ -297,6 +302,15 @@ h1 em { font-style: normal; color: var(--accent); }
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 /* The publisher, stated plainly. Knowing a parcel file came from dallascad.org
    rather than an unnamed aggregator is most of what makes it trustworthy. */
+.card h3 a { color: inherit; text-decoration: none; }
+.stretch::after { content: ''; position: absolute; inset: 0; }
+/* sits above the stretched title overlay, so the source stays separately clickable */
+.srcbtn { position: relative; z-index: 1; align-self: flex-start; text-decoration: none;
+  background: var(--accent); color: #fff; font-size: 11px; padding: 4px 10px;
+  border-radius: 99px; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; }
+.srcbtn:hover { filter: brightness(1.35); }
+.srcbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card p.src { font-size: 11.5px; color: var(--ink-3); display: flex; gap: 7px;
   align-items: baseline; -webkit-line-clamp: 1; }
 .card p.src .lbl { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
