@@ -5,7 +5,7 @@
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <h1>The open library<br />of <em>geographic files</em></h1>
+          <h1>The Open Library<br />of <em>Geography</em></h1>
 
           <ul class="facts mono">
             <li v-if="stats?.sources">
