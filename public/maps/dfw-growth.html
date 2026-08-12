@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How North Texas got built, 1880–2023</title>
+<meta name="description" content="23,063 residential subdivisions across 16 North Texas counties, appearing in the year they were built. 1880 to 2023.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-growth.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="How North Texas got built, 1880-2023">
+<meta property="og:description" content="23,063 residential subdivisions across 16 counties, appearing in the year they were built. 1984 is still the biggest year on record.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-growth.html">
+<meta property="og:image" content="https://geopen.io/maps/dfw-growth-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How North Texas got built, 1880-2023">
+<meta name="twitter:description" content="23,063 subdivisions, 2.9 million lots, appearing in the year they were built.">
+<meta name="twitter:image" content="https://geopen.io/maps/dfw-growth-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ink: #f2f3f5; --ink-2: #aeb4bd; --ink-3: #7d838c;
+    --panel: rgba(14,15,18,0.86); --rule: rgba(255,255,255,0.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0e0f12; overflow: hidden;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--ink); }
+  #map { position: absolute; inset: 0; }
+
+  /* everything overlaid is capture-safe: no scrollbars, no chrome */
+  .hud {
+    position: absolute; left: 26px; top: 24px; z-index: 5;
+    background: var(--panel); backdrop-filter: blur(6px);
+    border: 1px solid var(--rule); padding: 18px 22px 16px; min-width: 300px;
+  }
+  h1 { margin: 0 0 2px; font-size: 0.95rem; font-weight: 650; letter-spacing: -0.01em; }
+  .sub { margin: 0 0 14px; font-size: 0.76rem; color: var(--ink-3); line-height: 1.4; }
+  .year {
+    font-size: 4.2rem; font-weight: 750; line-height: 0.94; letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums; margin-bottom: 2px;
+  }
+  .count { font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .track { height: 3px; background: rgba(255,255,255,0.14); margin: 14px 0 0; }
+  .bar { height: 100%; width: 0; background: #fde725; transition: width 0.12s linear; }
+
+  .controls { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
+  button {
+    font: inherit; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.02em;
+    padding: 8px 15px; cursor: pointer; color: #0e0f12; background: #fde725;
+    border: 0; border-radius: 2px;
+  }
+  button.ghost { background: transparent; color: var(--ink-2); border: 1px solid var(--rule); }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 2px solid #fde725; outline-offset: 2px; }
+  label.spd { font-size: 0.72rem; color: var(--ink-3); margin-left: auto; display: flex;
+    align-items: center; gap: 6px; }
+  select { font: inherit; font-size: 0.72rem; background: #1b1d22; color: var(--ink-2);
+    border: 1px solid var(--rule); padding: 4px 6px; border-radius: 2px; }
+
+  /* Sized for capture, not for a desktop browser: a GIF gets scaled down to
+     Substack's column width, so anything set at a comfortable on-screen size
+     becomes unreadable in the artefact that actually ships. */
+  .legend {
+    position: absolute; left: 26px; bottom: 26px; z-index: 5;
+    background: var(--panel); backdrop-filter: blur(6px);
+    border: 1px solid var(--rule); padding: 18px 24px 19px; font-size: 1.02rem;
+  }
+  .legend .row { display: flex; align-items: center; gap: 12px; padding: 4px 0;
+    color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .legend i { width: 20px; height: 20px; display: block; flex: none; border-radius: 3px; }
+  .legend .row.off { opacity: 0.28; }
+  .legend h2 { margin: 0 0 11px; font-size: 0.86rem; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--ink-3); font-weight: 600; }
+
+  .credit { position: absolute; right: 26px; bottom: 26px; z-index: 5;
+    font-size: 0.72rem; color: var(--ink-3); text-align: right; line-height: 1.6; }
+  .credit a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .credit a:hover { color: #fde725; border-bottom-color: #fde725; }
+  .maplibregl-ctrl-attrib { display: none; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="hud">
+  <h1>How North Texas got built</h1>
+  <p class="sub">23,063 residential subdivisions across 16 counties,<br>appearing in the year they were built.</p>
+  <div class="year" id="year">1880</div>
+  <div class="count"><span id="built">0</span> subdivisions · <span id="lots">0</span> lots</div>
+  <div class="track"><div class="bar" id="bar"></div></div>
+  <div class="controls">
+    <button id="play" type="button">Play</button>
+    <button id="reset" class="ghost" type="button">Reset</button>
+    <label class="spd">speed
+      <select id="speed">
+        <option value="2">2 yr/s</option>
+        <option value="4" selected>4 yr/s</option>
+        <option value="8">8 yr/s</option>
+        <option value="16">16 yr/s</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="legend" id="legend"><h2>Decade built</h2></div>
+<div class="credit">Subdivision data: NCTCOG<br>
+  <a href="https://geopen.io/">geopen.io</a> · <a href="https://geopen.io/d/north-texas-residential-subdivisions-2023">download the data</a></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/north_texas_subdivisions.pmtiles";
+
+// same viridis steps as the catalogue layer, so the animation and the static
+// map read as one thing
+const DECADES = [
+  ["Pre-1940", 1939, "#440154"], ["1940s", 1949, "#482878"], ["1950s", 1959, "#3e4989"],
+  ["1960s", 1969, "#31688e"], ["1970s", 1979, "#26828e"], ["1980s", 1989, "#1f9e89"],
+  ["1990s", 1999, "#35b779"], ["2000s", 2009, "#6ece58"], ["2010s", 2019, "#b5de2b"],
+  ["2020s", 2029, "#fde725"],
+];
+const START = 1880, END = 2023;
+const TOTALS = {"1880":[2,65],"1881":[2,65],"1882":[2,65],"1883":[2,65],"1884":[2,65],"1885":[4,358],"1886":[4,358],"1887":[5,386],"1888":[5,386],"1889":[5,386],"1890":[7,482],"1891":[8,494],"1892":[8,494],"1893":[9,540],"1894":[9,540],"1895":[10,545],"1896":[10,545],"1897":[10,545],"1898":[10,545],"1899":[10,545],"1900":[38,6863],"1901":[44,8817],"1902":[46,10009],"1903":[49,11212],"1904":[51,11476],"1905":[66,12736],"1906":[73,13867],"1907":[80,14663],"1908":[84,17939],"1909":[89,18305],"1910":[116,27217],"1911":[124,29968],"1912":[140,32174],"1913":[149,33353],"1914":[158,34086],"1915":[178,37626],"1916":[194,39971],"1917":[204,41697],"1918":[226,45086],"1919":[238,48139],"1920":[314,58834],"1921":[328,60783],"1922":[354,63453],"1923":[386,67880],"1924":[413,70215],"1925":[484,79044],"1926":[515,82547],"1927":[527,83820],"1928":[558,86688],"1929":[577,88346],"1930":[682,100167],"1931":[693,102713],"1932":[707,104316],"1933":[712,104768],"1934":[726,105865],"1935":[781,113211],"1936":[805,116366],"1937":[830,118944],"1938":[864,122777],"1939":[898,127647],"1940":[1040,143815],"1941":[1084,151704],"1942":[1121,158294],"1943":[1144,162408],"1944":[1164,164054],"1945":[1233,172094],"1946":[1286,180548],"1947":[1349,187344],"1948":[1422,193914],"1949":[1499,204642],"1950":[1752,241329],"1951":[1866,258338],"1952":[1998,273571],"1953":[2085,283974],"1954":[2186,296005],"1955":[2327,311179],"1956":[2434,325858],"1957":[2510,334397],"1958":[2659,346936],"1959":[2807,361985],"1960":[3063,391154],"1961":[3227,408380],"1962":[3428,428762],"1963":[3649,447311],"1964":[3870,465401],"1965":[4089,483866],"1966":[4225,496722],"1967":[4386,514791],"1968":[4650,545064],"1969":[4921,576624],"1970":[5335,632010],"1971":[5614,667510],"1972":[5967,706103],"1973":[6222,734024],"1974":[6474,762676],"1975":[6718,784838],"1976":[6890,803308],"1977":[7149,831545],"1978":[7503,876175],"1979":[7862,925801],"1980":[8282,977518],"1981":[8565,1008368],"1982":[8960,1048866],"1983":[9639,1133316],"1984":[10464,1235602],"1985":[11080,1317905],"1986":[11533,1378865],"1987":[11765,1405606],"1988":[11901,1423037],"1989":[12022,1432330],"1990":[12176,1450501],"1991":[12312,1463449],"1992":[12551,1487795],"1993":[12753,1505329],"1994":[13061,1532891],"1995":[13440,1571979],"1996":[13809,1609487],"1997":[14191,1652835],"1998":[14661,1713643],"1999":[15137,1770436],"2000":[15626,1827427],"2001":[16077,1885693],"2002":[16494,1940955],"2003":[16957,2004301],"2004":[17434,2066834],"2005":[17909,2133148],"2006":[18399,2192341],"2007":[18821,2249415],"2008":[19113,2289071],"2009":[19262,2309664],"2010":[19355,2319821],"2011":[19467,2337269],"2012":[19654,2365560],"2013":[19877,2396637],"2014":[20189,2431994],"2015":[20524,2474499],"2016":[20914,2521734],"2017":[21313,2581504],"2018":[21644,2632381],"2019":[21919,2671336],"2020":[22243,2726785],"2021":[22669,2803102],"2022":[22994,2880278],"2023":[23063,2901423]};
+
+const legend = document.getElementById("legend");
+DECADES.forEach(([label, , colour]) => {
+  const row = document.createElement("div");
+  row.className = "row off";
+  row.dataset.until = DECADES.find((d) => d[0] === label)[1];
+  const sw = document.createElement("i");
+  sw.style.background = colour;
+  const tx = document.createElement("span");
+  tx.textContent = label;
+  row.appendChild(sw); row.appendChild(tx);
+  legend.appendChild(row);
+});
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: {
+        type: "raster",
+        // dark canvas: the viridis ramp has to carry the whole image, so the
+        // ground under it stays out of the way
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256, attribution: "Esri",
+      },
+      subs: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [
+      { id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.55 } },
+    ],
+  },
+  center: [-97.05, 32.86],
+  zoom: 8.35,
+  attributionControl: false,
+});
+
+let year = START, playing = false, timer = null, ready = false;
+
+function colourExpr() {
+  const e = ["step", ["coalesce", ["get", "year_built"], 0]];
+  e.push(DECADES[0][2]);
+  for (let i = 1; i < DECADES.length; i++) e.push(DECADES[i - 1][1] + 1, DECADES[i][2]);
+  return e;
+}
+
+map.on("load", () => {
+  map.addLayer({
+    id: "subs", type: "fill", source: "subs", "source-layer": "subdivisions",
+    // undated subdivisions can't be placed in time, so they sit out the animation
+    filter: ["all", ["has", "year_built"], ["<=", ["get", "year_built"], START]],
+    paint: { "fill-color": colourExpr(), "fill-opacity": 0.92 },
+  });
+  map.addLayer({
+    id: "subs-edge", type: "line", source: "subs", "source-layer": "subdivisions",
+    filter: ["all", ["has", "year_built"], ["<=", ["get", "year_built"], START]],
+    paint: { "line-color": "#ffffff", "line-width": 0.25, "line-opacity": 0.25 },
+  });
+  ready = true;
+  render();
+});
+
+function render() {
+  if (!ready) return;
+  const f = ["all", ["has", "year_built"], ["<=", ["get", "year_built"], year]];
+  map.setFilter("subs", f);
+  map.setFilter("subs-edge", f);
+  document.getElementById("year").textContent = year;
+  document.getElementById("bar").style.width =
+    (100 * (year - START) / (END - START)).toFixed(2) + "%";
+  document.querySelectorAll(".legend .row").forEach((r) => {
+    r.classList.toggle("off", year < (+r.dataset.until - 9));
+  });
+  // Counts come from a precomputed table, not from queryRenderedFeatures.
+  // That only sees what is currently drawn — features outside the viewport, and
+  // small polygons the tiler drops at low zoom, are invisible to it, which had
+  // 1950 reading "2 subdivisions" against a true figure near 1,750.
+  const t = TOTALS[year] || [0, 0];
+  document.getElementById("built").textContent = t[0].toLocaleString();
+  document.getElementById("lots").textContent = t[1].toLocaleString();
+}
+
+function step() {
+  year += 1;
+  if (year >= END) { year = END; pause(); }
+  render();
+}
+
+function play() {
+  if (playing) return pause();
+  if (year >= END) year = START;
+  playing = true;
+  document.getElementById("play").textContent = "Pause";
+  const rate = +document.getElementById("speed").value;
+  timer = setInterval(step, 1000 / rate);
+}
+function pause() {
+  playing = false;
+  clearInterval(timer);
+  document.getElementById("play").textContent = year >= END ? "Replay" : "Play";
+}
+
+document.getElementById("play").addEventListener("click", play);
+document.getElementById("reset").addEventListener("click", () => {
+  pause(); year = START; document.getElementById("play").textContent = "Play"; render();
+});
+document.getElementById("speed").addEventListener("change", () => {
+  if (playing) { clearInterval(timer); timer = setInterval(step, 1000 / +document.getElementById("speed").value); }
+});
+
+// the GIF recorder drives these directly rather than watching the clock
+window.__setYear = (y) => { year = y; render(); };
+window.__ready = () => ready && map.loaded() && !map.isMoving();
+</script>
+</body>
+</html>
