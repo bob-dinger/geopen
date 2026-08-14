@@ -72,6 +72,29 @@
   .legend h2 { margin: 0 0 11px; font-size: 0.86rem; text-transform: uppercase;
     letter-spacing: 0.09em; color: var(--ink-3); font-weight: 600; }
 
+
+  /* Basemap picker. The dark canvas is right for the viridis ramp but hides the
+     street grid, and the first question people ask of a growth map is "where is
+     that?" — so the reference layer (roads + place names) draws ABOVE the
+     polygons rather than under them, or it would be invisible at 0.92 fill. */
+  .maps {
+    position: absolute; right: 26px; top: 24px; z-index: 5;
+    background: var(--panel); backdrop-filter: blur(6px);
+    border: 1px solid var(--rule); padding: 11px 13px 12px;
+  }
+  .maps h2 { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--ink-3); font-weight: 600; }
+  .maps .opts { display: flex; gap: 5px; }
+  .maps button {
+    font-size: 0.7rem; font-weight: 600; padding: 6px 10px; border-radius: 2px;
+    background: transparent; color: var(--ink-2); border: 1px solid var(--rule);
+    cursor: pointer;
+  }
+  .maps button[aria-pressed="true"] { background: #fde725; color: #0e0f12; border-color: #fde725; }
+  .maps label { display: flex; align-items: center; gap: 7px; margin-top: 9px;
+    font-size: 0.7rem; color: var(--ink-3); cursor: pointer; }
+  .maps input { accent-color: #fde725; width: 13px; height: 13px; }
+
   .credit { position: absolute; right: 26px; bottom: 26px; z-index: 5;
     font-size: 0.72rem; color: var(--ink-3); text-align: right; line-height: 1.6; }
   .credit a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--rule); }
@@ -102,6 +125,11 @@
   </div>
 </div>
 
+<div class="maps">
+  <h2>Base map</h2>
+  <div class="opts" id="baseopts"></div>
+  <label><input type="checkbox" id="reftoggle" checked> roads &amp; labels</label>
+</div>
 <div class="legend" id="legend"><h2>Decade built</h2></div>
 <div class="credit">Subdivision data: NCTCOG<br>
   <a href="https://geopen.io/">geopen.io</a> · <a href="https://geopen.io/d/north-texas-residential-subdivisions-2023">download the data</a></div>
@@ -150,6 +178,11 @@ const map = new maplibregl.Map({
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"],
         tileSize: 256, attribution: "Esri",
       },
+      ref: {
+        type: "raster",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256,
+      },
       subs: { type: "vector", url: "pmtiles://" + PM },
     },
     layers: [
@@ -182,7 +215,12 @@ map.on("load", () => {
     filter: ["all", ["has", "year_built"], ["<=", ["get", "year_built"], START]],
     paint: { "line-color": "#ffffff", "line-width": 0.25, "line-opacity": 0.25 },
   });
+  map.addLayer({
+    id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.9 },
+  });
   ready = true;
+  applyBasemap();
   render();
 });
 
@@ -232,6 +270,59 @@ document.getElementById("reset").addEventListener("click", () => {
 });
 document.getElementById("speed").addEventListener("change", () => {
   if (playing) { clearInterval(timer); timer = setInterval(step, 1000 / +document.getElementById("speed").value); }
+});
+
+
+// ESRI basemaps. Each pairs a base with a matching reference tileset carrying
+// roads and place names; "streets" bakes its labels in and needs no overlay.
+const BASEMAPS = {
+  dark:  { label: "Dark",
+           base: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+           ref:  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+           opacity: 0.55 },
+  light: { label: "Light",
+           base: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+           ref:  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+           opacity: 0.85 },
+  streets:{ label: "Streets",
+           base: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+           ref:  null, opacity: 0.9 },
+  satellite:{ label: "Satellite",
+           base: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+           ref:  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+           opacity: 1 },
+};
+let baseKey = "dark", showRef = true;
+
+function applyBasemap() {
+  const b = BASEMAPS[baseKey];
+  map.getSource("base").setTiles([b.base]);
+  map.setPaintProperty("base", "raster-opacity", b.opacity);
+  const on = showRef && !!b.ref;
+  if (b.ref) map.getSource("ref").setTiles([b.ref]);
+  map.setLayoutProperty("ref", "visibility", on ? "visible" : "none");
+  // A light ground needs the polygon outlines dark, not white, or they vanish.
+  const pale = baseKey === "light" || baseKey === "streets";
+  map.setPaintProperty("subs-edge", "line-color", pale ? "#1b1d22" : "#ffffff");
+  map.setPaintProperty("subs", "fill-opacity", pale ? 0.85 : 0.92);
+}
+
+const opts = document.getElementById("baseopts");
+Object.entries(BASEMAPS).forEach(([k, v]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = v.label;
+  b.setAttribute("aria-pressed", String(k === baseKey));
+  b.addEventListener("click", () => {
+    baseKey = k;
+    opts.querySelectorAll("button").forEach((x) =>
+      x.setAttribute("aria-pressed", String(x.textContent === v.label)));
+    document.getElementById("reftoggle").disabled = !BASEMAPS[k].ref;
+    applyBasemap();
+  });
+  opts.appendChild(b);
+});
+document.getElementById("reftoggle").addEventListener("change", (e) => {
+  showRef = e.target.checked; applyBasemap();
 });
 
 // the GIF recorder drives these directly rather than watching the clock
