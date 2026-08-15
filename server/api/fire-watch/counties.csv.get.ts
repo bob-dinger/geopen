@@ -39,7 +39,13 @@ function csv(rows: Row[]): string {
     ...rows.map((r) => head.map((k) => esc((r as any)[k])).join(','))].join('\n')
 }
 
-export default defineCachedEventHandler(async (event) => {
+/**
+ * The fetch+shape step is cached, not the response. defineCachedEventHandler
+ * stores the body and replays it without the headers set inside, so the CSV was
+ * being served as application/json — correct bytes, wrong label, and a consumer
+ * that trusts content-type would reject it.
+ */
+const build = defineCachedFunction(async (): Promise<string> => {
   const [bans, fires] = await Promise.all([
     $fetch<any>(TFS, {
       params: { where: '1=1', outFields: 'FIPS,County,BurnBan,StartDate',
@@ -89,9 +95,15 @@ export default defineCachedEventHandler(async (event) => {
   }
   rows.sort((a, b) => a.county.localeCompare(b.county))
 
+  return csv(rows)
+}, { maxAge: 60 * 15, swr: true, name: 'fire-watch-counties' })
+
+export default defineEventHandler(async (event) => {
+  const body = await build()
   setHeader(event, 'content-type', 'text/csv; charset=utf-8')
   // Datawrapper fetches this from its own servers, so it must be readable
   // cross-origin
   setHeader(event, 'access-control-allow-origin', '*')
-  return csv(rows)
-}, { maxAge: 60 * 15, swr: true, name: 'fire-watch-counties' })
+  setHeader(event, 'cache-control', 'public, max-age=300')
+  return body
+})
