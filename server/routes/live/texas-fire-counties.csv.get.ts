@@ -21,6 +21,9 @@ type Row = {
   county: string
   burn_ban: string
   days_under_ban: number | ''
+  drought: string
+  pct_dry: number | ''
+  pct_severe_plus: number | ''
   active_fires: number
   acres_burning: number
 }
@@ -28,9 +31,24 @@ type Row = {
 const TFS = 'https://gis.tfs.tamu.edu/arcgis/rest/services/EOC/BurnBan/FeatureServer/0/query'
 const NIFC = 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/'
   + 'WFIGS_Incident_Locations_Current/FeatureServer/0/query'
+// aoi=TX returns every Texas county; aoi=48, the state FIPS that works for the
+// state-level endpoint, returns an empty array here
+const USDM = 'https://usdmdataservices.unl.edu/api/CountyStatistics/'
+  + 'GetDroughtSeverityStatisticsByAreaPercent'
+
+/** The most severe class covering any part of the county. */
+function worst(r: any): string {
+  for (const [k, label] of [['d4', 'D4 Exceptional'], ['d3', 'D3 Extreme'],
+                            ['d2', 'D2 Severe'], ['d1', 'D1 Moderate'],
+                            ['d0', 'D0 Abnormally dry']] as const) {
+    if (Number(r?.[k] || 0) > 0) return label
+  }
+  return 'None'
+}
 
 function csv(rows: Row[]): string {
-  const head = ['fips', 'county', 'burn_ban', 'days_under_ban', 'active_fires', 'acres_burning']
+  const head = ['fips', 'county', 'burn_ban', 'days_under_ban', 'drought',
+                'pct_dry', 'pct_severe_plus', 'active_fires', 'acres_burning']
   const esc = (v: any) => {
     const s = String(v ?? '')
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
@@ -46,7 +64,9 @@ function csv(rows: Row[]): string {
  * that trusts content-type would reject it.
  */
 const build = defineCachedFunction(async (): Promise<string> => {
-  const [bans, fires] = await Promise.all([
+  const ymd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+  const today = ymd(new Date())
+  const [bans, fires, drought] = await Promise.all([
     $fetch<any>(TFS, {
       params: { where: '1=1', outFields: 'FIPS,County,BurnBan,StartDate',
                 returnGeometry: false, f: 'json' },
@@ -58,7 +78,17 @@ const build = defineCachedFunction(async (): Promise<string> => {
                 resultRecordCount: 2000, f: 'json' },
       timeout: 25_000,
     }).catch(() => null),
+    $fetch<any[]>(USDM, {
+      params: { aoi: 'TX', startdate: today, enddate: today, statisticsType: 1 },
+      headers: { Accept: 'application/json' }, timeout: 25_000,
+    }).catch(() => null),
   ])
+
+  // keyed on FIPS, which is the one identifier all three sources agree on
+  const dry = new Map<string, any>()
+  for (const r of (drought || [])) {
+    if (r?.fips) dry.set(String(r.fips).trim(), r)
+  }
 
   // fires arrive keyed by county *name*, bans by name and FIPS — so the join is
   // on a normalised name, and the FIPS from the ban service is what Datawrapper
@@ -84,11 +114,16 @@ const build = defineCachedFunction(async (): Promise<string> => {
     const banned = String(a.BurnBan || '').trim() === 'Yes'
     const started = Number(a.StartDate || 0)
     const hit = fire.get(county.toLowerCase())
+    const fips = `48${local}`
+    const d = dry.get(fips)
     rows.push({
-      fips: `48${local}`,
+      fips,
       county,
       burn_ban: banned ? 'Burn ban' : 'No ban',
       days_under_ban: banned && started ? Math.round((now - started) / 86_400_000) : '',
+      drought: d ? worst(d) : '',
+      pct_dry: d ? Number(d.d0 || 0) : '',
+      pct_severe_plus: d ? Number(d.d2 || 0) : '',
       active_fires: hit?.n || 0,
       acres_burning: Math.round(hit?.acres || 0),
     })
