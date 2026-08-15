@@ -46,21 +46,32 @@
 </template>
 
 <script setup lang="ts">
+const cfg = useRuntimeConfig()
+const AZ = String(cfg.public.azureMapsKey || '')
+const E = 'https://server.arcgisonline.com/ArcGIS/rest/services'
+const AZURE = 'https://atlas.microsoft.com/map/tile?api-version=2024-04-01'
+  + `&zoom={z}&x={x}&y={y}&subscription-key=${AZ}&tilesetId=`
+
 const BASEMAPS = [
+  // Azure imagery with its own hybrid road and label tilesets, which is how
+  // themap-editor does it (buildAzureSatStyle in components/map/BaseMapPicker).
+  // Roads drawn as part of the satellite ground register with the imagery;
+  // ESRI's separate reference tileset sits on top of it and does not.
   { id: 'satellite', label: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    url: AZ ? `${AZURE}microsoft.imagery` : `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: AZ ? `${AZURE}microsoft.base.labels.road`
+            : `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
     opacity: 1, pale: false },
   { id: 'streets', label: 'Streets',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
     ref: null, opacity: 1, pale: true },
   { id: 'light', label: 'Light',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 1, pale: true },
   { id: 'dark', label: 'Dark',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 1, pale: false },
 ]
 const baseKey = ref('satellite')

@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://geopen.io',
       siteName: 'geopen.io',
+      azureMapsKey: process.env.NUXT_PUBLIC_AZURE_MAPS_KEY || '',
     },
   },
 
