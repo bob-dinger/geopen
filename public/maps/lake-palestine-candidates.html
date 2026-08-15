@@ -65,7 +65,7 @@
   <div class="facts">
     <div class="f"><div class="k">TPWD is buying</div><div class="v">~650 ac</div></div>
     <div class="f"><div class="k">Parcels searched</div><div class="v">108,484</div></div>
-    <div class="f"><div class="k">Owners that fit</div><div class="v">3</div></div>
+    <div class="f"><div class="k">Tracts that fit</div><div class="v">3</div></div>
     <div class="f"><div class="k">Commission vote</div><div class="v">20 Aug</div></div>
   </div>
   <p class="note"><b>These are not confirmed.</b> TPWD says only that it is
@@ -74,7 +74,8 @@
     No seller has been named. What is shown here is simply every owner in the
     county holding a shoreline tract of roughly that size — three of them, out
     of 108,484 parcels. One is the public water authority that owns and runs the
-    lake; two are private.</p>
+    lake; two are private. The white dot marks the Henderson County stretch of
+    shoreline TPWD described; it is not a location the state has given.</p>
   <div class="btns" id="btns"></div>
   <p class="src">Ownership from <a href="https://data.geographic.texas.gov/" target="_blank" rel="noopener">Texas StratMap land parcels</a>,
     March 2025, TxGIO — a public appraisal record. Acquisition listed on the
@@ -118,7 +119,26 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 map.on("load", async () => {
   const gj = await (await fetch("/data/lake_palestine_candidates.geojson")).json();
   map.addSource("park", { type: "geojson", data: gj });
+  // the anchor is a point, the candidates are polygons — filter each layer so
+  // neither tries to draw the other
+  map.addLayer({ id: "anchor", type: "circle", source: "park",
+    filter: ["==", ["get", "kind"], "anchor"],
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 7, 12, 13],
+      "circle-color": "#ffffff", "circle-opacity": 0.9,
+      "circle-stroke-color": "#c98b2e", "circle-stroke-width": 3,
+    } });
+  map.addLayer({ id: "anchor-label", type: "symbol", source: "park",
+    filter: ["==", ["get", "kind"], "anchor"],
+    layout: {
+      "text-field": ["get", "label"], "text-font": ["Noto Sans Regular"],
+      "text-size": 13, "text-offset": [0, 1.5], "text-anchor": "top",
+      "text-line-height": 1.3,
+    },
+    paint: { "text-color": "#ffffff", "text-halo-color": "rgba(18,20,15,0.9)",
+             "text-halo-width": 2 } });
   map.addLayer({ id: "park-fill", type: "fill", source: "park",
+    filter: ["!=", ["get", "kind"], "anchor"],
     paint: {
       // the acquisition solid, the adjoining family land faint — they are
       // different claims and should not look like one shape
@@ -128,6 +148,7 @@ map.on("load", async () => {
       "fill-opacity": 0.34,
     } });
   map.addLayer({ id: "park-line", type: "line", source: "park",
+    filter: ["!=", ["get", "kind"], "anchor"],
     paint: { "line-color": "#ffd9a0", "line-width": 2.2 } });
   // the reference tileset draws above the fill; underneath it the roads and
   // place names that put the park in context would be invisible
@@ -144,10 +165,12 @@ map.on("load", async () => {
   map.on("mousemove", "park-fill", (e) => {
     map.getCanvas().style.cursor = "pointer";
     pop.setLngLat(e.lngLat).setHTML(
-      `<b>${e.features[0].properties.owner}</b><br>` +
-      `${Number(e.features[0].properties.acres).toLocaleString()} acres of shoreline · ` +
-      `${e.features[0].properties.parcels} parcels<br>` +
-      `<i>${e.features[0].properties.note}</i>`).addTo(map);
+      (e.features[0].properties.kind === "anchor"
+        ? `<b>Approximate area</b><br><i>${e.features[0].properties.note}</i>`
+        : `<b>${e.features[0].properties.owner}</b><br>` +
+          `${Number(e.features[0].properties.acres).toLocaleString()} acres of shoreline · ` +
+          `${e.features[0].properties.parcels} parcels<br>` +
+          `<i>${e.features[0].properties.note}</i>`)).addTo(map);
   });
   map.on("mouseleave", "park-fill", () => {
     map.getCanvas().style.cursor = ""; pop.remove();
