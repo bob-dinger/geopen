@@ -46,6 +46,47 @@
 </template>
 
 <script setup lang="ts">
+const BASEMAPS = [
+  { id: 'satellite', label: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: false },
+  { id: 'streets', label: 'Streets',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    ref: null, opacity: 1, pale: true },
+  { id: 'light', label: 'Light',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: true },
+  { id: 'dark', label: 'Dark',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: false },
+]
+const baseKey = ref('satellite')
+const showRef = ref(true)
+
+function applyBase() {
+  if (!map || !map.getSource || !map.getSource('base')) return
+  const b = BASEMAPS.find((x) => x.id === baseKey.value) || BASEMAPS[0]
+  ;(map.getSource('base') as any).setTiles([b.url])
+  const on = showRef.value && !!b.ref
+  if (b.ref) (map.getSource('ref') as any).setTiles([b.ref])
+  if (map.getLayer('ref')) map.setLayoutProperty('ref', 'visibility', on ? 'visible' : 'none')
+  // On a pale ground the white polygon outlines vanish; on satellite a dark one
+  // would. Flip with the basemap rather than picking one that is wrong half the
+  // time.
+  if (map.getLayer('line')) {
+    map.setPaintProperty('line', 'line-color', b.pale ? '#33383d' : '#ffffff')
+  }
+  if (map.getLayer('labels')) {
+    map.setPaintProperty('labels', 'text-color', b.pale ? '#16191c' : '#ffffff')
+    map.setPaintProperty('labels', 'text-halo-color',
+      b.pale ? 'rgba(255,255,255,0.9)' : 'rgba(15,12,10,0.88)')
+  }
+}
+function setBase(id: string) { baseKey.value = id; applyBase() }
+
 const route = useRoute()
 
 const { data } = await useFetch<any>(() => `/api/d/${route.params.slug}`, {
@@ -139,47 +180,6 @@ function popupNode(props: Record<string, any>) {
 onMounted(async () => {
   if (!d.value || !data.value?.features?.length) return
   maplibregl = (await import('maplibre-gl')).default
-const BASEMAPS = [
-  { id: 'satellite', label: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    opacity: 1, pale: false },
-  { id: 'streets', label: 'Streets',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-    ref: null, opacity: 1, pale: true },
-  { id: 'light', label: 'Light',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-    opacity: 1, pale: true },
-  { id: 'dark', label: 'Dark',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-    opacity: 1, pale: false },
-]
-const baseKey = ref('satellite')
-const showRef = ref(true)
-
-function applyBase() {
-  if (!map || !map.getSource || !map.getSource('base')) return
-  const b = BASEMAPS.find((x) => x.id === baseKey.value) || BASEMAPS[0]
-  ;(map.getSource('base') as any).setTiles([b.url])
-  const on = showRef.value && !!b.ref
-  if (b.ref) (map.getSource('ref') as any).setTiles([b.ref])
-  if (map.getLayer('ref')) map.setLayoutProperty('ref', 'visibility', on ? 'visible' : 'none')
-  // On a pale ground the white polygon outlines vanish; on satellite a dark one
-  // would. Flip with the basemap rather than picking one that is wrong half the
-  // time.
-  if (map.getLayer('line')) {
-    map.setPaintProperty('line', 'line-color', b.pale ? '#33383d' : '#ffffff')
-  }
-  if (map.getLayer('labels')) {
-    map.setPaintProperty('labels', 'text-color', b.pale ? '#16191c' : '#ffffff')
-    map.setPaintProperty('labels', 'text-halo-color',
-      b.pale ? 'rgba(255,255,255,0.9)' : 'rgba(15,12,10,0.88)')
-  }
-}
-function setBase(id: string) { baseKey.value = id; applyBase() }
-
   await import('maplibre-gl/dist/maplibre-gl.css')
 
   map = new maplibregl.Map({
