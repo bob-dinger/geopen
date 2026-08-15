@@ -1,0 +1,289 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dallas County appraisals 2026 — every parcel, and how it compares</title>
+<meta name="description" content="Every parcel in Dallas County with its 2026 appraisal, the change from last year, and how that change compares with the rest of its neighbourhood.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-appraisals.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas County appraisals 2026 — every parcel">
+<meta property="og:description" content="Find your property, then see whether your appraisal moved like the rest of your street.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-appraisals.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-appraisals-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #101215; --panel: rgba(16,18,21,0.9); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+    --up: #c0392b; --down: #2d7dd2; --flat: #8a929b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 336px; max-width: calc(100vw - 36px);
+    background: var(--panel); backdrop-filter: blur(8px); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 15px 17px 15px; }
+  h1 { margin: 0 0 2px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.72rem; color: var(--ink-3); line-height: 1.45; }
+
+  .search { display: flex; gap: 6px; margin-bottom: 11px; }
+  .search input { flex: 1; min-width: 0; font: inherit; font-size: 0.8rem; padding: 8px 10px;
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 3px; }
+  .search input::placeholder { color: var(--ink-3); }
+  .hits { max-height: 168px; overflow-y: auto; margin: -4px 0 10px; }
+  .hit { padding: 7px 9px; font-size: 0.75rem; color: var(--ink-2); cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .hit:hover { background: var(--panel-2); color: var(--ink); }
+  .hit b { color: var(--ink); font-weight: 600; }
+
+  .modes { display: flex; gap: 5px; margin-bottom: 11px; }
+  .modes button { flex: 1; font: inherit; font-size: 0.68rem; font-weight: 600; padding: 7px 4px;
+    background: transparent; color: var(--ink-2); border: 1px solid var(--rule);
+    border-radius: 3px; cursor: pointer; }
+  .modes button[aria-pressed="true"] { background: #dbe7f3; color: #101215; border-color: #dbe7f3; }
+
+  .key { display: flex; gap: 3px; margin: 2px 0 3px; }
+  .key i { height: 8px; flex: 1; display: block; }
+  .keylab { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--ink-3); }
+  .note { margin: 11px 0 0; font-size: 0.7rem; color: var(--ink-3); line-height: 1.5; }
+  .note b { color: var(--ink-2); }
+  .src { margin: 9px 0 0; font-size: 0.62rem; color: var(--ink-3); line-height: 1.5; }
+  .src a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 11px 13px; min-width: 210px; }
+  .maplibregl-popup-content .a { font-weight: 700; font-size: 0.84rem; margin-bottom: 5px; }
+  .maplibregl-popup-content table { border-collapse: collapse; width: 100%; }
+  .maplibregl-popup-content td { padding: 2px 0; font-variant-numeric: tabular-nums; }
+  .maplibregl-popup-content td:last-child { text-align: right; font-weight: 600; }
+  .maplibregl-popup-content .lab { color: var(--ink-3); font-weight: 400; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-ctrl-attrib { font-size: 9px; }
+  @media (max-width: 620px) {
+    .card { left: 8px; right: 8px; top: 8px; width: auto; padding: 12px 13px; }
+  }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Dallas County appraisals, 2026</h1>
+  <p class="sub">Every parcel, what it is appraised at, and whether it moved like the rest of its neighbourhood.</p>
+
+  <div class="search">
+    <input id="q" type="text" placeholder="Search an address — e.g. 1200 Main" autocomplete="off">
+  </div>
+  <div class="hits" id="hits"></div>
+
+  <div class="modes" id="modes"></div>
+  <div class="key" id="key"></div>
+  <div class="keylab" id="keylab"></div>
+
+  <p class="note" id="note"></p>
+  <p class="src">2026 certified roll and parcel geometry:
+    <a href="https://www.dallascad.org/" target="_blank" rel="noopener">Dallas Central Appraisal District</a>.
+    Appraised values are DCAD's, not a sale price or an estimate of what a
+    property would fetch. · <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/dallas_appraisals_2026.pmtiles";
+
+// Diverging, because the question is direction as much as size. Grey in the
+// middle so "moved like everyone else" reads as unremarkable rather than as a
+// low value on a ramp.
+const MODES = {
+  change: {
+    label: "Change",
+    field: "change_pct",
+    colour: ["interpolate", ["linear"], ["coalesce", ["get", "change_pct"], 0],
+      -20, "#1a5fa8", -5, "#7fb3dd", 0, "#8a929b", 5, "#e59b7a", 15, "#c0392b", 30, "#7a1d13"],
+    key: ["#1a5fa8", "#7fb3dd", "#8a929b", "#e59b7a", "#c0392b", "#7a1d13"],
+    lo: "−20% or less", hi: "+30% or more",
+    note: "<b>How much each appraisal moved</b> between 2025 and 2026. Red is up, blue is down, grey is roughly flat.",
+  },
+  vs: {
+    label: "vs neighbours",
+    field: "vs_neighbours",
+    colour: ["interpolate", ["linear"], ["coalesce", ["get", "vs_neighbours"], 0],
+      -15, "#1a5fa8", -4, "#7fb3dd", 0, "#8a929b", 4, "#e59b7a", 12, "#c0392b", 25, "#7a1d13"],
+    key: ["#1a5fa8", "#7fb3dd", "#8a929b", "#e59b7a", "#c0392b", "#7a1d13"],
+    lo: "well below", hi: "well above",
+    note: "<b>Each parcel against the median change in its own DCAD neighbourhood.</b> Red rose more than its neighbours, blue less, grey moved with them. This is the comparison a single-property lookup cannot show you.",
+  },
+  value: {
+    label: "Value",
+    field: "value",
+    colour: ["interpolate", ["linear"], ["coalesce", ["get", "value"], 0],
+      0, "#132b43", 150000, "#2b5f82", 350000, "#4f9ab0", 700000, "#93c9b1", 2000000, "#e8e6a8"],
+    key: ["#132b43", "#2b5f82", "#4f9ab0", "#93c9b1", "#e8e6a8"],
+    lo: "$0", hi: "$2M+",
+    note: "<b>Appraised value</b> for 2026. Sequential — one hue, light means more.",
+  },
+};
+let mode = "change";
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      parcels: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.5 } }],
+  },
+  center: [-96.797, 32.78], zoom: 10.2,
+  attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const money = (n) => (n === null || n === undefined) ? "—" : "$" + Math.round(n).toLocaleString();
+const pc = (n) => (n === null || n === undefined) ? "—" : (n > 0 ? "+" : "") + n.toFixed(1) + "%";
+
+function paintFor(m) {
+  return ["case",
+    ["!=", ["get", "status"], "Valued"], "#3a4048",
+    MODES[m].colour];
+}
+
+map.on("load", () => {
+  map.addLayer({
+    id: "parcels", type: "fill", source: "parcels", "source-layer": "parcels",
+    paint: { "fill-color": paintFor(mode), "fill-opacity": 0.82 },
+  });
+  map.addLayer({
+    id: "parcel-line", type: "line", source: "parcels", "source-layer": "parcels",
+    minzoom: 15,
+    paint: { "line-color": "rgba(255,255,255,0.28)", "line-width": 0.5 },
+  });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.9 } });
+  map.addLayer({
+    id: "picked", type: "line", source: "parcels", "source-layer": "parcels",
+    filter: ["==", ["get", "acct"], "___none___"],
+    paint: { "line-color": "#ffd166", "line-width": 3 },
+  });
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "280px" });
+  map.on("click", "parcels", (e) => {
+    const p = e.features[0].properties;
+    show(p, e.lngLat, pop);
+  });
+  map.on("mouseenter", "parcels", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "parcels", () => { map.getCanvas().style.cursor = ""; });
+
+  buildModes();
+  applyMode();
+});
+
+function show(p, lngLat, pop) {
+  const rows = [];
+  const add = (k, v) => rows.push(`<tr><td class="lab">${k}</td><td>${v}</td></tr>`);
+  if (p.status !== "Valued") {
+    add("Status", p.status || "—");
+  } else {
+    add("2026 appraisal", money(p.value));
+    add("2025", money(p.prev_value));
+    add("Change", `${pc(p.change_pct)} (${money(p.change_usd)})`);
+    if (p.nbhd_median_pct !== undefined && p.nbhd_median_pct !== null) {
+      add("Neighbourhood median", pc(p.nbhd_median_pct));
+      add("You vs neighbours", pc(p.vs_neighbours));
+    }
+    add("Land / building", `${money(p.land)} / ${money(p.impr)}`);
+    if (p.cap_shelter) add("Homestead cap shelter", money(p.cap_shelter));
+    add("Reappraised in 2026", p.revalued_2026 ? "Yes" : `No — last ${p.reval_yr || "?"}`);
+    if (p.isd) add("School district", p.isd);
+  }
+  pop.setLngLat(lngLat).setHTML(
+    `<div class="a">${p.addr || "No address on file"}</div>` +
+    `<table>${rows.join("")}</table>`).addTo(map);
+  map.setFilter("picked", ["==", ["get", "acct"], p.acct]);
+}
+
+function buildModes() {
+  const wrap = document.getElementById("modes");
+  Object.entries(MODES).forEach(([k, m]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = m.label;
+    b.setAttribute("aria-pressed", String(k === mode));
+    b.addEventListener("click", () => {
+      mode = k;
+      wrap.querySelectorAll("button").forEach((x) =>
+        x.setAttribute("aria-pressed", String(x.textContent === m.label)));
+      applyMode();
+    });
+    wrap.appendChild(b);
+  });
+}
+
+function applyMode() {
+  const m = MODES[mode];
+  map.setPaintProperty("parcels", "fill-color", paintFor(mode));
+  document.getElementById("key").innerHTML =
+    m.key.map((c) => `<i style="background:${c}"></i>`).join("");
+  document.getElementById("keylab").innerHTML =
+    `<span>${m.lo}</span><span>${m.hi}</span>`;
+  document.getElementById("note").innerHTML = m.note +
+    " Grey parcels are exempt, untaxed, or absent from the 2026 roll.";
+}
+
+// ---- address search, over whatever the map has already loaded ----
+const q = document.getElementById("q");
+const hits = document.getElementById("hits");
+let timer = null;
+q.addEventListener("input", () => {
+  clearTimeout(timer);
+  timer = setTimeout(runSearch, 220);
+});
+
+function runSearch() {
+  const s = q.value.trim().toUpperCase();
+  hits.innerHTML = "";
+  if (s.length < 3) return;
+  // queryRenderedFeatures only sees what is drawn, so searching is scoped to the
+  // current view — stated in the placeholder rather than silently returning few
+  const found = map.queryRenderedFeatures({ layers: ["parcels"] })
+    .filter((f) => (f.properties.addr || "").toUpperCase().includes(s));
+  const seen = new Set();
+  const list = [];
+  for (const f of found) {
+    if (seen.has(f.properties.acct)) continue;
+    seen.add(f.properties.acct);
+    list.push(f);
+    if (list.length >= 12) break;
+  }
+  if (!list.length) {
+    hits.innerHTML = `<div class="hit">Nothing matching in view — zoom to the area first.</div>`;
+    return;
+  }
+  for (const f of list) {
+    const p = f.properties;
+    const el = document.createElement("div");
+    el.className = "hit";
+    el.innerHTML = `<b>${p.addr}</b> · ${p.city || ""} ` +
+      (p.status === "Valued" ? `<span style="float:right">${pc(p.change_pct)}</span>` : "");
+    el.addEventListener("click", () => {
+      const c = f.geometry.coordinates;
+      const flat = (function first(x) { return typeof x[0] === "number" ? x : first(x[0]); })(c);
+      map.flyTo({ center: flat, zoom: 17 });
+      show(p, flat, new maplibregl.Popup({ closeButton: true, maxWidth: "280px" }));
+      hits.innerHTML = "";
+    });
+    hits.appendChild(el);
+  }
+}
+</script>
