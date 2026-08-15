@@ -1,0 +1,271 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Texas Fire Watch — live drought, burn bans and wildfire</title>
+<meta name="description" content="Live drought severity, county burn bans and active wildfires across Texas and the United States. Updated from the US Drought Monitor, Texas A&amp;M Forest Service and NIFC every time you load the page.">
+<link rel="canonical" href="https://geopen.io/maps/texas-fire-watch.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Texas Fire Watch — live drought, burn bans and wildfire">
+<meta property="og:description" content="How dry Texas is, which counties have banned burning, and what is on fire — read fresh from the source every time the page loads.">
+<meta property="og:url" content="https://geopen.io/maps/texas-fire-watch.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-fire-watch-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* The palette is the subject: these are the US Drought Monitor's own official
+     class colours, on a ground biased warm rather than neutral grey because
+     what is being reported is heat and dryness. */
+  :root {
+    --ground: #14100e; --panel: #1d1815; --panel-2: #26201c;
+    --rule: rgba(255,236,220,0.14);
+    --ink: #f6f1ea; --ink-2: #b3a599; --ink-3: #7d7168;
+    --ember: #e08a3c; --alarm: #c1441f;
+    --d0: #ffff00; --d1: #fcd37f; --d2: #ffaa00; --d3: #e60000; --d4: #730000;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+
+  header { padding: 14px 22px 0; flex: none; }
+  .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
+  .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
+  .home:hover { color: var(--ember); }
+  .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
+
+  .stats { display: flex; gap: 10px; padding: 12px 22px 13px; flex: none;
+    overflow-x: auto; scrollbar-width: none; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 10px 15px 11px; min-width: 132px; flex: none; }
+  .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); font-weight: 600; }
+  .stat .v { font-size: 1.62rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .d { font-size: 0.68rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .up { color: var(--alarm); } .down { color: #6fae7f; }
+
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 11px 13px 12px;
+    backdrop-filter: blur(6px); max-width: 232px; }
+  .panel h2 { margin: 0 0 8px; font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .lyr { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.76rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--ember); }
+  .key { display: flex; gap: 3px; margin: 8px 0 2px; }
+  .key i { height: 9px; flex: 1; display: block; }
+  .keylab { display: flex; justify-content: space-between; font-size: 0.6rem;
+    color: var(--ink-3); }
+
+  footer { flex: none; padding: 9px 22px 13px; font-size: 0.65rem; color: var(--ink-3);
+    line-height: 1.55; }
+  footer a { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; }
+  .maplibregl-popup-content b { color: var(--ember); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-ctrl-attrib { font-size: 9px; }
+  @media (max-width: 640px) {
+    .panel { max-width: 176px; left: 10px; bottom: 10px; }
+    header, .stats, footer { padding-left: 12px; padding-right: 12px; }
+  }
+</style>
+
+<header>
+  <div class="title">
+    <h1>Texas Fire Watch</h1>
+    <a class="home" href="https://geopen.io/">geopen.io</a>
+  </div>
+  <p class="sub">Drought, burn bans and active wildfire — read from the source each time this page loads.</p>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="panel">
+    <h2>Layers</h2>
+    <label class="lyr"><input type="checkbox" id="t-drought" checked> Drought severity</label>
+    <label class="lyr"><input type="checkbox" id="t-bans" checked> County burn bans</label>
+    <label class="lyr"><input type="checkbox" id="t-fires" checked> Active wildfires</label>
+    <div class="key" id="key"></div>
+    <div class="keylab"><span>Abnormally dry</span><span>Exceptional</span></div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const USDM_STATS = "https://usdmdataservices.unl.edu/api/StateStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=48&startdate=%S&enddate=%E&statisticsType=1";
+const BANS = "https://gis.tfs.tamu.edu/arcgis/rest/services/EOC/BurnBan/FeatureServer/0/query";
+const FIRES = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+const DCOL = ["#ffff00", "#fcd37f", "#ffaa00", "#e60000", "#730000"];
+
+document.getElementById("key").innerHTML =
+  DCOL.map((c) => `<i style="background:${c}"></i>`).join("");
+
+const fmt = (n) => (n === null || n === undefined || isNaN(n)) ? "—" : n.toLocaleString();
+const pct = (n) => (n === null || n === undefined) ? "—" : n.toFixed(1) + "%";
+
+function card(k, v, d, cls) {
+  return `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div>
+          <div class="d ${cls || ""}">${d || "&nbsp;"}</div></div>`;
+}
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.62 } }],
+  },
+  center: [-99.4, 31.3], zoom: 5.1, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "260px" });
+function hover(layer, html) {
+  map.on("mousemove", layer, (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    pop.setLngLat(e.lngLat).setHTML(html(e.features[0].properties)).addTo(map);
+  });
+  map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+}
+
+async function j(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+function ymd(d) { return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`; }
+
+map.on("load", async () => {
+  // ---------- drought polygons (cached weekly; the USDM only publishes on Thursdays)
+  try {
+    const g = await j("/data/texas_drought.geojson");
+    map.addSource("drought", { type: "geojson", data: g });
+    map.addLayer({ id: "drought", type: "fill", source: "drought",
+      paint: { "fill-color": ["get", "colour"], "fill-opacity": 0.62 } });
+    hover("drought", (p) => `<b>${p.label}</b><br>US Drought Monitor class ${p.class}`);
+  } catch (e) { /* map still works without it */ }
+
+  // ---------- counties, tinted live by burn-ban status
+  try {
+    const [counties, bans] = await Promise.all([
+      j("/data/texas_counties.geojson"),
+      j(`${BANS}?where=${encodeURIComponent("BurnBan='Yes'")}&outFields=County,StartDate&returnGeometry=false&f=json`),
+    ]);
+    const on = new Map();
+    for (const f of (bans.features || [])) {
+      on.set((f.attributes.County || "").trim().toLowerCase(), f.attributes.StartDate);
+    }
+    for (const f of counties.features) {
+      const k = (f.properties.county || "").trim().toLowerCase();
+      f.properties.ban = on.has(k) ? "Yes" : "No";
+      const s = on.get(k);
+      f.properties.days = s ? Math.round((Date.now() - s) / 864e5) : null;
+    }
+    map.addSource("bans", { type: "geojson", data: counties });
+    map.addLayer({ id: "bans", type: "line", source: "bans",
+      paint: {
+        "line-color": ["case", ["==", ["get", "ban"], "Yes"], "#ff7a45", "rgba(255,255,255,0.14)"],
+        "line-width": ["case", ["==", ["get", "ban"], "Yes"], 1.5, 0.5],
+      } });
+    hover("bans", (p) => `<b>${p.county} County</b><br>` +
+      (p.ban === "Yes" ? `Burn ban in effect${p.days ? ` — ${p.days} days` : ""}` : "No burn ban"));
+    window.__bans = on.size;
+  } catch (e) { window.__bans = null; }
+
+  // ---------- active wildfires, live
+  try {
+    const f = await j(`${FIRES}?where=${encodeURIComponent("IncidentTypeCategory='WF'")}` +
+      "&outFields=IncidentName,POOState,POOCounty,IncidentSize,PercentContained,FireDiscoveryDateTime" +
+      "&outSR=4326&resultRecordCount=2000&f=geojson");
+    map.addSource("fires", { type: "geojson", data: f });
+    map.addLayer({ id: "fires", type: "circle", source: "fires",
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"],
+          3, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "IncidentSize"], 0]], 0, 2.5, 100, 5, 700, 15],
+          8, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "IncidentSize"], 0]], 0, 4, 100, 10, 700, 34]],
+        // colour by containment, because a big contained fire and a small
+        // uncontained one are not the same news
+        "circle-color": ["interpolate", ["linear"], ["coalesce", ["get", "PercentContained"], 0],
+          0, "#ff4d2e", 50, "#e08a3c", 100, "#8b8177"],
+        "circle-opacity": 0.9, "circle-stroke-color": "#14100e", "circle-stroke-width": 0.8,
+      } });
+    hover("fires", (p) => `<b>${p.IncidentName || "Unnamed"}</b><br>` +
+      `${p.POOCounty ? p.POOCounty + " County, " : ""}${(p.POOState || "").slice(-2)}<br>` +
+      `${p.IncidentSize ? Math.round(p.IncidentSize).toLocaleString() + " acres" : "size not reported"}` +
+      `${p.PercentContained != null ? ` · ${p.PercentContained}% contained` : ""}`);
+    const fs = f.features || [];
+    window.__fires = {
+      tx: fs.filter((x) => (x.properties.POOState || "").endsWith("TX")).length,
+      us: fs.length,
+      acres: fs.reduce((a, x) => a + (x.properties.IncidentSize || 0), 0),
+    };
+  } catch (e) { window.__fires = null; }
+
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.85 } });
+
+  for (const [box, id] of [["t-drought", "drought"], ["t-bans", "bans"], ["t-fires", "fires"]]) {
+    const el = document.getElementById(box);
+    el.addEventListener("change", () => {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, "visibility", el.checked ? "visible" : "none");
+      }
+    });
+  }
+  paint();
+});
+
+async function paint() {
+  let d = null, prev = null, when = null;
+  try {
+    const end = new Date(), start = new Date(Date.now() - 21 * 864e5);
+    const rows = await j(USDM_STATS.replace("%S", ymd(start)).replace("%E", ymd(end)));
+    rows.sort((a, b) => new Date(b.mapDate) - new Date(a.mapDate));
+    d = rows[0]; prev = rows[1];
+    when = d && new Date(d.mapDate).toLocaleDateString(undefined,
+      { day: "numeric", month: "short", year: "numeric" });
+  } catch (e) { /* stats optional */ }
+
+  const dd = (a, b) => {
+    if (a == null || b == null) return "";
+    const v = a - b;
+    return `<span class="${v > 0 ? "up" : v < 0 ? "down" : ""}">${v > 0 ? "▲" : v < 0 ? "▼" : "="} ${Math.abs(v).toFixed(1)} pts on last week</span>`;
+  };
+  const F = window.__fires;
+  document.getElementById("stats").innerHTML = [
+    card("Texas abnormally dry", d ? pct(d.d0) : "—", d && prev ? dd(d.d0, prev.d0) : ""),
+    card("Moderate drought or worse", d ? pct(d.d1) : "—", d && prev ? dd(d.d1, prev.d1) : ""),
+    card("Extreme or worse", d ? pct(d.d3) : "—", d && prev ? dd(d.d3, prev.d3) : ""),
+    card("Counties banning burning", window.__bans != null ? `${window.__bans}` : "—",
+         window.__bans != null ? `of 254 &middot; ${Math.round(window.__bans / 254 * 100)}%` : ""),
+    card("Wildfires burning in Texas", F ? fmt(F.tx) : "—", F ? `${fmt(F.us)} nationwide` : ""),
+    card("Acres burning nationwide", F ? fmt(Math.round(F.acres)) : "—", F ? "all active incidents" : ""),
+  ].join("");
+
+  document.getElementById("foot").innerHTML =
+    `Drought from the <a href="https://droughtmonitor.unl.edu/" target="_blank" rel="noopener">US Drought Monitor</a>` +
+    (when ? ` (valid ${when}, published weekly on Thursdays)` : "") +
+    ` · burn bans from <a href="https://tfsweb.tamu.edu/wildfire-and-other-disasters/burn-bans-and-information/" target="_blank" rel="noopener">Texas A&amp;M Forest Service</a>` +
+    ` · fires from <a href="https://data-nifc.opendata.arcgis.com/" target="_blank" rel="noopener">NIFC</a>, refreshed constantly. ` +
+    `Burn bans and fires are read live; drought polygons are cached because the Monitor only redraws them once a week. ` +
+    `A fire fought entirely by a county volunteer department may appear in none of these feeds. ` +
+    `Page loaded ${new Date().toLocaleString()}.`;
+}
+</script>
