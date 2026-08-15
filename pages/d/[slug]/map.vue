@@ -24,7 +24,14 @@
         </div>
       </div>
 
-      <div id="fullmap" class="canvas"></div>
+      <div class="canvaswrap">
+        <div id="fullmap" class="canvas"></div>
+        <div class="basepick mono">
+          <button v-for="b in BASEMAPS" :key="b.id" type="button"
+                  :aria-pressed="b.id === baseKey" @click="setBase(b.id)">{{ b.label }}</button>
+          <label><input type="checkbox" v-model="showRef" @change="applyBase" /> labels</label>
+        </div>
+      </div>
 
       <p v-if="shown < total && !loading" class="hint mono">
         Showing a sample so the map opens fast. The download always has every feature.
@@ -132,6 +139,47 @@ function popupNode(props: Record<string, any>) {
 onMounted(async () => {
   if (!d.value || !data.value?.features?.length) return
   maplibregl = (await import('maplibre-gl')).default
+const BASEMAPS = [
+  { id: 'satellite', label: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: false },
+  { id: 'streets', label: 'Streets',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    ref: null, opacity: 1, pale: true },
+  { id: 'light', label: 'Light',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: true },
+  { id: 'dark', label: 'Dark',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    opacity: 1, pale: false },
+]
+const baseKey = ref('satellite')
+const showRef = ref(true)
+
+function applyBase() {
+  if (!map || !map.getSource || !map.getSource('base')) return
+  const b = BASEMAPS.find((x) => x.id === baseKey.value) || BASEMAPS[0]
+  ;(map.getSource('base') as any).setTiles([b.url])
+  const on = showRef.value && !!b.ref
+  if (b.ref) (map.getSource('ref') as any).setTiles([b.ref])
+  if (map.getLayer('ref')) map.setLayoutProperty('ref', 'visibility', on ? 'visible' : 'none')
+  // On a pale ground the white polygon outlines vanish; on satellite a dark one
+  // would. Flip with the basemap rather than picking one that is wrong half the
+  // time.
+  if (map.getLayer('line')) {
+    map.setPaintProperty('line', 'line-color', b.pale ? '#33383d' : '#ffffff')
+  }
+  if (map.getLayer('labels')) {
+    map.setPaintProperty('labels', 'text-color', b.pale ? '#16191c' : '#ffffff')
+    map.setPaintProperty('labels', 'text-halo-color',
+      b.pale ? 'rgba(255,255,255,0.9)' : 'rgba(15,12,10,0.88)')
+  }
+}
+function setBase(id: string) { baseKey.value = id; applyBase() }
+
   await import('maplibre-gl/dist/maplibre-gl.css')
 
   map = new maplibregl.Map({
@@ -141,8 +189,17 @@ onMounted(async () => {
       sources: {
         base: {
           type: 'raster',
-          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+          tiles: [BASEMAPS[0].url],
           tileSize: 256, maxzoom: 19, attribution: '© Esri',
+        },
+        // Roads and place names, drawn ABOVE the polygons. Satellite imagery
+        // carries no state lines, city names or highways, so a choropleth of
+        // school districts floats unanchored on it — the commonest complaint
+        // about these maps, and unfixable from underneath at 0.6 fill opacity.
+        ref: {
+          type: 'raster',
+          tiles: [BASEMAPS[0].ref as string],
+          tileSize: 256, maxzoom: 19,
         },
       },
       layers: [{ id: 'base', type: 'raster', source: 'base' }],
@@ -181,6 +238,11 @@ onMounted(async () => {
       hit.push('pt')
     }
 
+    // Above the fills, below the points: roads under a circle are clutter,
+    // roads under a choropleth are the whole point.
+    map.addLayer({ id: 'ref', type: 'raster', source: 'ref', paint: { 'raster-opacity': 0.95 } },
+      map.getLayer('pt') ? 'pt' : undefined)
+
     // Labels, when a dataset provides them. A feature is labelled by carrying a
     // `label` property — that keeps the decision with whoever built the layer
     // rather than guessing which field is a name, and stays silent for the vast
@@ -204,6 +266,8 @@ onMounted(async () => {
         },
       } as any)
     }
+
+    applyBase()
 
     const pop = new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
     for (const layer of hit) {
@@ -273,4 +337,20 @@ useHead(() => d.value ? { title: `${d.value.title} — map — geopen.io` } : {}
 .maplibregl-popup-content dd {
   margin: 0; color: #14161a; font-variant-numeric: tabular-nums; word-break: break-word;
 }
+
+.canvaswrap { position: relative; flex: 1; min-height: 0; display: flex; }
+.basepick {
+  position: absolute; left: 12px; bottom: 12px; z-index: 3;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(14,15,18,0.82); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.16); border-radius: 4px; padding: 7px 9px;
+}
+.basepick button {
+  font: inherit; font-size: 11px; font-weight: 600; padding: 5px 9px; cursor: pointer;
+  color: #cfd4da; background: transparent; border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 3px;
+}
+.basepick button[aria-pressed="true"] { background: #cfe8d8; color: #0e0f12; border-color: #cfe8d8; }
+.basepick label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #aeb4bd;
+  cursor: pointer; margin-left: 3px; }
 </style>
