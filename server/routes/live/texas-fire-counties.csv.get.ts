@@ -22,6 +22,7 @@ type Row = {
   burn_ban: string
   days_under_ban: number | ''
   drought: string
+  drought_severity: number
   pct_dry: number | ''
   pct_severe_plus: number | ''
   active_fires: number
@@ -36,6 +37,16 @@ const NIFC = 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services
 const USDM = 'https://usdmdataservices.unl.edu/api/CountyStatistics/'
   + 'GetDroughtSeverityStatisticsByAreaPercent'
 
+/** 0 none, 1 D0 … 5 D4 — a numeric rank so a consumer can apply a sequential
+ *  colour scale. Text labels sort alphabetically, which puts "None" between
+ *  D-classes in some tools and produces a scale that reads as random. */
+function severity(r: any): number {
+  for (const [k, n] of [['d4', 5], ['d3', 4], ['d2', 3], ['d1', 2], ['d0', 1]] as const) {
+    if (Number(r?.[k] || 0) > 0) return n
+  }
+  return 0
+}
+
 /** The most severe class covering any part of the county. */
 function worst(r: any): string {
   for (const [k, label] of [['d4', 'D4 Exceptional'], ['d3', 'D3 Extreme'],
@@ -48,7 +59,8 @@ function worst(r: any): string {
 
 function csv(rows: Row[]): string {
   const head = ['fips', 'county', 'burn_ban', 'days_under_ban', 'drought',
-                'pct_dry', 'pct_severe_plus', 'active_fires', 'acres_burning']
+                'drought_severity', 'pct_dry', 'pct_severe_plus',
+                'active_fires', 'acres_burning']
   const esc = (v: any) => {
     const s = String(v ?? '')
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
@@ -122,6 +134,7 @@ const build = defineCachedFunction(async (): Promise<string> => {
       burn_ban: banned ? 'Burn ban' : 'No ban',
       days_under_ban: banned && started ? Math.round((now - started) / 86_400_000) : '',
       drought: d ? worst(d) : '',
+      drought_severity: d ? severity(d) : 0,
       pct_dry: d ? Number(d.d0 || 0) : '',
       pct_severe_plus: d ? Number(d.d2 || 0) : '',
       active_fires: hit?.n || 0,
