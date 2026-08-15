@@ -1,5 +1,5 @@
 /**
- * GET /api/fire-watch/counties.csv — live Texas county fire conditions, as CSV.
+ * GET /live/texas-fire-counties.csv — live Texas county fire conditions, as CSV.
  *
  * Built to be the data source for a Datawrapper visualisation, which is the one
  * live-updating format Substack embeds natively. Datawrapper's "Link external
@@ -104,7 +104,8 @@ export default defineEventHandler(async (event) => {
   // cross-origin
   setHeader(event, 'access-control-allow-origin', '*')
   setHeader(event, 'cache-control', 'public, max-age=300')
-  // send() with an explicit type, because returning a string from a route under
-  // /api/ gets labelled application/json whatever setHeader said
+  // This lives under server/routes/ rather than server/api/ on purpose: Nitro
+  // labels everything under /api/ as application/json regardless of setHeader
+  // or send(), and Datawrapper is being handed a CSV.
   return send(event, body, 'text/csv; charset=utf-8')
 })
