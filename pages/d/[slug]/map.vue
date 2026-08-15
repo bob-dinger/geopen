@@ -146,6 +146,10 @@ onMounted(async () => {
         },
       },
       layers: [{ id: 'base', type: 'raster', source: 'base' }],
+      // MapLibre cannot render a single character of text without a glyph
+      // source. Without this, a layer carrying labels draws its geometry and
+      // silently omits every label.
+      glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
     },
     center: [d.value.lng ?? -99, d.value.lat ?? 31.3],
     zoom: d.value.zoom ?? 5,
@@ -175,6 +179,30 @@ onMounted(async () => {
     if (t.some((x: string) => x.includes('Point'))) {
       map.addLayer({ id: 'pt', type: 'circle', source: 'd', paint: circlePaint(st, 5) as any })
       hit.push('pt')
+    }
+
+    // Labels, when a dataset provides them. A feature is labelled by carrying a
+    // `label` property — that keeps the decision with whoever built the layer
+    // rather than guessing which field is a name, and stays silent for the vast
+    // majority of datasets that would only be made unreadable by 9,000 labels.
+    if (feats.some((f: any) => f?.properties?.label)) {
+      map.addLayer({
+        id: 'labels', type: 'symbol', source: 'd',
+        filter: ['has', 'label'],
+        layout: {
+          'text-field': ['get', 'label'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 5, 10, 8, 12, 12, 15],
+          'text-line-height': 1.35,
+          'text-max-width': 16,
+          'text-allow-overlap': false,
+        },
+        paint: {
+          'text-color': '#ffffff',
+          'text-halo-color': 'rgba(15,12,10,0.88)',
+          'text-halo-width': 1.8,
+        },
+      } as any)
     }
 
     const pop = new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
