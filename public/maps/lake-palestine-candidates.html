@@ -1,0 +1,175 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where is the new Lake Palestine state park? Three tracts fit</title>
+<meta name="description" content="TPWD is buying about 650 acres on Lake Palestine and has not said whose. Only three owners in Henderson County hold shoreline tracts of that size.">
+<link rel="canonical" href="https://geopen.io/maps/lake-palestine-candidates.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Where is the new Lake Palestine state park? Three tracts fit">
+<meta property="og:description" content="Of 108,484 parcels in Henderson County, only three owners hold a shoreline tract the size TPWD is buying.">
+<meta property="og:url" content="https://geopen.io/maps/lake-palestine-candidates.html">
+<meta property="og:image" content="https://geopen.io/maps/lake-palestine-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Palette from the place: limestone, live oak, and the deep green TPWD uses
+     on its own signage. */
+  :root {
+    --ground: #12140f; --panel: rgba(20,24,17,0.88); --rule: rgba(226,232,212,0.16);
+    --ink: #f2f4ea; --ink-2: #aab39a; --ink-3: #7b8471;
+    --park: #4b8b3b; --edge: #d8e8b8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+
+  .card {
+    position: absolute; left: 22px; top: 20px; z-index: 5; max-width: 330px;
+    background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 17px 19px 16px;
+  }
+  h1 { margin: 0 0 3px; font-size: 1.06rem; font-weight: 700; letter-spacing: -0.015em;
+    line-height: 1.25; }
+  .where { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; margin: 0 0 13px; }
+  .f .k { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); font-weight: 600; }
+  .f .v { font-size: 1.06rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em; }
+  p.note { margin: 0; font-size: 0.76rem; line-height: 1.55; color: var(--ink-2); }
+  .src { margin: 12px 0 0; font-size: 0.63rem; color: var(--ink-3); line-height: 1.5; }
+  .src a { color: var(--ink-2); }
+
+  .btns { display: flex; gap: 6px; margin: 13px 0 0; }
+  .btns button {
+    font: inherit; font-size: 0.68rem; font-weight: 600; padding: 6px 10px;
+    background: transparent; color: var(--ink-2); border: 1px solid var(--rule);
+    border-radius: 2px; cursor: pointer;
+  }
+  .btns button[aria-pressed="true"] { background: var(--edge); color: #12140f;
+    border-color: var(--edge); }
+  .maplibregl-ctrl-attrib { font-size: 9px; }
+  @media (max-width: 620px) {
+    .card { left: 10px; right: 10px; top: 10px; max-width: none; padding: 13px 15px; }
+    .facts { gap: 7px 10px; }
+  }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>The next state park, somewhere on this lake</h1>
+  <p class="where">Henderson County · Lake Palestine · candidates, not an answer</p>
+  <div class="facts">
+    <div class="f"><div class="k">TPWD is buying</div><div class="v">~650 ac</div></div>
+    <div class="f"><div class="k">Parcels searched</div><div class="v">108,484</div></div>
+    <div class="f"><div class="k">Owners that fit</div><div class="v">3</div></div>
+    <div class="f"><div class="k">Commission vote</div><div class="v">20 Aug</div></div>
+  </div>
+  <p class="note"><b>These are not confirmed.</b> TPWD says only that it is
+    acquiring "approximately 650 acres" of Lake Palestine shoreline in Henderson
+    County, and the item sits in executive session until the commission votes.
+    No seller has been named. What is shown here is simply every owner in the
+    county holding a shoreline tract of roughly that size — three of them, out
+    of 108,484 parcels. One is the public water authority that owns and runs the
+    lake; two are private.</p>
+  <div class="btns" id="btns"></div>
+  <p class="src">Ownership from <a href="https://data.geographic.texas.gov/" target="_blank" rel="noopener">Texas StratMap land parcels</a>,
+    March 2025, TxGIO — a public appraisal record. Acquisition listed on the
+    <a href="https://tpwd.texas.gov/business/feedback/meetings/2026/0820/agenda/work_session/" target="_blank" rel="noopener">TPWD commission agenda</a> for 20 August 2026.
+    These tracts match the published description; none has been identified as
+    the property. · <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "sat", label: "Satellite",
+    url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}` },
+  { id: "topo", label: "Terrain",
+    url: `${E}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`, ref: null },
+  { id: "street", label: "Streets",
+    url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, ref: null },
+];
+let baseKey = "sat";
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+        tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES[0].ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  center: [-95.47, 32.16], zoom: 11.2,
+  attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+map.on("load", async () => {
+  const gj = await (await fetch("/data/lake_palestine_candidates.geojson")).json();
+  map.addSource("park", { type: "geojson", data: gj });
+  map.addLayer({ id: "park-fill", type: "fill", source: "park",
+    paint: {
+      // the acquisition solid, the adjoining family land faint — they are
+      // different claims and should not look like one shape
+      // all three drawn the same weight on purpose: nothing here is confirmed,
+      // and shading one darker would assert a conclusion the data cannot carry
+      "fill-color": "#c98b2e",
+      "fill-opacity": 0.34,
+    } });
+  map.addLayer({ id: "park-line", type: "line", source: "park",
+    paint: { "line-color": "#ffd9a0", "line-width": 2.2 } });
+  // the reference tileset draws above the fill; underneath it the roads and
+  // place names that put the park in context would be invisible
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.9 } });
+
+  // frame the whole park with room to see what surrounds it
+  const b = new maplibregl.LngLatBounds();
+  const walk = (c) => (typeof c[0] === "number") ? b.extend(c) : c.forEach(walk);
+  gj.features.forEach((f) => walk(f.geometry.coordinates));
+  map.fitBounds(b, { padding: { top: 80, bottom: 80, left: 390, right: 80 }, duration: 0 });
+
+  const pop = new maplibregl.Popup({ closeButton: false });
+  map.on("mousemove", "park-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    pop.setLngLat(e.lngLat).setHTML(
+      `<b>${e.features[0].properties.owner}</b><br>` +
+      `${Number(e.features[0].properties.acres).toLocaleString()} acres of shoreline · ` +
+      `${e.features[0].properties.parcels} parcels<br>` +
+      `<i>${e.features[0].properties.note}</i>`).addTo(map);
+  });
+  map.on("mouseleave", "park-fill", () => {
+    map.getCanvas().style.cursor = ""; pop.remove();
+  });
+
+  const wrap = document.getElementById("btns");
+  BASES.forEach((bm) => {
+    const el = document.createElement("button");
+    el.type = "button"; el.textContent = bm.label;
+    el.setAttribute("aria-pressed", String(bm.id === baseKey));
+    el.addEventListener("click", () => {
+      baseKey = bm.id;
+      map.getSource("base").setTiles([bm.url]);
+      if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+      map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+      // a pale ground needs a dark outline; satellite needs a light one
+      map.setPaintProperty("park-line", "line-color",
+        bm.id === "sat" ? "#ffd9a0" : "#8a5a10");
+      wrap.querySelectorAll("button").forEach((x) =>
+        x.setAttribute("aria-pressed", String(x.textContent === bm.label)));
+    });
+    wrap.appendChild(el);
+  });
+});
+</script>
