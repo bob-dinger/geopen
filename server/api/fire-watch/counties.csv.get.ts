@@ -100,10 +100,11 @@ const build = defineCachedFunction(async (): Promise<string> => {
 
 export default defineEventHandler(async (event) => {
   const body = await build()
-  setHeader(event, 'content-type', 'text/csv; charset=utf-8')
   // Datawrapper fetches this from its own servers, so it must be readable
   // cross-origin
   setHeader(event, 'access-control-allow-origin', '*')
   setHeader(event, 'cache-control', 'public, max-age=300')
-  return body
+  // send() with an explicit type, because returning a string from a route under
+  // /api/ gets labelled application/json whatever setHeader said
+  return send(event, body, 'text/csv; charset=utf-8')
 })
