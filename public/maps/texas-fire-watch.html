@@ -103,7 +103,10 @@
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-const USDM_STATS = "https://usdmdataservices.unl.edu/api/StateStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=48&startdate=%S&enddate=%E&statisticsType=1";
+// Proxied through geopen: the Drought Monitor's statistics service sends no
+// CORS header, so the browser cannot call it directly. The proxy also caches,
+// since the Monitor only redraws on Thursdays.
+const USDM_STATS = "/api/drought/texas";
 const BANS = "https://gis.tfs.tamu.edu/arcgis/rest/services/EOC/BurnBan/FeatureServer/0/query";
 const FIRES = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
 const DCOL = ["#ffff00", "#fcd37f", "#ffaa00", "#e60000", "#730000"];
@@ -150,8 +153,6 @@ async function j(url) {
   if (!r.ok) throw new Error(r.status);
   return r.json();
 }
-
-function ymd(d) { return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`; }
 
 map.on("load", async () => {
   // ---------- drought polygons (cached weekly; the USDM only publishes on Thursdays)
@@ -235,13 +236,11 @@ map.on("load", async () => {
 async function paint() {
   let d = null, prev = null, when = null;
   try {
-    const end = new Date(), start = new Date(Date.now() - 21 * 864e5);
-    const rows = await j(USDM_STATS.replace("%S", ymd(start)).replace("%E", ymd(end)));
-    rows.sort((a, b) => new Date(b.mapDate) - new Date(a.mapDate));
-    d = rows[0]; prev = rows[1];
-    when = d && new Date(d.mapDate).toLocaleDateString(undefined,
+    const r = await j(USDM_STATS);
+    d = (r.weeks || [])[0]; prev = (r.weeks || [])[1];
+    when = d && new Date(d.date).toLocaleDateString(undefined,
       { day: "numeric", month: "short", year: "numeric" });
-  } catch (e) { /* stats optional */ }
+  } catch (e) { /* the maps still draw without it */ }
 
   const dd = (a, b) => {
     if (a == null || b == null) return "";
