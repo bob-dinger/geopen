@@ -1,0 +1,327 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When every lake in Texas was built</title>
+<meta name="description" content="Completion years for 7,421 Texas dams — every reservoir in the state, when its dam was finished, how big it is and what it was for. Texas built half its lakes in a thirty-year window and has barely built one since.">
+<link rel="canonical" href="https://geopen.io/maps/texas-lakes.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="When every lake in Texas was built">
+<meta property="og:description" content="Texas has one natural lake. The other 7,000 have a completion date — and almost all of them share the same thirty years.">
+<meta property="og:url" content="https://geopen.io/maps/texas-lakes.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-lakes-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* One hue, light to dark, because the variable is a year and a year is
+     sequential — no rainbow. The ground is a blue-biased dark rather than a
+     neutral grey so impounded water reads as the subject. The single warm
+     accent is spent on the 1960s bar and nowhere else. */
+  :root {
+    --ground: #0a1017; --panel: #121c25; --panel-2: #1a2833;
+    --rule: rgba(190,225,245,0.14);
+    --ink: #e9f1f6; --ink-2: #9db3c2; --ink-3: #6b8496;
+    --accent: #f0b429;
+    --c1: #163a55; --c2: #1f5c85; --c3: #2b83b3; --c4: #4aabd6; --c5: #86cfe8;
+    --c6: #c2e9f4; --c0: #4a5a66;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+
+  header { padding: 14px 22px 0; flex: none; }
+  .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
+  .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
+  .home:hover { color: var(--c5); }
+  .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
+
+  .stats { display: flex; gap: 10px; padding: 12px 22px 4px; flex: none;
+    overflow-x: auto; scrollbar-width: none; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 10px 15px 11px; min-width: 140px; flex: none; }
+  .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); font-weight: 600; }
+  .stat .v { font-size: 1.62rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .d { font-size: 0.68rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  /* The histogram is the finding and the filter at once: the shape of it *is*
+     the answer to "when were they built", and clicking a bar shows you those. */
+  .hist { display: flex; align-items: flex-end; gap: 3px; padding: 10px 22px 0;
+    height: 76px; flex: none; }
+  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
+    background: none; border: 0; padding: 0; font: inherit; }
+  .bar i { display: block; width: 100%; background: var(--c3); border-radius: 2px 2px 0 0;
+    transition: background 0.12s, opacity 0.12s; min-height: 2px; }
+  .bar:hover i { background: var(--c6); }
+  .bar.peak i { background: var(--accent); }
+  .bar.off i { opacity: 0.22; }
+  .bar span { font-size: 0.58rem; color: var(--ink-3); margin-top: 4px;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar.on span { color: var(--ink); font-weight: 700; }
+  .histnote { padding: 3px 22px 10px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
+  .histnote b { color: var(--ink-2); font-weight: 600; }
+  .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
+    border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
+    margin-left: 8px; cursor: pointer; }
+  .clear:hover { border-color: var(--c4); color: var(--ink); }
+
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 11px 13px 12px;
+    max-width: 214px; }
+  .panel h2 { margin: 0 0 7px; font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .panel h2:not(:first-child) { margin-top: 12px; }
+  .lyr { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.75rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--c4); }
+  .key { display: flex; gap: 2px; margin: 2px 0; }
+  .key i { height: 9px; flex: 1; display: block; }
+  .keylab { display: flex; justify-content: space-between; font-size: 0.58rem;
+    color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .sizes { display: flex; align-items: flex-end; gap: 9px; margin-top: 3px; }
+  .sizes div { text-align: center; font-size: 0.55rem; color: var(--ink-3); }
+  .sizes b { display: block; border-radius: 50%; background: var(--c3);
+    margin: 0 auto 3px; }
+
+  footer { flex: none; padding: 9px 22px 13px; font-size: 0.65rem; color: var(--ink-3);
+    line-height: 1.55; }
+  footer a { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px;
+    line-height: 1.5; }
+  .maplibregl-popup-content b { color: var(--c5); }
+  .maplibregl-popup-content .yr { color: var(--accent); font-weight: 700; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-ctrl-attrib { font-size: 9px; }
+  @media (max-width: 700px) {
+    .panel { max-width: 168px; left: 10px; bottom: 10px; padding: 9px 10px 10px; }
+    header, .stats, .hist, .histnote, footer { padding-left: 12px; padding-right: 12px; }
+    .bar span { font-size: 0.5rem; }
+    .hist { height: 60px; }
+  }
+</style>
+
+<header>
+  <div class="title">
+    <h1>When every lake in Texas was built</h1>
+    <a class="home" href="https://geopen.io/">geopen.io</a>
+  </div>
+  <p class="sub">7,421 dams, 6,963 of them with a completion year on the record.</p>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="hist" id="hist"></div>
+<div class="histnote" id="histnote"></div>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="panel">
+    <h2>Year completed</h2>
+    <div class="key" id="key"></div>
+    <div class="keylab"><span>1849</span><span>2024</span></div>
+    <h2>Size</h2>
+    <div class="sizes" id="sizes"></div>
+    <h2>Show</h2>
+    <label class="lyr"><input type="checkbox" id="t-major"> Major reservoirs only</label>
+    <label class="lyr"><input type="checkbox" id="t-undated" checked> Undated dams</label>
+  </div>
+</div>
+
+<footer id="foot">Loading 7,421 dams…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/texas_lake_ages.geojson";
+// 5,000 acre-feet is the Texas Water Development Board's own line between a
+// "major" reservoir and everything else.
+const MAJOR = 5000;
+const STOPS = [
+  [1900, "#163a55"], [1930, "#1f5c85"], [1950, "#2b83b3"],
+  [1970, "#4aabd6"], [1990, "#86cfe8"], [2010, "#c2e9f4"],
+];
+const NODATE = "#4a5a66";
+
+document.getElementById("key").innerHTML =
+  STOPS.map(([, c]) => `<i style="background:${c}"></i>`).join("");
+document.getElementById("sizes").innerHTML = [[5, "1k af"], [9, "100k"], [15, "1M+"]]
+  .map(([r, l]) => `<div><b style="width:${r * 2}px;height:${r * 2}px"></b>${l}</div>`).join("");
+
+const fmt = (n) => (n == null || isNaN(n)) ? "—" : Math.round(n).toLocaleString();
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.6 } }],
+  },
+  center: [-99.3, 31.3], zoom: 5.05, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+// ---- filter state: a decade from the histogram, plus the two checkboxes ----
+let pickedDecade = null;
+const wantMajor = () => document.getElementById("t-major").checked;
+const wantUndated = () => document.getElementById("t-undated").checked;
+
+function applyFilter() {
+  const f = ["all"];
+  if (pickedDecade != null) f.push(["==", ["get", "decade"], pickedDecade]);
+  if (wantMajor()) f.push(["==", ["get", "major"], true]);
+  // an undated dam has decade null; MapLibre can't compare null, so test the year
+  if (!wantUndated()) f.push(["has", "year"]);
+  if (map.getLayer("dams")) map.setFilter("dams", f.length > 1 ? f : null);
+  // the ring layer keeps its own major test no matter what the checkbox says —
+  // reusing `f` here would ring every dam whenever the box was unticked
+  if (map.getLayer("dams-major")) {
+    map.setFilter("dams-major", ["all", ["==", ["get", "major"], true], ...f.slice(1)]);
+  }
+  document.querySelectorAll(".bar").forEach((b) => {
+    const d = Number(b.dataset.decade);
+    b.classList.toggle("on", pickedDecade === d);
+    b.classList.toggle("off", pickedDecade != null && pickedDecade !== d);
+  });
+  note();
+}
+
+function note() {
+  const el = document.getElementById("histnote");
+  const bits = [];
+  if (pickedDecade != null) {
+    const n = window.__hist.get(pickedDecade) || 0;
+    bits.push(`Showing the <b>${fmt(n)}</b> dams completed in the <b>${pickedDecade}s</b>` +
+      `<button class="clear" onclick="pickDecade(null)">show all decades</button>`);
+  } else {
+    bits.push("Each bar is a decade. <b>Click one</b> to show only the dams finished then.");
+  }
+  el.innerHTML = bits.join(" ");
+}
+
+// clicking the selected bar again clears it, so the toggle needs no outside state
+window.pickDecade = (d) => { pickedDecade = (pickedDecade === d) ? null : d; applyFilter(); };
+
+map.on("load", async () => {
+  let gj;
+  try {
+    const r = await fetch(DATA);
+    if (!r.ok) throw new Error(r.status);
+    gj = await r.json();
+  } catch (e) {
+    document.getElementById("foot").textContent = "Could not load the dam data.";
+    return;
+  }
+  const P = gj.features.map((f) => f.properties);
+
+  map.addSource("dams", { type: "geojson", data: gj });
+
+  const colour = ["case", ["!", ["has", "year"]], NODATE,
+    ["interpolate", ["linear"], ["get", "year"], ...STOPS.flatMap(([y, c]) => [y, c])]];
+  // area, not radius, tracks storage — so a reservoir ten times bigger looks
+  // ten times bigger rather than a hundred
+  const radius = ["interpolate", ["linear"], ["zoom"],
+    4, ["interpolate", ["linear"], ["sqrt", ["get", "storage_af"]], 0, 2, 300, 5, 2120, 15],
+    9, ["interpolate", ["linear"], ["sqrt", ["get", "storage_af"]], 0, 3.5, 300, 11, 2120, 34]];
+
+  map.addLayer({ id: "dams", type: "circle", source: "dams",
+    paint: { "circle-radius": radius, "circle-color": colour,
+      "circle-opacity": 0.82, "circle-stroke-color": "#0a1017",
+      "circle-stroke-width": 0.6 } });
+  // the 196 that hold real water get a ring so they stay findable in the swarm
+  map.addLayer({ id: "dams-major", type: "circle", source: "dams",
+    filter: ["==", ["get", "major"], true],
+    paint: { "circle-radius": radius, "circle-color": "rgba(0,0,0,0)",
+      "circle-stroke-color": "#e9f1f6", "circle-stroke-width": 1 } });
+
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "290px" });
+  map.on("mousemove", "dams", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    const line = [];
+    if (p.storage_af > 0) line.push(`${fmt(p.storage_af)} acre-feet`);
+    if (p.surface_ac > 0) line.push(`${fmt(p.surface_ac)} surface acres`);
+    if (p.height_ft > 0) line.push(`${fmt(p.height_ft)} ft high`);
+    pop.setLngLat(e.lngLat).setHTML(
+      `<b>${p.name}</b>${p.also ? `<br><span style="color:#6b8496">also ${p.also}</span>` : ""}<br>` +
+      `<span class="yr">${p.year ? `Completed ${p.year}` : "Completion year not recorded"}</span>` +
+      `${p.modified ? ` · modified ${p.modified}` : ""}<br>` +
+      `${p.county} County${p.river ? ` · ${p.river}` : ""}<br>` +
+      (line.length ? line.join(" · ") + "<br>" : "") +
+      `${p.purpose || "purpose unstated"}${p.type ? ` · ${p.type.toLowerCase()} dam` : ""}<br>` +
+      `<span style="color:#6b8496">${p.owner || "owner unstated"}` +
+      `${p.condition ? ` · rated ${p.condition.toLowerCase()}` : ""}</span>`
+    ).addTo(map);
+  });
+  map.on("mouseleave", "dams", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+
+  // ---- histogram, built from what is actually drawn ----
+  const hist = new Map();
+  for (const p of P) if (p.decade != null && p.decade >= 1880) {
+    hist.set(p.decade, (hist.get(p.decade) || 0) + 1);
+  }
+  window.__hist = hist;
+  const decades = [...hist.keys()].sort((a, b) => a - b);
+  const peak = decades.reduce((a, d) => hist.get(d) > hist.get(a) ? d : a, decades[0]);
+  const mx = hist.get(peak);
+  document.getElementById("hist").innerHTML = decades.map((d) =>
+    `<button class="bar${d === peak ? " peak" : ""}" data-decade="${d}"
+      title="${fmt(hist.get(d))} dams completed in the ${d}s"
+      onclick="pickDecade(${d})">
+      <i style="height:${(hist.get(d) / mx * 100).toFixed(1)}%"></i>
+      <span>${d === decades[0] || d % 20 === 0 ? `'${String(d).slice(2)}` : "&nbsp;"}</span>
+    </button>`).join("");
+
+  // ---- the numbers ----
+  const dated = P.filter((p) => p.year);
+  const yrs = dated.map((p) => p.year).sort((a, b) => a - b);
+  const median = yrs[Math.floor(yrs.length / 2)];
+  const majors = P.filter((p) => p.major);
+  const since90 = majors.filter((p) => p.year >= 1990).length;
+  const boom = decades.filter((d) => d >= 1950 && d <= 1979)
+    .reduce((a, d) => a + hist.get(d), 0);
+
+  document.getElementById("stats").innerHTML = [
+    ["Dams on the record", fmt(P.length), `${fmt(dated.length)} with a completion year`],
+    ["Median completion", median, `${new Date().getFullYear() - median} years ago`],
+    ["Built 1950–1979", fmt(boom), `${Math.round(boom / dated.length * 100)}% of every dated dam`],
+    ["Peak decade", `${peak}s`, `${fmt(mx)} dams — more than any other`],
+    ["Major reservoirs", fmt(majors.length), `holding 5,000+ acre-feet`],
+    ["Major, built since 1990", since90, "in the last 36 years"],
+  ].map(([k, v, d]) =>
+    `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div>
+     <div class="d">${d}</div></div>`).join("");
+
+  for (const id of ["t-major", "t-undated"]) {
+    document.getElementById(id).addEventListener("change", applyFilter);
+  }
+  applyFilter();
+
+  document.getElementById("foot").innerHTML =
+    `Every dam the US Army Corps of Engineers lists in Texas, from the ` +
+    `<a href="https://nid.sec.usace.army.mil/" target="_blank" rel="noopener">National Inventory of Dams</a>. ` +
+    `A dam qualifies for the inventory at 25ft high storing 15 acre-feet, or 50 acre-feet at 6ft, ` +
+    `or at any size if it threatens life below it — so this is every lake in Texas and none of the ` +
+    `stock tanks. Texas has one natural lake of consequence, Caddo, and it has had a dam since 1914. ` +
+    `Large reservoirs appear more than once where a main dam has saddle dikes; the counts above ` +
+    `treat each structure separately, the way the inventory does. ` +
+    `The inventory files a dam by where the dam stands, not where its water sits, so a few ` +
+    `border reservoirs are missing — Lake Texoma most of all, whose Denison Dam (1944, 2.6 million ` +
+    `acre-feet) is filed under Oklahoma. ` +
+    `Free to download at <a href="https://geopen.io/">geopen.io</a>.`;
+});
+</script>
