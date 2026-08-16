@@ -408,7 +408,10 @@ map.on("load", async () => {
     map.addLayer({ id: "lakes", type: "fill", source: "lakes",
       paint: { "fill-color": lakeColour("year"), "fill-opacity": b0.fill.year } });
     map.addLayer({ id: "lakes-line", type: "line", source: "lakes",
-      paint: { "line-color": b0.lakeLine, "line-width": 0.7, "line-opacity": 0.7 } });
+      paint: { "line-color": b0.lakeLine, "line-opacity": 0.75,
+        // a hairline at statewide zoom is most of what makes a small reservoir
+        // findable at all, so it does not thin out with the rest of the map
+        "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.9, 10, 1.4] } });
     lakePopup();
   } catch (e) { /* the dam points still carry the page */ }
 
@@ -417,20 +420,31 @@ map.on("load", async () => {
   const colour = ["case", ["!", ["has", "year"]], NODATE,
     ["interpolate", ["linear"], ["get", "year"], ...STOPS.flatMap(([y, c]) => [y, c])]];
   // area, not radius, tracks storage — so a reservoir ten times bigger looks
-  // ten times bigger rather than a hundred
+  // ten times bigger rather than a hundred.
+  //
+  // Held deliberately small at statewide zoom. 7,421 points over Texas is a
+  // solid mat that hides the lake polygons underneath it, and the lakes are
+  // what the page is about; the swarm still reads as density at this size.
+  // They grow into the primary mark as you zoom to where individual dams matter.
   const radius = ["interpolate", ["linear"], ["zoom"],
-    4, ["interpolate", ["linear"], ["sqrt", ["get", "storage_af"]], 0, 2, 300, 5, 2120, 15],
+    4, ["interpolate", ["linear"], ["sqrt", ["get", "storage_af"]], 0, 1.1, 300, 2.4, 2120, 6],
     9, ["interpolate", ["linear"], ["sqrt", ["get", "storage_af"]], 0, 3.5, 300, 11, 2120, 34]];
 
   map.addLayer({ id: "dams", type: "circle", source: "dams",
     paint: { "circle-radius": radius, "circle-color": colour,
-      "circle-opacity": 0.82, "circle-stroke-color": BASES[0].damStroke,
-      "circle-stroke-width": 0.6 } });
-  // the 196 that hold real water get a ring so they stay findable in the swarm
+      // translucent statewide so the water shows through the mat of points,
+      // solid once you are close enough to be reading individual dams
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 8.5, 0.85],
+      "circle-stroke-color": BASES[0].damStroke,
+      "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 8, 0.6] } });
+  // A ring marks the dams whose reservoir is major. It only earns its ink once
+  // the polygons are too small to do the job — at statewide zoom the lake shape
+  // already says which dams hold real water, and 202 rings just add noise.
   map.addLayer({ id: "dams-major", type: "circle", source: "dams",
     filter: ["==", ["get", "major"], true],
     paint: { "circle-radius": radius, "circle-color": "rgba(0,0,0,0)",
-      "circle-stroke-color": "#e9f1f6", "circle-stroke-width": 1 } });
+      "circle-stroke-color": "#e9f1f6",
+      "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6.5, 0, 8, 1] } });
 
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
   setBase(BASES[0]);
