@@ -88,6 +88,14 @@
   .lyr { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.75rem;
     color: var(--ink-2); cursor: pointer; }
   .lyr input { accent-color: var(--c4); }
+  .bases { display: flex; gap: 4px; }
+  .bases button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.66rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button:hover { color: var(--ink); border-color: var(--c4); }
+  .bases button[aria-pressed="true"] { background: var(--c3); border-color: var(--c4);
+    color: #fff; font-weight: 600; }
+
   .key { display: flex; gap: 2px; margin: 2px 0; }
   .key i { height: 9px; flex: 1; display: block; }
   .keylab { display: flex; justify-content: space-between; font-size: 0.58rem;
@@ -131,9 +139,11 @@
 <div class="wrap">
   <div id="map"></div>
   <div class="panel">
+    <h2>Basemap</h2>
+    <div class="bases" id="bases"></div>
     <h2>Year completed</h2>
     <div class="key" id="key"></div>
-    <div class="keylab"><span>1849</span><span>2024</span></div>
+    <div class="keylab" id="keylab"><span>1849</span><span>2024</span></div>
     <h2>Size</h2>
     <div class="sizes" id="sizes"></div>
     <h2>Colour the lakes by</h2>
@@ -153,6 +163,30 @@
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+// Satellite first: these polygons are the real shorelines, so imagery underneath
+// shows the reservoir against the country it drowned — and a lake sitting well
+// below its shoreline is visible in the picture before any colour says so.
+// The dark canvas stays as an option because the ramps were built against it.
+const BASES = [
+  { id: "sat", label: "Satellite",
+    url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 1, lakeLine: "#ffffff", fill: { year: 0.8, full: 0.42 },
+    damStroke: "#000000" },
+  { id: "topo", label: "Terrain",
+    url: `${E}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, lakeLine: "#0a1017", fill: { year: 0.85, full: 0.85 },
+    damStroke: "#ffffff" },
+  { id: "dark", label: "Dark",
+    url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 0.62, lakeLine: "#c2e9f4", fill: { year: 0.85, full: 0.85 },
+    damStroke: "#0a1017" },
+];
+let baseKey = "sat";
+let viewKey = "year";
+
 const DATA = "/data/texas_lake_ages.geojson";
 const LAKES = "/data/texas_reservoirs.geojson";
 // proxied: waterdatafortexas.org serves the daily conditions CSV with no CORS
@@ -176,6 +210,18 @@ document.getElementById("key").innerHTML =
   STOPS.map(([, c]) => `<i style="background:${c}"></i>`).join("");
 document.getElementById("key2").innerHTML =
   FULL_STOPS.map(([, c]) => `<i style="background:${c}"></i>`).join("");
+
+// Built at top level, not inside the load handler — a picker that only exists
+// once 4 MB of geometry has arrived is a picker that silently renders nothing
+// when a fetch fails.
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}"
+    >${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const id = e.target.dataset && e.target.dataset.base;
+  const bm = BASES.find((b) => b.id === id);
+  if (bm) setBase(bm);
+});
 document.getElementById("sizes").innerHTML = [[5, "1k af"], [9, "100k"], [15, "1M+"]]
   .map(([r, l]) => `<div><b style="width:${r * 2}px;height:${r * 2}px"></b>${l}</div>`).join("");
 
@@ -194,6 +240,43 @@ function lakeColour(mode) {
   return ["case", ["!", ["has", "year"]], NODATE,
     ["interpolate", ["linear"], ["get", "year"],
       ...STOPS.flatMap(([y, c]) => [y, c])]];
+}
+
+/** Repaint the lakes for the current basemap AND the current view.
+ *
+ *  The two interact, which is why one function owns both. A reservoir polygon
+ *  is its *full* conservation pool, so a lake at 38% shows as water in the
+ *  middle with a ring of dry ground inside the same outline. On satellite that
+ *  ring is visible in the imagery — the fullness view drops to 42% opacity so
+ *  the picture corroborates the number, while the year view stays at 80%
+ *  because there the fill is the only thing carrying data.
+ *
+ *  On the flat basemaps there is nothing underneath worth seeing through, so
+ *  both views stay opaque.
+ */
+function paintLakes() {
+  const bm = BASES.find((b) => b.id === baseKey);
+  if (!map.getLayer("lakes")) return;
+  map.setPaintProperty("lakes", "fill-color", lakeColour(viewKey));
+  map.setPaintProperty("lakes", "fill-opacity", bm.fill[viewKey]);
+  map.setPaintProperty("lakes-line", "line-color", bm.lakeLine);
+}
+
+/** Swap the imagery and re-tune every mark that sits on it. */
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) {
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  }
+  if (map.getLayer("dams")) {
+    map.setPaintProperty("dams", "circle-stroke-color", bm.damStroke);
+  }
+  paintLakes();
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
 }
 
 function lakePopup() {
@@ -232,12 +315,12 @@ const map = new maplibregl.Map({
     version: 8,
     glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sources: {
-      base: { type: "raster", tileSize: 256, attribution: "© Esri",
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
-      ref: { type: "raster", tileSize: 256,
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+        tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES[0].ref] },
     },
-    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.6 } }],
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
   },
   center: [-99.3, 31.3], zoom: 5.05, attributionControl: { compact: true },
 });
@@ -320,11 +403,12 @@ map.on("load", async () => {
       f.properties.asof = r ? r.date : null;
     }
     window.__levels = levels;
+    const b0 = BASES[0];
     map.addSource("lakes", { type: "geojson", data: lg });
     map.addLayer({ id: "lakes", type: "fill", source: "lakes",
-      paint: { "fill-color": lakeColour("year"), "fill-opacity": 0.85 } });
+      paint: { "fill-color": lakeColour("year"), "fill-opacity": b0.fill.year } });
     map.addLayer({ id: "lakes-line", type: "line", source: "lakes",
-      paint: { "line-color": "#c2e9f4", "line-width": 0.5, "line-opacity": 0.45 } });
+      paint: { "line-color": b0.lakeLine, "line-width": 0.7, "line-opacity": 0.7 } });
     lakePopup();
   } catch (e) { /* the dam points still carry the page */ }
 
@@ -340,7 +424,7 @@ map.on("load", async () => {
 
   map.addLayer({ id: "dams", type: "circle", source: "dams",
     paint: { "circle-radius": radius, "circle-color": colour,
-      "circle-opacity": 0.82, "circle-stroke-color": "#0a1017",
+      "circle-opacity": 0.82, "circle-stroke-color": BASES[0].damStroke,
       "circle-stroke-width": 0.6 } });
   // the 196 that hold real water get a ring so they stay findable in the swarm
   map.addLayer({ id: "dams-major", type: "circle", source: "dams",
@@ -349,6 +433,7 @@ map.on("load", async () => {
       "circle-stroke-color": "#e9f1f6", "circle-stroke-width": 1 } });
 
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+  setBase(BASES[0]);
 
   const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "290px" });
   map.on("mousemove", "dams", (e) => {
@@ -433,9 +518,13 @@ map.on("load", async () => {
   });
   for (const [id, mode] of [["v-year", "year"], ["v-full", "full"]]) {
     document.getElementById(id).addEventListener("change", () => {
-      if (map.getLayer("lakes")) map.setPaintProperty("lakes", "fill-color", lakeColour(mode));
-      document.getElementById("keylab2").style.opacity = mode === "full" ? "1" : "0.35";
-      document.getElementById("key2").style.opacity = mode === "full" ? "1" : "0.35";
+      viewKey = mode;
+      paintLakes();
+      // dim whichever legend isn't in play, so two ramps never both read as live
+      for (const [el, on] of [["key", mode === "year"], ["keylab", mode === "year"],
+                              ["key2", mode === "full"], ["keylab2", mode === "full"]]) {
+        document.getElementById(el).style.opacity = on ? "1" : "0.35";
+      }
     });
   }
   document.getElementById("key2").style.opacity = "0.35";
