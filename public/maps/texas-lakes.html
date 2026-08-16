@@ -199,8 +199,11 @@ function lakeColour(mode) {
 function lakePopup() {
   const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "300px" });
   map.on("mousemove", "lakes", (e) => {
-    // a dam point sitting on the lake wins the hover; its popup is more specific
-    if (map.queryRenderedFeatures(e.point, { layers: ["dams"] }).length) return;
+    // a dam point sitting on the lake wins the hover; its popup is more specific.
+    // guarded because queryRenderedFeatures throws on a layer that isn't there,
+    // and the lakes draw first — if the dam fetch failed there is no "dams"
+    if (map.getLayer("dams")
+        && map.queryRenderedFeatures(e.point, { layers: ["dams"] }).length) return;
     map.getCanvas().style.cursor = "pointer";
     const p = e.features[0].properties;
     const bits = [];
