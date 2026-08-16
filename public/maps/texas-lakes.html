@@ -172,7 +172,7 @@ const BASES = [
   { id: "sat", label: "Satellite",
     url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
     ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
-    opacity: 1, lakeLine: "#ffffff", fill: { year: 0.8, full: 0.42 },
+    opacity: 1, lakeLine: "#ffffff", fill: { year: 0.8, full: 0.55 },
     damStroke: "#000000" },
   { id: "topo", label: "Terrain",
     url: `${E}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`,
@@ -247,9 +247,11 @@ function lakeColour(mode) {
  *  The two interact, which is why one function owns both. A reservoir polygon
  *  is its *full* conservation pool, so a lake at 38% shows as water in the
  *  middle with a ring of dry ground inside the same outline. On satellite that
- *  ring is visible in the imagery — the fullness view drops to 42% opacity so
+ *  ring is visible in the imagery — the fullness view drops to 55% opacity so
  *  the picture corroborates the number, while the year view stays at 80%
- *  because there the fill is the only thing carrying data.
+ *  because there the fill is the only thing carrying data. 55% rather than
+ *  lower: below about half, the tint stops reading as an encoding at all and
+ *  the legend starts describing a colour nobody can see.
  *
  *  On the flat basemaps there is nothing underneath worth seeing through, so
  *  both views stay opaque.
