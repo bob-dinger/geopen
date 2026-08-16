@@ -30,18 +30,18 @@
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
   body { display: flex; flex-direction: column; overflow: hidden; }
 
-  header { padding: 14px 22px 0; flex: none; }
+  header { padding: 11px 22px 0; flex: none; }
   .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
   h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
   .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
   .home:hover { color: var(--c5); }
   .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
 
-  .stats { display: flex; gap: 10px; padding: 12px 22px 4px; flex: none;
+  .stats { display: flex; gap: 10px; padding: 10px 22px 3px; flex: none;
     overflow-x: auto; scrollbar-width: none; }
   .stats::-webkit-scrollbar { display: none; }
   .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
-    padding: 10px 15px 11px; min-width: 140px; flex: none; }
+    padding: 8px 14px 9px; min-width: 138px; flex: none; }
   .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
     color: var(--ink-3); font-weight: 600; }
   .stat .v { font-size: 1.62rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
@@ -50,8 +50,8 @@
 
   /* The histogram is the finding and the filter at once: the shape of it *is*
      the answer to "when were they built", and clicking a bar shows you those. */
-  .hist { display: flex; align-items: flex-end; gap: 3px; padding: 10px 22px 0;
-    height: 76px; flex: none; }
+  .hist { display: flex; align-items: flex-end; gap: 3px; padding: 8px 22px 0;
+    height: 64px; flex: none; }
   .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
     justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
     background: none; border: 0; padding: 0; font: inherit; }
@@ -69,7 +69,7 @@
   .bar span { font-size: 0.58rem; color: var(--ink-3); margin-top: 4px;
     font-variant-numeric: tabular-nums; white-space: nowrap; }
   .bar.on span { color: var(--ink); font-weight: 700; }
-  .histnote { padding: 3px 22px 10px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
+  .histnote { padding: 2px 22px 7px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
   .histnote b { color: var(--ink-2); font-weight: 600; }
   .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
     border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
@@ -105,9 +105,25 @@
   .sizes b { display: block; border-radius: 50%; background: var(--c3);
     margin: 0 auto 3px; }
 
-  footer { flex: none; padding: 9px 22px 13px; font-size: 0.65rem; color: var(--ink-3);
-    line-height: 1.55; }
+  /* The caveats are the honest part of this page and they are six lines long,
+     which is six lines the map does not get. Collapsed to one by default; the
+     reader who wants to know what a dam has to be to qualify for the inventory
+     is a reader who will click. */
+  footer { flex: none; padding: 7px 22px 10px; font-size: 0.65rem;
+    color: var(--ink-3); line-height: 1.55; }
   footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--c4); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer summary:hover .more { color: var(--c6); }
+  footer .notes { margin-top: 7px; max-height: 30vh; overflow-y: auto;
+    padding-right: 10px; border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
   .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
     border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px;
     line-height: 1.5; }
@@ -551,27 +567,39 @@ map.on("load", async () => {
   document.getElementById("keylab2").style.opacity = "0.35";
   applyFilter();
 
-  document.getElementById("foot").innerHTML =
-    `<b>Lakes</b> and their impoundment dates from the ` +
-    `<a href="https://www.twdb.texas.gov/" target="_blank" rel="noopener">Texas Water Development Board</a>` +
-    ` — 209 of 211 dated, to the month. <b>Today's levels</b> from ` +
-    `<a href="https://www.waterdatafortexas.org/reservoirs/statewide" target="_blank" rel="noopener">Water Data for Texas</a>, ` +
-    `read fresh each time this page loads; the state gauges 122 reservoirs daily and the other 89 ` +
-    `are shown grey rather than empty, because ungauged is not the same as dry. ` +
-    `Flood-control-only pools like Addicks and Barker are meant to sit empty and are left out of the ` +
-    `statewide figure. Where TWDB and the Corps both date a reservoir they agree exactly 74% of the ` +
-    `time and within two years 92% of the time, matched on dam location rather than name; the ` +
-    `one-year gaps are a dam finished in one year and filled the next. ` +
-    `<b>Dams</b> are every one the US Army Corps of Engineers lists in Texas, from the ` +
-    `<a href="https://nid.sec.usace.army.mil/" target="_blank" rel="noopener">National Inventory of Dams</a>. ` +
-    `A dam qualifies for the inventory at 25ft high storing 15 acre-feet, or 50 acre-feet at 6ft, ` +
-    `or at any size if it threatens life below it — so this is every lake in Texas and none of the ` +
-    `stock tanks. Texas has one natural lake of consequence, Caddo, and it has had a dam since 1914. ` +
-    `Large reservoirs appear more than once where a main dam has saddle dikes; the counts above ` +
-    `treat each structure separately, the way the inventory does. ` +
-    `The inventory files a dam by where the dam stands, not where its water sits, so a few ` +
-    `border reservoirs are missing — Lake Texoma most of all, whose Denison Dam (1944, 2.6 million ` +
-    `acre-feet) is filed under Oklahoma. ` +
-    `Free to download at <a href="https://geopen.io/">geopen.io</a>.`;
+  const A = (href, text) =>
+    `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+  document.getElementById("foot").innerHTML = `<details><summary>
+      <span class="src">Lakes and dates from ${A("https://www.twdb.texas.gov/", "TWDB")} ·
+        today's levels from ${A("https://www.waterdatafortexas.org/reservoirs/statewide",
+          "Water Data for Texas")}${levels && levels.date ? `, ${levels.date}` : ""} ·
+        dams from the ${A("https://nid.sec.usace.army.mil/", "National Inventory of Dams")} ·
+        free to download at ${A("https://geopen.io/", "geopen.io")}</span>
+      <span class="more">What's in this, and what isn't</span>
+    </summary>
+    <div class="notes">
+      <p><b>The lakes.</b> 211 reservoirs from the Texas Water Development Board,
+        209 of them dated to the month. Where TWDB and the Corps both date a
+        reservoir they agree exactly 74% of the time and within two years 92% of
+        the time, matched on dam location rather than name — the one-year gaps
+        are a dam finished in one year and filled the next.</p>
+      <p><b>The levels.</b> Read fresh each time this page loads. The state
+        gauges 122 reservoirs daily; the other 89 are grey rather than empty,
+        because ungauged is not the same as dry. Flood-control-only pools like
+        Addicks and Barker are meant to sit empty and stay out of the statewide
+        figure.</p>
+      <p><b>The dams.</b> Every one the US Army Corps of Engineers lists in
+        Texas. A dam qualifies at 25ft high storing 15 acre-feet, or 50 acre-feet
+        at 6ft, or at any size if it threatens life below it — so this is every
+        lake in Texas and none of the stock tanks. Texas has one natural lake of
+        consequence, Caddo, and it has had a dam since 1914.</p>
+      <p><b>Two things that will look like errors.</b> Large reservoirs appear
+        more than once where a main dam has saddle dikes, and the counts above
+        treat each structure separately, the way the inventory does. And the
+        inventory files a dam by where the dam stands rather than where its water
+        sits, so a few border reservoirs are missing — Lake Texoma most of all,
+        whose Denison Dam (1944, 2.6 million acre-feet) is filed under
+        Oklahoma.</p>
+    </div></details>`;
 });
 </script>
