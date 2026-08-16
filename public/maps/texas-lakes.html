@@ -120,7 +120,8 @@
     <h1>When every lake in Texas was built</h1>
     <a class="home" href="https://geopen.io/">geopen.io</a>
   </div>
-  <p class="sub">7,421 dams, 6,963 of them with a completion year on the record.</p>
+  <p class="sub">7,421 dams and 211 reservoirs, with the year each was built —
+    and, for the 122 the state gauges, how full they are today.</p>
 </header>
 
 <div class="stats" id="stats"></div>
@@ -135,7 +136,13 @@
     <div class="keylab"><span>1849</span><span>2024</span></div>
     <h2>Size</h2>
     <div class="sizes" id="sizes"></div>
-    <h2>Show</h2>
+    <h2>Colour the lakes by</h2>
+    <label class="lyr"><input type="radio" name="view" id="v-year" checked> Year impounded</label>
+    <label class="lyr"><input type="radio" name="view" id="v-full"> How full it is today</label>
+    <div class="key" id="key2"></div>
+    <div class="keylab" id="keylab2"><span>Empty</span><span>Full</span></div>
+    <h2>Dams</h2>
+    <label class="lyr"><input type="checkbox" id="t-dams" checked> Show the 7,421 dam points</label>
     <label class="lyr"><input type="checkbox" id="t-major"> Major reservoirs only</label>
     <label class="lyr"><input type="checkbox" id="t-undated" checked> Undated dams</label>
     <label class="lyr"><input type="checkbox" id="t-nofed"> Hide federal flood control</label>
@@ -147,6 +154,15 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 const DATA = "/data/texas_lake_ages.geojson";
+const LAKES = "/data/texas_reservoirs.geojson";
+// proxied: waterdatafortexas.org serves the daily conditions CSV with no CORS
+// header, so the browser cannot read it directly
+const LEVELS = "/api/reservoirs/texas";
+// Fullness is a proportion of a fixed thing, so it gets its own ramp — a dry
+// tan through to the same water blue the age ramp ends on. Not diverging: 50%
+// full is not a neutral midpoint, it is just half.
+const FULL_STOPS = [[0, "#8a6a3f"], [25, "#b09256"], [50, "#5f9ab0"],
+                    [75, "#2b83b3"], [100, "#163a55"]];
 // 5,000 acre-feet is the Texas Water Development Board's own line between a
 // "major" reservoir and everything else.
 const MAJOR = 5000;
@@ -158,10 +174,54 @@ const NODATE = "#4a5a66";
 
 document.getElementById("key").innerHTML =
   STOPS.map(([, c]) => `<i style="background:${c}"></i>`).join("");
+document.getElementById("key2").innerHTML =
+  FULL_STOPS.map(([, c]) => `<i style="background:${c}"></i>`).join("");
 document.getElementById("sizes").innerHTML = [[5, "1k af"], [9, "100k"], [15, "1M+"]]
   .map(([r, l]) => `<div><b style="width:${r * 2}px;height:${r * 2}px"></b>${l}</div>`).join("");
 
 const fmt = (n) => (n == null || isNaN(n)) ? "—" : Math.round(n).toLocaleString();
+
+// Two ways to colour a lake, sharing one layer. `year` uses the same ramp as the
+// dam points so the two layers read as one map; `pct` uses the fullness ramp.
+// An ungauged lake is not 0% full, it is unmeasured, and gets the grey the
+// undated dams use rather than the dry end of the ramp.
+function lakeColour(mode) {
+  if (mode === "full") {
+    return ["case", ["==", ["get", "pct"], null], NODATE,
+      ["interpolate", ["linear"], ["get", "pct"],
+        ...FULL_STOPS.flatMap(([v, c]) => [v, c])]];
+  }
+  return ["case", ["!", ["has", "year"]], NODATE,
+    ["interpolate", ["linear"], ["get", "year"],
+      ...STOPS.flatMap(([y, c]) => [y, c])]];
+}
+
+function lakePopup() {
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "300px" });
+  map.on("mousemove", "lakes", (e) => {
+    // a dam point sitting on the lake wins the hover; its popup is more specific
+    if (map.queryRenderedFeatures(e.point, { layers: ["dams"] }).length) return;
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    const bits = [];
+    if (p.pct != null) {
+      bits.push(`<span class="yr">${p.pct}% full</span> today` +
+        (p.asof ? ` <span style="color:#6b8496">(${p.asof})</span>` : "") +
+        (p.vol ? `<br>${fmt(p.vol)} of ${fmt(p.cap_now)} acre-feet` : ""));
+    } else {
+      bits.push(`<span style="color:#6b8496">Not gauged by the state — no daily level</span>`);
+    }
+    pop.setLngLat(e.lngLat).setHTML(
+      `<b>${p.name}</b>${p.alias ? `<br><span style="color:#6b8496">also ${p.alias}</span>` : ""}<br>` +
+      `<span class="yr">${p.year ? `Impounded ${p.year}` : "Impoundment date not recorded"}</span>` +
+      `${p.offchannel ? " · off-channel" : ""}<br>` +
+      bits.join("") + "<br>" +
+      `<span style="color:#6b8496">${p.uses || "purpose not stated"}</span>`
+    ).addTo(map);
+  });
+  map.on("mouseleave", "lakes", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+}
+
 
 const map = new maplibregl.Map({
   container: "map",
@@ -237,6 +297,33 @@ map.on("load", async () => {
     return;
   }
   const P = gj.features.map((f) => f.properties);
+
+  // ---- the lakes themselves, under the dam points ----
+  let levels = null;
+  try {
+    const [lg, lv] = await Promise.all([
+      fetch(LAKES).then((r) => r.json()),
+      fetch(LEVELS).then((r) => r.json()).catch(() => null),
+    ]);
+    levels = lv && lv.ok ? lv : null;
+    // fold today's reading into each polygon, so MapLibre can style on it
+    for (const f of lg.features) {
+      const k = f.properties.live;
+      const r = (levels && k) ? levels.reservoirs[k] : null;
+      f.properties.pct = (r && r.percent_full != null) ? r.percent_full : null;
+      f.properties.vol = r ? r.volume_af : null;
+      f.properties.cap_now = r ? r.capacity_af : null;
+      f.properties.elev = r ? r.elevation_ft : null;
+      f.properties.asof = r ? r.date : null;
+    }
+    window.__levels = levels;
+    map.addSource("lakes", { type: "geojson", data: lg });
+    map.addLayer({ id: "lakes", type: "fill", source: "lakes",
+      paint: { "fill-color": lakeColour("year"), "fill-opacity": 0.85 } });
+    map.addLayer({ id: "lakes-line", type: "line", source: "lakes",
+      paint: { "line-color": "#c2e9f4", "line-width": 0.5, "line-opacity": 0.45 } });
+    lakePopup();
+  } catch (e) { /* the dam points still carry the page */ }
 
   map.addSource("dams", { type: "geojson", data: gj });
 
@@ -321,6 +408,12 @@ map.on("load", async () => {
     ["Federal flood control", fmt(fed), `${Math.round(fed / P.length * 100)}% of the total, median 109 af`],
     ["Major reservoirs", fmt(majors.length), `holding 5,000+ acre-feet`],
     ["Major, built since 1990", since90, "in the last 36 years"],
+    ...(levels && levels.statewide ? [[
+      "Texas reservoirs today",
+      `${levels.statewide.percent_full}% full`,
+      `${fmt(levels.statewide.volume_af)} of ${fmt(levels.statewide.capacity_af)} af` +
+      `${levels.date ? ` · ${levels.date}` : ""}`,
+    ]] : []),
   ].map(([k, v, d]) =>
     `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div>
      <div class="d">${d}</div></div>`).join("");
@@ -328,10 +421,36 @@ map.on("load", async () => {
   for (const id of ["t-major", "t-undated", "t-nofed"]) {
     document.getElementById(id).addEventListener("change", applyFilter);
   }
+  document.getElementById("t-dams").addEventListener("change", (e) => {
+    for (const id of ["dams", "dams-major"]) {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, "visibility", e.target.checked ? "visible" : "none");
+      }
+    }
+  });
+  for (const [id, mode] of [["v-year", "year"], ["v-full", "full"]]) {
+    document.getElementById(id).addEventListener("change", () => {
+      if (map.getLayer("lakes")) map.setPaintProperty("lakes", "fill-color", lakeColour(mode));
+      document.getElementById("keylab2").style.opacity = mode === "full" ? "1" : "0.35";
+      document.getElementById("key2").style.opacity = mode === "full" ? "1" : "0.35";
+    });
+  }
+  document.getElementById("key2").style.opacity = "0.35";
+  document.getElementById("keylab2").style.opacity = "0.35";
   applyFilter();
 
   document.getElementById("foot").innerHTML =
-    `Every dam the US Army Corps of Engineers lists in Texas, from the ` +
+    `<b>Lakes</b> and their impoundment dates from the ` +
+    `<a href="https://www.twdb.texas.gov/" target="_blank" rel="noopener">Texas Water Development Board</a>` +
+    ` — 209 of 211 dated, to the month. <b>Today's levels</b> from ` +
+    `<a href="https://www.waterdatafortexas.org/reservoirs/statewide" target="_blank" rel="noopener">Water Data for Texas</a>, ` +
+    `read fresh each time this page loads; the state gauges 122 reservoirs daily and the other 89 ` +
+    `are shown grey rather than empty, because ungauged is not the same as dry. ` +
+    `Flood-control-only pools like Addicks and Barker are meant to sit empty and are left out of the ` +
+    `statewide figure. Where TWDB and the Corps both date a reservoir they agree exactly 74% of the ` +
+    `time and within two years 92% of the time, matched on dam location rather than name; the ` +
+    `one-year gaps are a dam finished in one year and filled the next. ` +
+    `<b>Dams</b> are every one the US Army Corps of Engineers lists in Texas, from the ` +
     `<a href="https://nid.sec.usace.army.mil/" target="_blank" rel="noopener">National Inventory of Dams</a>. ` +
     `A dam qualifies for the inventory at 25ft high storing 15 acre-feet, or 50 acre-feet at 6ft, ` +
     `or at any size if it threatens life below it — so this is every lake in Texas and none of the ` +
