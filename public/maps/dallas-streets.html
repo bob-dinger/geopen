@@ -1,0 +1,412 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dallas is built out of 26-foot streets</title>
+<meta name="description" content="Every block of street in Dallas — 113,789 segments — by pavement width, year built, sidewalk coverage, lanes and condition. Half the city's local streets are exactly 26 feet wide.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-streets.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas is built out of 26-foot streets">
+<meta property="og:description" content="51% of Dallas local streets are exactly 26 feet wide. The standard peaks in the 1950s and erodes every decade after.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-streets.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-streets-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Asphalt greys, biased warm, with one signal colour. The subject is a
+     standard applied to a city, so the palette stays quiet and lets the
+     26-foot highlight be the only loud thing on the page. */
+  :root {
+    --ground: #14140f; --panel: #1e1e18; --panel-2: #292921;
+    --rule: rgba(240,235,215,0.14);
+    --ink: #f2efe6; --ink-2: #b0aa99; --ink-3: #7c776a;
+    --signal: #ffb02e;
+    --n0: #4a4a42;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+
+  header { padding: 11px 22px 0; flex: none; }
+  .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
+  .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
+  .home:hover { color: var(--signal); }
+  .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
+
+  .stats { display: flex; gap: 10px; padding: 10px 22px 3px; flex: none;
+    overflow-x: auto; scrollbar-width: none; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 8px 14px 9px; min-width: 132px; flex: none; }
+  .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); font-weight: 600; }
+  .stat .v { font-size: 1.55rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .d { font-size: 0.67rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .stat.hero .v { color: var(--signal); }
+
+  /* The width histogram is the argument: one bar towers over the rest at 26ft.
+     Clicking a bar isolates streets of that width. */
+  .hist { display: flex; align-items: flex-end; gap: 2px; padding: 8px 22px 0;
+    height: 62px; flex: none; }
+  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
+    background: none; border: 0; padding: 0; font: inherit; }
+  .bar i { display: block; width: 100%; background: #6f6a5a; border-radius: 2px 2px 0 0;
+    transition: opacity 0.12s; min-height: 1px; }
+  .bar.peak i { background: var(--signal); }
+  .bar:hover i { opacity: 0.72; }
+  .bar.off i { opacity: 0.2; }
+  .bar span { font-size: 0.56rem; color: var(--ink-3); margin-top: 3px;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar.on span { color: var(--ink); font-weight: 700; }
+  .histnote { padding: 2px 22px 7px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
+  .histnote b { color: var(--ink-2); font-weight: 600; }
+  .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
+    border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
+    margin-left: 8px; cursor: pointer; }
+  .clear:hover { border-color: var(--signal); color: var(--ink); }
+
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 9px 12px 10px;
+    max-width: 212px; max-height: calc(100% - 32px); overflow-y: auto;
+    scrollbar-width: thin; }
+  .panel h2 { margin: 0 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .panel h2:not(:first-child) { margin-top: 9px; }
+  .lyr { display: flex; align-items: center; gap: 7px; padding: 1px 0; font-size: 0.74rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--signal); }
+  .bases { display: flex; gap: 4px; }
+  .bases button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.66rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button:hover { color: var(--ink); border-color: var(--signal); }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #241a04; font-weight: 700; }
+  .key { display: flex; gap: 2px; margin: 3px 0 1px; }
+  .key i { height: 9px; flex: 1; display: block; }
+  .keylab { display: flex; justify-content: space-between; font-size: 0.57rem;
+    color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  footer { flex: none; padding: 7px 22px 10px; font-size: 0.65rem; color: var(--ink-3);
+    line-height: 1.55; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 30vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-ctrl-attrib { font-size: 9px; }
+  @media (max-width: 700px) {
+    .panel { max-width: 168px; left: 10px; bottom: 10px; }
+    header, .stats, .hist, .histnote, footer { padding-left: 12px; padding-right: 12px; }
+    .bar span { font-size: 0.5rem; }
+  }
+</style>
+
+<header>
+  <div class="title">
+    <h1>Dallas is built out of 26-foot streets</h1>
+    <a class="home" href="https://geopen.io/">geopen.io</a>
+  </div>
+  <p class="sub">113,789 blocks of street, by width, age, sidewalk, lanes and condition.</p>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="hist" id="hist"></div>
+<div class="histnote" id="histnote"></div>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="panel">
+    <h2>Basemap</h2>
+    <div class="bases" id="bases"></div>
+    <h2>Colour streets by</h2>
+    <label class="lyr"><input type="radio" name="v" id="v-width" checked> Pavement width</label>
+    <label class="lyr"><input type="radio" name="v" id="v-year"> Year built</label>
+    <label class="lyr"><input type="radio" name="v" id="v-swlk"> Sidewalk coverage</label>
+    <label class="lyr"><input type="radio" name="v" id="v-lanes"> Lanes</label>
+    <label class="lyr"><input type="radio" name="v" id="v-pci"> Pavement condition</label>
+    <div class="key" id="key"></div>
+    <div class="keylab" id="keylab"></div>
+    <h2>Show</h2>
+    <label class="lyr"><input type="checkbox" id="f-26"> Only the 26-foot streets</label>
+    <label class="lyr"><input type="checkbox" id="f-alley"> Hide alleys</label>
+    <label class="lyr"><input type="checkbox" id="f-local"> Local streets only</label>
+  </div>
+</div>
+
+<footer id="foot">Loading 113,789 street segments…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/dallas_streets.pmtiles";
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1 },
+];
+let baseKey = "dark";
+let viewKey = "width";
+let pickedWidth = null;
+
+// Five variables, five ramps. Width, sidewalk, lanes and condition are all
+// sequential — one hue, light to dark — because each is a magnitude. Year is
+// sequential too but gets its own hue so a reader never confuses "old" with
+// "narrow". No diverging ramps here: none of these has a meaningful midpoint.
+const VIEWS = {
+  width: { field: "width", label: "Pavement width",
+    stops: [[16, "#4c3a12"], [22, "#8a6412"], [26, "#ffb02e"], [34, "#8fc7d6"], [50, "#2b6f8f"]],
+    lo: "16 ft", hi: "50 ft+",
+    fmt: (p) => p.width ? `${p.width} ft wide` : "width not recorded" },
+  year: { field: "year",
+    stops: [[1920, "#3b2f4a"], [1950, "#6b4f8a"], [1970, "#9b7fc4"], [1990, "#c3b0e0"], [2020, "#eae2f6"]],
+    lo: "1920", hi: "2020s",
+    fmt: (p) => p.year ? `Built ${p.year}` : "no construction year on record" },
+  swlk: { field: "swlk",
+    stops: [[0, "#7a2718"], [25, "#a85a2a"], [50, "#9a8f52"], [75, "#5f9160"], [100, "#2f7a4f"]],
+    lo: "none", hi: "both sides",
+    fmt: (p) => p.swlk === null || p.swlk === undefined
+      ? "sidewalk not surveyed" : `${p.swlk}% sidewalk coverage` },
+  lanes: { field: "lanes",
+    stops: [[1, "#173a3f"], [2, "#1f5f68"], [3, "#3f8f96"], [5, "#8fc4c8"], [8, "#dcefef"]],
+    lo: "1", hi: "8+",
+    fmt: (p) => p.lanes ? `${p.lanes} lane${p.lanes > 1 ? "s" : ""}` : "lanes not recorded" },
+  pci: { field: "pci",
+    stops: [[10, "#8c1f1f"], [40, "#c05621"], [60, "#b8a13a"], [80, "#4f8f4a"], [100, "#2b7a3f"]],
+    lo: "failed", hi: "new",
+    fmt: (p) => p.pci ? `Condition ${p.pci}/100${p.cond ? ` — ${p.cond.toLowerCase()}` : ""}`
+      : "not inspected" },
+};
+const NODATA = "#4a4a42";
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+        tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES[0].ref] },
+      streets: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.797, 32.78], zoom: 10.4, attributionControl: { compact: true },
+});
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function colour(v) {
+  const V = VIEWS[v];
+  return ["case", ["!", ["has", V.field]], NODATA,
+    ["interpolate", ["linear"], ["get", V.field], ...V.stops.flatMap(([s, c]) => [s, c])]];
+}
+
+function setView(v) {
+  viewKey = v;
+  const V = VIEWS[v];
+  if (map.getLayer("streets")) map.setPaintProperty("streets", "line-color", colour(v));
+  document.getElementById("key").innerHTML =
+    V.stops.map(([, c]) => `<i style="background:${c}"></i>`).join("");
+  document.getElementById("keylab").innerHTML =
+    `<span>${V.lo}</span><span>${V.hi}</span>`;
+}
+
+function applyFilter() {
+  const f = ["all"];
+  if (pickedWidth != null) f.push(["==", ["get", "width"], pickedWidth]);
+  if (document.getElementById("f-26").checked) f.push(["==", ["get", "is26"], true]);
+  if (document.getElementById("f-alley").checked) f.push(["!=", ["get", "cls"], "Alley"]);
+  if (document.getElementById("f-local").checked) {
+    f.push(["in", ["get", "cls"], ["literal", ["Local Improved", "Local Unimproved"]]]);
+  }
+  if (map.getLayer("streets")) map.setFilter("streets", f.length > 1 ? f : null);
+  document.querySelectorAll(".bar").forEach((b) => {
+    const w = Number(b.dataset.w);
+    b.classList.toggle("on", pickedWidth === w);
+    b.classList.toggle("off", pickedWidth != null && pickedWidth !== w);
+  });
+  note();
+}
+
+function note() {
+  const el = document.getElementById("histnote");
+  if (pickedWidth != null) {
+    const n = (window.__hist.get(pickedWidth) || 0);
+    el.innerHTML = `Showing the <b>${n.toLocaleString()}</b> local blocks that are ` +
+      `<b>exactly ${pickedWidth} feet</b> wide` +
+      `<button class="clear" onclick="pickWidth(null)">show all widths</button>`;
+  } else {
+    el.innerHTML = "Each bar is a pavement width, local streets only. " +
+      "<b>Click one</b> to isolate the blocks built to it.";
+  }
+}
+window.pickWidth = (w) => { pickedWidth = (pickedWidth === w) ? null : w; applyFilter(); };
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) {
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  }
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "streets", type: "line", source: "streets", "source-layer": "streets",
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": colour("width"),
+      // thin enough at city scale that the street grid reads as texture, wide
+      // enough close in that the colour is legible on a single block
+      "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.6, 13, 1.8, 16, 7],
+      "line-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.75, 14, 0.95],
+    } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+  setBase(BASES[0]);
+  setView("width");
+
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "290px" });
+  map.on("mousemove", "streets", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    const line = [];
+    if (p.width) line.push(`${p.width} ft wide`);
+    if (p.lanes) line.push(`${p.lanes} lane${p.lanes > 1 ? "s" : ""}`);
+    if (p.len_ft) line.push(`${Math.round(p.len_ft)} ft long`);
+    pop.setLngLat(e.lngLat).setHTML(
+      `<b>${p.name || "Unnamed"}</b>${p.block ? ` — ${p.block} block` : ""}<br>` +
+      `${p.cls}${p.speed ? ` · ${p.speed} mph` : ""}<br>` +
+      (line.length ? line.join(" · ") + "<br>" : "") +
+      `${p.year ? `Built ${p.year}` : "No construction year recorded"}<br>` +
+      `${p.swlk === null || p.swlk === undefined
+        ? `<span style="color:#7c776a">Sidewalk not surveyed</span>`
+        : `Sidewalk ${p.swlk}%${p.curb != null ? ` · curb ${p.curb}%` : ""}`}<br>` +
+      `<span style="color:#7c776a">${p.pci ? `Condition ${p.pci}/100` : "Not inspected"}` +
+      `${p.dist ? ` · council district ${p.dist}` : ""}</span>`
+    ).addTo(map);
+  });
+  map.on("mouseleave", "streets", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+
+  for (const [id, v] of [["v-width", "width"], ["v-year", "year"], ["v-swlk", "swlk"],
+                         ["v-lanes", "lanes"], ["v-pci", "pci"]]) {
+    document.getElementById(id).addEventListener("change", () => setView(v));
+  }
+  for (const id of ["f-26", "f-alley", "f-local"]) {
+    document.getElementById(id).addEventListener("change", applyFilter);
+  }
+  applyFilter();
+});
+
+// The counts come from the built file rather than the tiles: tippecanoe drops
+// features at low zoom, so counting what is rendered would undercount the
+// densest and oldest parts of the city — exactly the parts that matter here.
+fetch("/data/dallas_streets_stats.json").then((r) => r.json()).then((s) => {
+  window.__hist = new Map(Object.entries(s.local_width_hist).map(([k, v]) => [Number(k), v]));
+  const cards = [
+    ["Street segments", "113,789", "every block the city maintains"],
+    ["Local streets exactly 26ft", `${s.local_26_pct}%`,
+      `${s.local_26ft.toLocaleString()} of ${s.local_with_width.toLocaleString()} blocks`, true],
+    ["Peak of the standard", "1950s", `${s.local_width_by_decade["1950"].pct_26}% of that decade at 26ft`],
+    ["By the 2000s", `${s.local_width_by_decade["2000"].pct_26}%`, "the standard had come apart"],
+    ["No sidewalk either side", `${s.sidewalk_none_pct}%`,
+      `${s.sidewalk_full_pct}% have full coverage`],
+  ];
+  // computed rather than typed, so the card cannot drift from the data behind it
+  const D = Object.entries(s.sidewalk_by_district)
+    .filter(([k]) => Number(k) > 0)
+    .sort((a, b) => b[1].none_pct - a[1].none_pct);
+  if (D.length > 1) {
+    const [worst, best] = [D[0], D[D.length - 1]];
+    cards.push(["Gap between council districts",
+      `${Math.round(worst[1].none_pct - best[1].none_pct)} pts`,
+      `District ${worst[0]} at ${worst[1].none_pct}%, District ${best[0]} at ${best[1].none_pct}%`]);
+  }
+  document.getElementById("stats").innerHTML = cards.map(([k, v, d, hero]) =>
+    `<div class="stat${hero ? " hero" : ""}"><div class="k">${k}</div>
+     <div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
+
+  const H = window.__hist;
+  const widths = [...H.keys()].filter((w) => w >= 14 && w <= 50).sort((a, b) => a - b);
+  const mx = Math.max(...widths.map((w) => H.get(w)));
+  document.getElementById("hist").innerHTML = widths.map((w) =>
+    `<button class="bar${w === 26 ? " peak" : ""}" data-w="${w}"
+      title="${H.get(w).toLocaleString()} local blocks at ${w} ft"
+      onclick="pickWidth(${w})">
+      <i style="height:${(H.get(w) / mx * 100).toFixed(1)}%"></i>
+      <span>${w % 10 === 0 || w === 26 ? w : "&nbsp;"}</span>
+    </button>`).join("");
+  note();
+});
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Street geometry and dimensions from the
+      ${A("https://gis.dallascityhall.com/", "City of Dallas")} pavement file ·
+      free to download at ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">What's in this, and what isn't</span>
+  </summary>
+  <div class="notes">
+    <p><b>What this is.</b> The city's pavement condition centerline — a
+      maintenance file that happens to be the only public record of the physical
+      dimensions of Dallas streets. 113,789 block-level segments. Pavement width
+      is populated on 80%, sidewalk coverage on 70% of segments, construction
+      year on 50%.</p>
+    <p><b>Year built means year built.</b> Not the last repaving — the file
+      carries rehabilitation year separately, and construction year runs earlier
+      on 68% of segments with both, by a median of 54 years. Only 4 of 55,936
+      invert.</p>
+    <p><b>Alleys and freeways have no year here, deliberately.</b> Dallas
+      records a construction year for 3.6% of its 13,344 alley segments and none
+      of its freeways. The few dated alleys are nearly all post-2000, which would
+      make it look like Dallas started building alleys in this century — it is a
+      record-keeping pattern, not a building one, so the year is withheld from
+      the classes that cannot support it.</p>
+    <p><b>Right-of-way width is not in this file</b>, and it is not in the city's
+      road centerline file either — the L_ROW and R_ROW columns there hold city
+      names, not widths. So this is the pavement, not the corridor: the strip
+      between the curbs, not the distance between the property lines.</p>
+    <p><b>Two definitions of "local".</b> Improved local streets alone are 59.5%
+      exactly 26 feet; including unimproved local streets, which are narrower and
+      often unpaved shoulders, brings it to 51.4%. The headline uses the second,
+      wider definition.</p>
+  </div></details>`;
+</script>
