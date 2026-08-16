@@ -325,6 +325,10 @@ const map = new maplibregl.Map({
   center: [-99.3, 31.3], zoom: 5.05, attributionControl: { compact: true },
 });
 map.addControl(new maplibregl.NavigationControl(), "top-right");
+// A top-level const never lands on window, and `window.map` is already taken by
+// the <div id="map">, so anything driving this page from the console needs a
+// handle of its own.
+window.__map = map;
 
 // ---- filter state: a decade from the histogram, plus the two checkboxes ----
 let pickedDecade = null;
