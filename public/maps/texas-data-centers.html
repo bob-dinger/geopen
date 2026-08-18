@@ -32,20 +32,9 @@
   .home:hover { color: var(--signal); }
   .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
 
-  .stats { display: flex; gap: 10px; padding: 10px 22px 3px; flex: none;
-    overflow-x: auto; scrollbar-width: none; }
-  .stats::-webkit-scrollbar { display: none; }
-  .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
-    padding: 8px 14px 9px; min-width: 136px; flex: none; }
-  .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--ink-3); font-weight: 600; }
-  .stat .v { font-size: 1.55rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
-    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-  .stat .d { font-size: 0.67rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-  .stat.hero .v { color: var(--signal); }
-
-  .hist { display: flex; align-items: flex-end; gap: 3px; padding: 8px 22px 0;
-    height: 64px; flex: none; }
+  /* The year filter lives in the panel now, sized to it. The distribution is
+     still legible at this width and each bar is still a click target. */
+  .hist { display: flex; align-items: flex-end; gap: 1px; height: 42px; margin: 2px 0 0; }
   .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
     justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
     background: none; border: 0; padding: 0; font: inherit; }
@@ -54,10 +43,10 @@
   .bar.hot i { background: var(--signal); }
   .bar:hover i { opacity: 0.72; }
   .bar.off i { opacity: 0.2; }
-  .bar span { font-size: 0.56rem; color: var(--ink-3); margin-top: 3px;
+  .bar span { font-size: 0.5rem; color: var(--ink-3); margin-top: 2px;
     font-variant-numeric: tabular-nums; }
   .bar.on span { color: var(--ink); font-weight: 700; }
-  .histnote { padding: 2px 22px 7px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
+  .histnote { font-size: 0.6rem; color: var(--ink-3); margin-top: 4px; line-height: 1.45; }
   .histnote b { color: var(--ink-2); font-weight: 600; }
   .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
     border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
@@ -108,7 +97,7 @@
   .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
   @media (max-width: 700px) {
     .panel { max-width: 170px; left: 10px; bottom: 10px; }
-    header, .stats, .hist, .histnote, footer { padding-left: 12px; padding-right: 12px; }
+    header, footer { padding-left: 12px; padding-right: 12px; }
   }
 </style>
 
@@ -120,10 +109,6 @@
   <p class="sub">341 construction filings at their street addresses, from the state licensing record.</p>
 </header>
 
-<div class="stats" id="stats"></div>
-<div class="hist" id="hist"></div>
-<div class="histnote" id="histnote"></div>
-
 <div class="wrap">
   <div id="map"></div>
   <div class="panel">
@@ -131,7 +116,10 @@
     <div class="bases" id="bases"></div>
     <h2>Show</h2>
     <label class="lyr"><input type="checkbox" id="f-new" checked> New construction only</label>
-    <h2>Biggest builders <span id="ownclear"></span></h2>
+    <h2>Year filed</h2>
+    <div class="hist" id="hist"></div>
+    <div class="histnote" id="histnote"></div>
+    <h2>Biggest builders</h2>
     <div class="owners" id="owners"></div>
   </div>
 </div>
@@ -261,26 +249,13 @@ Promise.all([
   });
 
   const Y = s.nc_by_year;
-  document.getElementById("stats").innerHTML = [
-    ["New construction filed", usd(s.nc_cost), `${s.new_construction} projects since 2009`],
-    ["Filed in 2025–26", usd(s.recent2),
-      `${Math.round(s.recent2 / s.nc_cost * 100)}% of all of it, in two years`, true],
-    ["Everything before that", usd(s.earlier), "2009 through 2024 combined"],
-    ["Floor area", `${(s.nc_sqft / 1e6).toFixed(1)}M`,
-      `sq ft, stated on ${s.nc_sqft_n} of ${s.new_construction}`],
-    ["Renovations", s.reno, `separate filings, only ${usd(s.reno_cost)}`],
-    ["Biggest builder", "QTS", `${usd(s.nc_by_owner.QTS.cost)} · ${num(s.nc_by_owner.QTS.sqft)} sq ft`],
-  ].map(([k, v, d, hero]) =>
-    `<div class="stat${hero ? " hero" : ""}"><div class="k">${k}</div><div class="v">${v}</div>
-     <div class="d">${d}</div></div>`).join("");
-
   const years = Object.keys(Y).sort();
   const mx = Math.max(...years.map((y) => Y[y].cost));
   document.getElementById("hist").innerHTML = years.map((y) =>
     `<button class="bar${y >= "2024" ? " hot" : ""}" data-y="${y}"
       title="${Y[y].n} filings, ${usd(Y[y].cost)}" onclick="pickYear('${y}')">
       <i style="height:${(Y[y].cost / mx * 100).toFixed(1)}%"></i>
-      <span>${y.slice(2)}</span></button>`).join("");
+      <span>${y % 5 === 0 || y === years[years.length - 1] ? y.slice(2) : "&nbsp;"}</span></button>`).join("");
 
   document.getElementById("owners").innerHTML = Object.entries(s.nc_by_owner).slice(0, 8)
     .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
