@@ -100,6 +100,9 @@
   .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
     border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5; }
   .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-content a { color: var(--signal); }
+  .maplibregl-popup-close-button { color: var(--ink-2); font-size: 16px; padding: 0 5px; }
+  .maplibregl-popup-close-button:hover { background: none; color: var(--signal); }
   .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
   @media (max-width: 700px) {
     .panel { max-width: 170px; left: 10px; bottom: 10px; }
@@ -245,23 +248,40 @@ Promise.all([
     map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
     setBase(BASES[0]);
 
-    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "310px" });
+    // Two popups, because a hover popup cannot hold a link — moving the cursor
+    // toward it dismisses it. Hover scans; click pins one you can read and
+    // follow through to the filing itself.
+    const card = (p, withLink) =>
+      `<b>${p.name || "Unnamed"}</b><br>` +
+      `${p.owner_group || "owner not stated"}` +
+      `${p.owner && p.owner_group && p.owner.toLowerCase() !== p.owner_group.toLowerCase()
+        ? ` <span style="color:#6d818d">(filed as ${p.owner})</span>` : ""}<br>` +
+      `${p.address ? p.address + "<br>" : ""}${p.city}, ${p.county} County<br>` +
+      `${p.cost ? usd(p.cost) : "cost not stated"}` +
+      `${p.sqft ? ` · ${num(p.sqft)} sq ft` : ""}<br>` +
+      `${p.work} · filed ${p.registered || "?"}<br>` +
+      `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>` +
+      (withLink
+        ? `<br><a href="${p.url}" target="_blank" rel="noopener"
+             style="color:#35e0d4;font-weight:600">Filing ${p.project} at TDLR →</a>`
+        : `<br><span style="color:#6d818d">click to open the filing</span>`);
+
+    const hover = new maplibregl.Popup({ closeButton: false, maxWidth: "310px",
+      closeOnClick: false });
+    const pinned = new maplibregl.Popup({ closeButton: true, maxWidth: "310px" });
     map.on("mousemove", "dc", (e) => {
       map.getCanvas().style.cursor = "pointer";
-      const p = e.features[0].properties;
-      pop.setLngLat(e.lngLat).setHTML(
-        `<b>${p.name || "Unnamed"}</b><br>` +
-        `${p.owner_group || "owner not stated"}` +
-        `${p.owner && p.owner_group && p.owner.toLowerCase() !== p.owner_group.toLowerCase()
-          ? ` <span style="color:#6d818d">(filed as ${p.owner})</span>` : ""}<br>` +
-        `${p.address ? p.address + "<br>" : ""}${p.city}, ${p.county} County<br>` +
-        `${p.cost ? usd(p.cost) : "cost not stated"}` +
-        `${p.sqft ? ` · ${num(p.sqft)} sq ft` : ""}<br>` +
-        `${p.work} · filed ${p.registered || "?"}<br>` +
-        `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>`
-      ).addTo(map);
+      if (pinned.isOpen()) return;
+      hover.setLngLat(e.lngLat).setHTML(card(e.features[0].properties, false)).addTo(map);
     });
-    map.on("mouseleave", "dc", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+    map.on("mouseleave", "dc", () => { map.getCanvas().style.cursor = ""; hover.remove(); });
+    map.on("click", "dc", (e) => {
+      hover.remove();
+      const p = e.features[0].properties;
+      pinned.setLngLat(e.features[0].geometry.coordinates.slice())
+        .setHTML(card(p, true)).addTo(map);
+    });
+
     document.getElementById("f-new").addEventListener("change", applyFilter);
     applyFilter();
   });
