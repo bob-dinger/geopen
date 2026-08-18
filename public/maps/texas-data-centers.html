@@ -69,8 +69,10 @@
   .lyr { display: flex; align-items: center; gap: 7px; padding: 1px 0; font-size: 0.74rem;
     color: var(--ink-2); cursor: pointer; }
   .lyr input { accent-color: var(--signal); }
-  .bases { display: flex; gap: 4px; }
-  .bases button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+  /* four options no longer fit on one row at panel width, so they wrap into
+     two rather than squeezing the labels to unreadable */
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
     color: var(--ink-2); font: inherit; font-size: 0.66rem; padding: 4px 2px;
     border-radius: 3px; cursor: pointer; }
   .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
@@ -142,6 +144,9 @@ const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
 const BASES = [
   { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
     ref: null, opacity: 1, dark: false },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 1, dark: false },
   { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
     ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
     opacity: 1, dark: true },
