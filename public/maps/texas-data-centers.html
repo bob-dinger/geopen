@@ -164,7 +164,11 @@ const map = new maplibregl.Map({
     glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sources: {
       base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
-      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES[0].ref] },
+      // seeded from the first basemap that HAS a reference layer, not from
+      // BASES[0] — the default is Streets, whose ref is null, and a null in
+      // tiles[] is a style validation error that takes every layer down with it
+      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: [BASES.find((b) => b.ref).ref] },
     },
     layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": BASES[0].opacity } }],
   },
