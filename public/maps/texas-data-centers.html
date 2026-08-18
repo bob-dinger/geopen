@@ -131,7 +131,6 @@
     <div class="bases" id="bases"></div>
     <h2>Show</h2>
     <label class="lyr"><input type="checkbox" id="f-new" checked> New construction only</label>
-    <label class="lyr"><input type="checkbox" id="f-pending" checked> Proposed, not yet filed</label>
     <h2>Biggest builders <span id="ownclear"></span></h2>
     <div class="owners" id="owners"></div>
   </div>
@@ -220,9 +219,7 @@ window.clearAll = () => { pickedYear = null; pickedOwner = null; applyFilter(); 
 Promise.all([
   fetch("/data/data_centers.geojson").then((r) => r.json()),
   fetch("/data/data_centers_stats.json").then((r) => r.json()),
-  fetch("/data/data_centers_pending.geojson").then((r) => r.json()).catch(() => null),
-]).then(([gj, s, pend]) => {
-  window.__pending = pend;
+]).then(([gj, s]) => {
   map.on("load", () => {
     map.addSource("dc", { type: "geojson", data: gj });
     // area tracks cost, so a $765M hall reads as what it is next to a $2M fit-out
@@ -239,43 +236,6 @@ Promise.all([
           ["to-number", ["slice", ["get", "registered"], 0, 4]],
           2008, "#1d5e66", 2018, "#2b8f95", 2024, "#35e0d4", 2026, "#ffb648"],
         "circle-opacity": 0.72, "circle-stroke-color": "#0b0f12", "circle-stroke-width": 0.6 } });
-    // Proposals drawn as hollow dashed rings, never as filled dots. These are
-    // not on the state register — they are fights in progress at a council — and
-    // a reader must never mistake one for a committed project.
-    if (window.__pending) {
-      map.addSource("pend", { type: "geojson", data: window.__pending });
-      map.addLayer({ id: "pend-ring", type: "circle", source: "pend",
-        paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 11, 11, 30],
-          "circle-color": "rgba(255,182,72,0.10)", "circle-stroke-color": "#ffb648",
-          "circle-stroke-width": 2 } });
-      map.addLayer({ id: "pend-label", type: "symbol", source: "pend",
-        layout: { "text-field": ["get", "city"], "text-size": 11,
-          "text-offset": [0, 1.9], "text-anchor": "top",
-          "text-font": ["Noto Sans Regular"] },
-        paint: { "text-color": "#ffb648", "text-halo-color": "#0b0f12",
-          "text-halo-width": 1.4 } });
-      const pp = new maplibregl.Popup({ closeButton: false, maxWidth: "320px" });
-      map.on("mousemove", "pend-ring", (e) => {
-        map.getCanvas().style.cursor = "pointer";
-        const p = e.features[0].properties;
-        pp.setLngLat(e.lngLat).setHTML(
-          `<b style="color:#ffb648">${p.name}</b><br>` +
-          `<span style="color:#ffb648">PROPOSED — not yet filed with TDLR</span><br>` +
-          `${p.owner}<br>${p.address}, ${p.city}<br>` +
-          `${p.acres ? `${p.acres} acres` : ""}${p.sqft ? ` · ${num(p.sqft)} sq ft` : ""}` +
-          `${p.mw ? ` · ${p.mw} MW` : ""}<br>` +
-          `<span style="color:#9fb2bd">${p.stage}</span><br>` +
-          `<span style="color:#6d818d">${p.note}</span>`).addTo(map);
-      });
-      map.on("mouseleave", "pend-ring", () => {
-        map.getCanvas().style.cursor = ""; pp.remove();
-      });
-      document.getElementById("f-pending").addEventListener("change", (ev) => {
-        for (const id of ["pend-ring", "pend-label"]) {
-          map.setLayoutProperty(id, "visibility", ev.target.checked ? "visible" : "none");
-        }
-      });
-    }
     map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
     setBase(BASES[0]);
 
@@ -336,15 +296,13 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
-    <p><b>The register lags the news by months.</b> A project registers with TDLR
-      when it reaches design and construction, not when it is proposed — so the
-      data centres being fought over at council meetings this month are not in
-      here at all. Three of the largest in North Texas are drawn as orange rings
-      to make the gap visible: Circle T in Westlake, Project Tomahawk in Prosper,
-      and the Crow Holdings campus over Dallas Market Hall. None appears in TDLR;
-      all three were checked by name against the live register. The committed
-      pipeline is therefore a floor on the real one.</p>
-    <p><b>This is a floor in the other direction too.</b> Projects are found by
+    <p><b>The register lags a proposal by months.</b> A project registers with
+      TDLR when it reaches design and construction, not when it is proposed or
+      rezoned. So a data centre being argued over at a council meeting today does
+      not appear here, and will not for some time. What this map shows is what
+      has been committed to construction — a floor on the pipeline, not a measure
+      of it.</p>
+    <p><b>It is a floor in the other direction too.</b> Projects are found by
       searching filing names for "data center", "data hall" and known operator
       names. A hyperscaler filing under a code name is missed, and they routinely
       use them. There are certainly more data centers in Texas than 341.</p>
