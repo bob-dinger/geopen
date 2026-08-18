@@ -1,0 +1,218 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dallas from orbit, 1985 to now</title>
+<meta name="description" content="Landsat satellite imagery of Dallas–Fort Worth every five years from 1985, served live from the USGS archive. Drag the year and watch the metro spread.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-1985.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas from orbit, 1985 to now">
+<meta property="og:description" content="Forty years of Landsat over DFW, straight from the USGS archive. Drag the year.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-1985.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0d0f0c; --panel: #171a15; --panel-2: #21261e;
+    --rule: rgba(225,235,205,0.15);
+    --ink: #eef2e6; --ink-2: #a8b39a; --ink-3: #737d68;
+    --signal: #9ed84f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 320px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; text-wrap: balance; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+
+  /* The year is the whole interface, so it gets to be the biggest thing on the
+     page rather than a control tucked in a corner. */
+  .yearbox { position: absolute; left: 16px; bottom: 16px; right: 16px; z-index: 6;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 12px 18px 14px; max-width: 620px; }
+  .yearhead { display: flex; align-items: baseline; gap: 14px; }
+  .yearnum { font-size: 2.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
+    color: var(--signal); font-variant-numeric: tabular-nums; min-width: 4.2ch; }
+  .yearmeta { font-size: 0.71rem; color: var(--ink-3); line-height: 1.45; }
+  .yearmeta b { color: var(--ink-2); font-weight: 600; }
+  input[type=range] { width: 100%; margin: 12px 0 2px; accent-color: var(--signal);
+    cursor: pointer; }
+  .ticks { display: flex; justify-content: space-between; font-size: 0.6rem;
+    color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .ticks span { cursor: pointer; }
+  .ticks span:hover { color: var(--signal); }
+  .row { display: flex; gap: 14px; align-items: center; margin-top: 9px; flex-wrap: wrap; }
+  .lyr { display: flex; align-items: center; gap: 6px; font-size: 0.72rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--signal); }
+  button.play { background: var(--panel-2); border: 1px solid var(--rule); color: var(--ink);
+    font: inherit; font-size: 0.72rem; padding: 4px 12px; border-radius: 3px; cursor: pointer; }
+  button.play:hover { border-color: var(--signal); color: var(--signal); }
+  .loading { position: absolute; top: 16px; right: 60px; z-index: 6; font-size: 0.68rem;
+    color: var(--ink-3); background: var(--panel); border: 1px solid var(--rule);
+    padding: 4px 10px; border-radius: 3px; display: none; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+    .yearbox { left: 10px; right: 10px; bottom: 10px; padding: 9px 12px 11px; }
+    .yearnum { font-size: 1.9rem; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>Dallas–Fort Worth from orbit, 1985 to now</h1>
+    <p>Landsat imagery read live from the USGS archive — nothing here is pre-rendered.
+      <a href="https://geopen.io/">geopen.io</a></p>
+  </div>
+  <div class="loading" id="loading">loading imagery…</div>
+  <div class="yearbox">
+    <div class="yearhead">
+      <div class="yearnum" id="yearnum">1985</div>
+      <div class="yearmeta" id="yearmeta"></div>
+    </div>
+    <input type="range" id="slider" min="0" max="8" step="1" value="0">
+    <div class="ticks" id="ticks"></div>
+    <div class="row">
+      <button class="play" id="play">▶ Play</button>
+      <label class="lyr"><input type="checkbox" id="t-ref" checked> Roads and place names</label>
+      <label class="lyr"><input type="checkbox" id="t-fade" checked> Fade between years</label>
+    </div>
+  </div>
+</div>
+
+<footer id="foot"></footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+// Each year is a registered STAC mosaic on Microsoft's Planetary Computer — a
+// saved search across the Landsat archive, stitched on demand. Registering
+// returns a stable id, so the ids are baked in here and the slider is just a
+// URL swap. Every one was checked against a Dallas tile before being written in.
+const PC = "https://planetarycomputer.microsoft.com/api/data/v1/mosaic";
+const CF = encodeURIComponent("gamma RGB 2.7, saturation 1.5, sigmoidal RGB 15 0.55");
+const QS = `collection=landsat-c2-l2&assets=red&assets=green&assets=blue&color_formula=${CF}&format=png`;
+const YEARS = [
+  { y: 1985, id: "411d186aa8913b2b3ea0fd85ab9f05fa", sat: "Landsat 5" },
+  { y: 1990, id: "a5f5f0027948c21ea0c22e15e5227842", sat: "Landsat 5" },
+  { y: 1995, id: "9c3c3ffd1c8c8cbecd839d94fe5a8704", sat: "Landsat 5" },
+  { y: 2000, id: "95a606e1f7441b48ef9310086d71654b", sat: "Landsat 5 / 7" },
+  { y: 2005, id: "556e9d407b7d869689b504eea3af85d3", sat: "Landsat 5 / 7" },
+  { y: 2010, id: "0904ad68a94e69557f7991d5176a8518", sat: "Landsat 5 / 7" },
+  { y: 2015, id: "64d14fac6e5849a47442a69f9d87b554", sat: "Landsat 8" },
+  { y: 2020, id: "f0373f1246758cd7ad5c341d2c810776", sat: "Landsat 8" },
+  { y: 2025, id: "af005fca381c7df61bf5741ea88281aa", sat: "Landsat 8 / 9" },
+];
+const url = (i) => `${PC}/${YEARS[i].id}/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?${QS}`;
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+
+let cur = 0, playing = null;
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      // Two identical sources so a year change can cross-fade rather than flash
+      // white while 30m tiles come down over a slow connection.
+      a: { type: "raster", tileSize: 256, maxzoom: 13, tiles: [url(0)],
+        attribution: 'Landsat via <a href="https://planetarycomputer.microsoft.com/">Microsoft Planetary Computer</a> / USGS' },
+      b: { type: "raster", tileSize: 256, maxzoom: 13, tiles: [url(0)] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: [`${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`] },
+    },
+    layers: [
+      { id: "a", type: "raster", source: "a", paint: { "raster-opacity": 1 } },
+      { id: "b", type: "raster", source: "b", paint: { "raster-opacity": 0 } },
+      { id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.9 } },
+    ],
+  },
+  // framed on the metro, where 30m resolution still says something
+  center: [-97.03, 32.79], zoom: 9.1, maxZoom: 13.5, minZoom: 6,
+  attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+// which of the two raster layers is currently on top
+let front = "a";
+
+function show(i, animate) {
+  cur = i;
+  const back = front === "a" ? "b" : "a";
+  const fade = document.getElementById("t-fade").checked && animate !== false;
+  map.getSource(back).setTiles([url(i)]);
+  const done = () => {
+    map.setPaintProperty(back, "raster-opacity", 1);
+    map.setPaintProperty(front, "raster-opacity", 0);
+    front = back;
+    document.getElementById("loading").style.display = "none";
+  };
+  if (!fade) return done();
+  document.getElementById("loading").style.display = "block";
+  // give the new tiles a moment to arrive before swapping, so the fade lands on
+  // imagery rather than on empty canvas
+  const t = setTimeout(done, 900);
+  map.once("idle", () => { clearTimeout(t); done(); });
+}
+
+function paint(i) {
+  const Y = YEARS[i];
+  document.getElementById("yearnum").textContent = Y.y;
+  document.getElementById("yearmeta").innerHTML =
+    `<b>${Y.sat}</b> · 30 m per pixel<br>` +
+    `least-cloudy scenes from ${Y.y}–${String(Y.y + 1).slice(2)}`;
+  document.querySelectorAll(".ticks span").forEach((s, k) =>
+    s.style.color = k === i ? "var(--signal)" : "");
+}
+
+document.getElementById("ticks").innerHTML =
+  YEARS.map((Y, i) => `<span data-i="${i}">${Y.y}</span>`).join("");
+document.getElementById("ticks").addEventListener("click", (e) => {
+  const i = e.target.dataset && e.target.dataset.i;
+  if (i != null) { document.getElementById("slider").value = i; show(+i); paint(+i); }
+});
+document.getElementById("slider").addEventListener("input", (e) => {
+  const i = +e.target.value; show(i); paint(i);
+});
+document.getElementById("t-ref").addEventListener("change", (e) =>
+  map.setLayoutProperty("ref", "visibility", e.target.checked ? "visible" : "none"));
+
+document.getElementById("play").addEventListener("click", () => {
+  const b = document.getElementById("play");
+  if (playing) { clearInterval(playing); playing = null; b.textContent = "▶ Play"; return; }
+  b.textContent = "❚❚ Pause";
+  playing = setInterval(() => {
+    const i = (cur + 1) % YEARS.length;
+    document.getElementById("slider").value = i;
+    show(i); paint(i);
+  }, 1900);
+});
+
+paint(0);
+
+document.getElementById("foot").innerHTML =
+  `Imagery: <b>Landsat</b> Collection 2 Level-2, USGS, served through ` +
+  `<a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener">Microsoft Planetary Computer</a>. ` +
+  `Each year is a saved search across the archive, stitched into a mosaic on demand — nothing is pre-rendered, ` +
+  `so the first tiles of a year can take a moment. ` +
+  `<b>30 metres per pixel</b>, which is why it stops rewarding a closer look past about the scale of a suburb. ` +
+  `Each frame draws on the least-cloudy scenes from a 15-month window, so seams and seasonal shifts between ` +
+  `frames are the sensor and the calendar, not the city changing. ` +
+  `Labels from Esri. Built at <a href="https://geopen.io/">geopen.io</a>.`;
+</script>
