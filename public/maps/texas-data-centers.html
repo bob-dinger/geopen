@@ -25,12 +25,18 @@
   html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
   body { display: flex; flex-direction: column; overflow: hidden; }
-  header { padding: 11px 22px 0; flex: none; }
-  .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
-  .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
+  /* The title floats over the map rather than banding across the top, so the
+     map is the page and the framing sits on it. Same card language as the
+     control panel below it. */
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 340px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700;
+    letter-spacing: -0.01em; line-height: 1.25; text-wrap: balance; }
+  .titlecard .sub { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3);
+    line-height: 1.5; }
+  .home { color: var(--ink-2); text-decoration: none; white-space: nowrap; }
   .home:hover { color: var(--signal); }
-  .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
 
   /* The year filter lives in the panel now, sized to it. The distribution is
      still legible at this width and each bar is still a click target. */
@@ -97,20 +103,19 @@
   .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
   @media (max-width: 700px) {
     .panel { max-width: 170px; left: 10px; bottom: 10px; }
-    header, footer { padding-left: 12px; padding-right: 12px; }
+    footer { padding-left: 12px; padding-right: 12px; }
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); padding: 9px 11px 10px; }
+    .titlecard h1 { font-size: 0.88rem; }
   }
 </style>
 
-<header>
-  <div class="title">
-    <h1>Every data center filed in Texas, and who is building it</h1>
-    <a class="home" href="https://geopen.io/">geopen.io</a>
-  </div>
-  <p class="sub">341 construction filings at their street addresses, from the state licensing record.</p>
-</header>
-
 <div class="wrap">
   <div id="map"></div>
+  <div class="titlecard">
+    <h1>Every data center filed in Texas, and who is building it</h1>
+    <p class="sub">341 construction filings at their street addresses, from the state
+      licensing record. <a class="home" href="https://geopen.io/">geopen.io</a></p>
+  </div>
   <div class="panel">
     <h2>Basemap</h2>
     <div class="bases" id="bases"></div>
@@ -129,15 +134,19 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+// Streets leads: these are addresses, and a reader arriving from the article
+// wants to know which town a dot is in before anything else.
 const BASES = [
-  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55 },
-  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
   { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
-    ref: null, opacity: 1 },
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 1, dark: true },
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 0.55, dark: true },
 ];
-let baseKey = "dark", pickedYear = null, pickedOwner = null;
+let baseKey = "topo", pickedYear = null, pickedOwner = null;
 const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
   : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v).toLocaleString()}`;
 const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
@@ -170,6 +179,11 @@ function setBase(bm) {
   map.setPaintProperty("base", "raster-opacity", bm.opacity);
   if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
   if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  // the point outline has to flip with the ground or the dots lose their edge
+  if (map.getLayer("dc")) {
+    map.setPaintProperty("dc", "circle-stroke-color", bm.dark ? "#0b0f12" : "#ffffff");
+    map.setPaintProperty("dc", "circle-opacity", bm.dark ? 0.72 : 0.86);
+  }
   document.querySelectorAll("#bases button").forEach((x) =>
     x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
 }
