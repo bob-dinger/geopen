@@ -1,0 +1,277 @@
+{
+ "filings": 341,
+ "new_construction": 90,
+ "nc_cost": 12106518355,
+ "nc_sqft": 18671929,
+ "nc_sqft_n": 70,
+ "reno": 232,
+ "reno_cost": 1072758736,
+ "nc_by_year": {
+  "2009": {
+   "n": 1,
+   "cost": 85000000,
+   "sqft": 0
+  },
+  "2010": {
+   "n": 1,
+   "cost": 1206000,
+   "sqft": 0
+  },
+  "2011": {
+   "n": 3,
+   "cost": 31300000,
+   "sqft": 0
+  },
+  "2012": {
+   "n": 3,
+   "cost": 47585000,
+   "sqft": 0
+  },
+  "2014": {
+   "n": 2,
+   "cost": 7300000,
+   "sqft": 0
+  },
+  "2015": {
+   "n": 3,
+   "cost": 22880070,
+   "sqft": 0
+  },
+  "2016": {
+   "n": 2,
+   "cost": 13125000,
+   "sqft": 0
+  },
+  "2018": {
+   "n": 6,
+   "cost": 369668000,
+   "sqft": 10000
+  },
+  "2019": {
+   "n": 2,
+   "cost": 600000000,
+   "sqft": 588000
+  },
+  "2020": {
+   "n": 3,
+   "cost": 12000000,
+   "sqft": 2762295
+  },
+  "2021": {
+   "n": 12,
+   "cost": 534158945,
+   "sqft": 941306
+  },
+  "2022": {
+   "n": 4,
+   "cost": 432975500,
+   "sqft": 689491
+  },
+  "2023": {
+   "n": 8,
+   "cost": 465623731,
+   "sqft": 947547
+  },
+  "2024": {
+   "n": 13,
+   "cost": 1575695200,
+   "sqft": 1716999
+  },
+  "2025": {
+   "n": 15,
+   "cost": 4280400909,
+   "sqft": 4329155
+  },
+  "2026": {
+   "n": 12,
+   "cost": 3627600000,
+   "sqft": 6687136
+  }
+ },
+ "nc_by_owner": {
+  "QTS": {
+   "n": 14,
+   "cost": 3140000000,
+   "sqft": 8204420
+  },
+  "Sharka LLC": {
+   "n": 5,
+   "cost": 1741727252,
+   "sqft": 1046600
+  },
+  "Microsoft": {
+   "n": 3,
+   "cost": 1647600000,
+   "sqft": 929746
+  },
+  "Amazon": {
+   "n": 4,
+   "cost": 1200000000,
+   "sqft": 756240
+  },
+  "Vantage": {
+   "n": 4,
+   "cost": 801852058,
+   "sqft": 1249993
+  },
+  "Homebound Group Llc": {
+   "n": 2,
+   "cost": 700000000,
+   "sqft": 630000
+  },
+  "Milam County Data Center Llc": {
+   "n": 1,
+   "cost": 470000000,
+   "sqft": 548950
+  },
+  "Lockhart Property, Llc": {
+   "n": 1,
+   "cost": 400000000,
+   "sqft": 760000
+  },
+  "Bt Gateway Data Center Llc": {
+   "n": 1,
+   "cost": 384000000,
+   "sqft": 100000
+  },
+  "Sdc Dfwc, Lp": {
+   "n": 1,
+   "cost": 300000000,
+   "sqft": 360750
+  },
+  "Copt San Antonio Ii, Lp": {
+   "n": 2,
+   "cost": 294988945,
+   "sqft": 92180
+  },
+  "Polmer Llc": {
+   "n": 2,
+   "cost": 197300000,
+   "sqft": 185000
+  },
+  "Verizon": {
+   "n": 1,
+   "cost": 187675500,
+   "sqft": 97500
+  },
+  "Cisco Systems Inc.": {
+   "n": 1,
+   "cost": 85000000,
+   "sqft": 0
+  },
+  "Temple Green Data Llc": {
+   "n": 1,
+   "cost": 70000000,
+   "sqft": 133274
+  },
+  "University Of Texas At San Antonio": {
+   "n": 1,
+   "cost": 64000000,
+   "sqft": 165000
+  },
+  "Oppidan": {
+   "n": 2,
+   "cost": 58173000,
+   "sqft": 123108
+  },
+  "Ip Stream Houston Llc": {
+   "n": 1,
+   "cost": 35000000,
+   "sqft": 0
+  },
+  "Lit Industrial Limited Partnership C/O Clarion Partners": {
+   "n": 1,
+   "cost": 32000000,
+   "sqft": 0
+  },
+  "Copt San Antonio Ii L.P.": {
+   "n": 1,
+   "cost": 22500000,
+   "sqft": 0
+  }
+ },
+ "nc_by_county": {
+  "Dallas": {
+   "n": 20,
+   "cost": 2961038000
+  },
+  "Ellis": {
+   "n": 6,
+   "cost": 1746727252
+  },
+  "Medina": {
+   "n": 3,
+   "cost": 1647600000
+  },
+  "Bexar": {
+   "n": 12,
+   "cost": 1266891003
+  },
+  "Pecos": {
+   "n": 3,
+   "cost": 900000000
+  },
+  "Tarrant": {
+   "n": 6,
+   "cost": 732275500
+  },
+  "Haskell": {
+   "n": 2,
+   "cost": 700000000
+  },
+  "Milam": {
+   "n": 1,
+   "cost": 470000000
+  },
+  "Caldwell": {
+   "n": 1,
+   "cost": 400000000
+  },
+  "Hunt": {
+   "n": 1,
+   "cost": 384000000
+  },
+  "Floyd": {
+   "n": 1,
+   "cost": 300000000
+  },
+  "Bell": {
+   "n": 4,
+   "cost": 298300000
+  },
+  "Collin": {
+   "n": 5,
+   "cost": 118250000
+  },
+  "Montgomery": {
+   "n": 2,
+   "cost": 42500000
+  },
+  "El Paso": {
+   "n": 1,
+   "cost": 27173000
+  },
+  "Williamson": {
+   "n": 1,
+   "cost": 22000000
+  },
+  "Harris": {
+   "n": 6,
+   "cost": 21211330
+  },
+  "Childress": {
+   "n": 2,
+   "cost": 18863400
+  },
+  "Hays": {
+   "n": 2,
+   "cost": 14300000
+  },
+  "Brazos": {
+   "n": 1,
+   "cost": 10000000
+  }
+ },
+ "recent2": 7908000909,
+ "earlier": 4198517446
+}

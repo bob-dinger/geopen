@@ -1,0 +1,321 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every data center filed in Texas, and who is building it</title>
+<meta name="description" content="341 data center construction filings from the Texas Department of Licensing and Regulation, at their street addresses, with the owner named on each. $12.1B of new construction — and 65% of it filed in the last two years.">
+<link rel="canonical" href="https://geopen.io/maps/texas-data-centers.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Every data center filed in Texas, and who is building it">
+<meta property="og:description" content="$12.1B of new data center construction on the Texas record. Two-thirds of it was filed in the last two years.">
+<meta property="og:url" content="https://geopen.io/maps/texas-data-centers.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-data-centers-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Server-room palette: near-black with a cold cyan signal. Points are the
+     only saturated thing on the page. */
+  :root {
+    --ground: #0b0f12; --panel: #141a1f; --panel-2: #1c242b;
+    --rule: rgba(200,230,240,0.14);
+    --ink: #e8f1f5; --ink-2: #9fb2bd; --ink-3: #6d818d;
+    --signal: #35e0d4; --warm: #ffb648;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  header { padding: 11px 22px 0; flex: none; }
+  .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; }
+  .home { font-size: 0.72rem; color: var(--ink-3); text-decoration: none; }
+  .home:hover { color: var(--signal); }
+  .sub { margin: 3px 0 0; font-size: 0.74rem; color: var(--ink-3); }
+
+  .stats { display: flex; gap: 10px; padding: 10px 22px 3px; flex: none;
+    overflow-x: auto; scrollbar-width: none; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 8px 14px 9px; min-width: 136px; flex: none; }
+  .stat .k { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); font-weight: 600; }
+  .stat .v { font-size: 1.55rem; font-weight: 700; line-height: 1.12; margin-top: 3px;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .d { font-size: 0.67rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .stat.hero .v { color: var(--signal); }
+
+  .hist { display: flex; align-items: flex-end; gap: 3px; padding: 8px 22px 0;
+    height: 64px; flex: none; }
+  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
+    justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
+    background: none; border: 0; padding: 0; font: inherit; }
+  .bar i { display: block; width: 100%; background: #2b6b74; border-radius: 2px 2px 0 0;
+    transition: opacity 0.12s; min-height: 1px; }
+  .bar.hot i { background: var(--signal); }
+  .bar:hover i { opacity: 0.72; }
+  .bar.off i { opacity: 0.2; }
+  .bar span { font-size: 0.56rem; color: var(--ink-3); margin-top: 3px;
+    font-variant-numeric: tabular-nums; }
+  .bar.on span { color: var(--ink); font-weight: 700; }
+  .histnote { padding: 2px 22px 7px; font-size: 0.64rem; color: var(--ink-3); flex: none; }
+  .histnote b { color: var(--ink-2); font-weight: 600; }
+  .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
+    border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
+    margin-left: 8px; cursor: pointer; }
+
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 9px 12px 10px;
+    max-width: 214px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+  .panel h2 { margin: 0 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .panel h2:not(:first-child) { margin-top: 9px; }
+  .lyr { display: flex; align-items: center; gap: 7px; padding: 1px 0; font-size: 0.74rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--signal); }
+  .bases { display: flex; gap: 4px; }
+  .bases button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.66rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #04201e; font-weight: 700; }
+  .owners { font-size: 0.68rem; }
+  .own { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0;
+    color: var(--ink-2); cursor: pointer; border: 0; background: none; font: inherit;
+    width: 100%; text-align: left; }
+  .own:hover { color: var(--signal); }
+  .own.on { color: var(--signal); font-weight: 700; }
+  .own b { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  footer { flex: none; padding: 7px 22px 10px; font-size: 0.65rem; color: var(--ink-3);
+    line-height: 1.55; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 30vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .panel { max-width: 170px; left: 10px; bottom: 10px; }
+    header, .stats, .hist, .histnote, footer { padding-left: 12px; padding-right: 12px; }
+  }
+</style>
+
+<header>
+  <div class="title">
+    <h1>Every data center filed in Texas, and who is building it</h1>
+    <a class="home" href="https://geopen.io/">geopen.io</a>
+  </div>
+  <p class="sub">341 construction filings at their street addresses, from the state licensing record.</p>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="hist" id="hist"></div>
+<div class="histnote" id="histnote"></div>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="panel">
+    <h2>Basemap</h2>
+    <div class="bases" id="bases"></div>
+    <h2>Show</h2>
+    <label class="lyr"><input type="checkbox" id="f-new" checked> New construction only</label>
+    <h2>Biggest builders <span id="ownclear"></span></h2>
+    <div class="owners" id="owners"></div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1 },
+];
+let baseKey = "dark", pickedYear = null, pickedOwner = null;
+const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
+  : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v).toLocaleString()}`;
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES[0].ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-98.6, 31.3], zoom: 5.3, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+function applyFilter() {
+  const f = ["all"];
+  if (document.getElementById("f-new").checked) f.push(["==", ["get", "work"], "New Construction"]);
+  if (pickedYear) f.push(["==", ["slice", ["get", "registered"], 0, 4], pickedYear]);
+  if (pickedOwner) f.push(["==", ["get", "owner_group"], pickedOwner]);
+  for (const id of ["dc", "dc-halo"]) {
+    if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
+  }
+  document.querySelectorAll(".bar").forEach((b) => {
+    b.classList.toggle("on", pickedYear === b.dataset.y);
+    b.classList.toggle("off", pickedYear != null && pickedYear !== b.dataset.y);
+  });
+  document.querySelectorAll(".own").forEach((b) =>
+    b.classList.toggle("on", pickedOwner === b.dataset.o));
+  note();
+}
+function note() {
+  const el = document.getElementById("histnote");
+  const bits = [];
+  if (pickedYear) bits.push(`filed in <b>${pickedYear}</b>`);
+  if (pickedOwner) bits.push(`built by <b>${pickedOwner}</b>`);
+  el.innerHTML = bits.length
+    ? `Showing new construction ${bits.join(" and ")}` +
+      `<button class="clear" onclick="clearAll()">clear</button>`
+    : "Each bar is a year filed, by value of new construction. <b>Click one</b>, or a builder below.";
+}
+window.pickYear = (y) => { pickedYear = (pickedYear === y) ? null : y; applyFilter(); };
+window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
+window.clearAll = () => { pickedYear = null; pickedOwner = null; applyFilter(); };
+
+Promise.all([
+  fetch("/data/data_centers.geojson").then((r) => r.json()),
+  fetch("/data/data_centers_stats.json").then((r) => r.json()),
+]).then(([gj, s]) => {
+  map.on("load", () => {
+    map.addSource("dc", { type: "geojson", data: gj });
+    // area tracks cost, so a $765M hall reads as what it is next to a $2M fit-out
+    const r = ["interpolate", ["linear"], ["zoom"],
+      5, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "cost"], 0]], 0, 3, 8000, 7, 27000, 18],
+      11, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "cost"], 0]], 0, 5, 8000, 16, 27000, 44]];
+    map.addLayer({ id: "dc-halo", type: "circle", source: "dc",
+      paint: { "circle-radius": r, "circle-color": "rgba(0,0,0,0)",
+        "circle-stroke-color": "#35e0d4", "circle-stroke-width": 0.9, "circle-stroke-opacity": 0.5 } });
+    map.addLayer({ id: "dc", type: "circle", source: "dc",
+      paint: { "circle-radius": r,
+        // newest filings burn warm; the boom is the subject
+        "circle-color": ["interpolate", ["linear"],
+          ["to-number", ["slice", ["get", "registered"], 0, 4]],
+          2008, "#1d5e66", 2018, "#2b8f95", 2024, "#35e0d4", 2026, "#ffb648"],
+        "circle-opacity": 0.72, "circle-stroke-color": "#0b0f12", "circle-stroke-width": 0.6 } });
+    map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+    setBase(BASES[0]);
+
+    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "310px" });
+    map.on("mousemove", "dc", (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      const p = e.features[0].properties;
+      pop.setLngLat(e.lngLat).setHTML(
+        `<b>${p.name || "Unnamed"}</b><br>` +
+        `${p.owner_group || "owner not stated"}` +
+        `${p.owner && p.owner_group && p.owner.toLowerCase() !== p.owner_group.toLowerCase()
+          ? ` <span style="color:#6d818d">(filed as ${p.owner})</span>` : ""}<br>` +
+        `${p.address ? p.address + "<br>" : ""}${p.city}, ${p.county} County<br>` +
+        `${p.cost ? usd(p.cost) : "cost not stated"}` +
+        `${p.sqft ? ` · ${num(p.sqft)} sq ft` : ""}<br>` +
+        `${p.work} · filed ${p.registered || "?"}<br>` +
+        `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>`
+      ).addTo(map);
+    });
+    map.on("mouseleave", "dc", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+    document.getElementById("f-new").addEventListener("change", applyFilter);
+    applyFilter();
+  });
+
+  const Y = s.nc_by_year;
+  document.getElementById("stats").innerHTML = [
+    ["New construction filed", usd(s.nc_cost), `${s.new_construction} projects since 2009`],
+    ["Filed in 2025–26", usd(s.recent2),
+      `${Math.round(s.recent2 / s.nc_cost * 100)}% of all of it, in two years`, true],
+    ["Everything before that", usd(s.earlier), "2009 through 2024 combined"],
+    ["Floor area", `${(s.nc_sqft / 1e6).toFixed(1)}M`,
+      `sq ft, stated on ${s.nc_sqft_n} of ${s.new_construction}`],
+    ["Renovations", s.reno, `separate filings, only ${usd(s.reno_cost)}`],
+    ["Biggest builder", "QTS", `${usd(s.nc_by_owner.QTS.cost)} · ${num(s.nc_by_owner.QTS.sqft)} sq ft`],
+  ].map(([k, v, d, hero]) =>
+    `<div class="stat${hero ? " hero" : ""}"><div class="k">${k}</div><div class="v">${v}</div>
+     <div class="d">${d}</div></div>`).join("");
+
+  const years = Object.keys(Y).sort();
+  const mx = Math.max(...years.map((y) => Y[y].cost));
+  document.getElementById("hist").innerHTML = years.map((y) =>
+    `<button class="bar${y >= "2024" ? " hot" : ""}" data-y="${y}"
+      title="${Y[y].n} filings, ${usd(Y[y].cost)}" onclick="pickYear('${y}')">
+      <i style="height:${(Y[y].cost / mx * 100).toFixed(1)}%"></i>
+      <span>${y.slice(2)}</span></button>`).join("");
+
+  document.getElementById("owners").innerHTML = Object.entries(s.nc_by_owner).slice(0, 8)
+    .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
+      onclick="pickOwner(this.dataset.o)"><span>${k}</span><b>${usd(v.cost)}</b></button>`).join("");
+  note();
+});
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Filings from the ${A("https://www.tdlr.texas.gov/tabs/search",
+      "Texas Department of Licensing and Regulation")} architectural barriers register ·
+      free to download at ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">What's in this, and what isn't</span>
+  </summary>
+  <div class="notes">
+    <p><b>This is a floor, not a census.</b> Projects are found by searching filing
+      names for "data center", "data hall" and known operator names. A hyperscaler
+      filing under a code name is missed, and they routinely use them. There are
+      certainly more data centers in Texas than 341.</p>
+    <p><b>Every one of the 341 is at its real street address.</b> The address, the
+      floor area, the owner and the scope of work sit on each project's detail
+      page, not in the search results — all 341 were fetched and geocoded, none is
+      a city centroid.</p>
+    <p><b>Owner names are typed by hand and had to be merged.</b> Quality
+      Investment Properties Irving LLC is QTS — its filings sit at the same
+      Longhorn Drive addresses as filings that say QTS outright, and are named
+      "QTS DFW1 DC3". Sharka LLC files four different ways at one Midlothian
+      address. Both were merged; without that the totals split one builder in two.</p>
+    <p><b>Many owners are single-purpose companies</b> — Homebound Group LLC,
+      Milam County Data Center LLC, Lockhart Property LLC, BT Gateway Data Center
+      LLC. The operator behind them is not on the filing, and this map does not
+      guess at one.</p>
+    <p><b>Cost is an estimate at filing</b>, not spend, and it moves. Floor area is
+      the sturdier number but is stated on only ${""}70 of 90 new-construction
+      filings. TDLR registers projects for accessibility review, so this is a
+      compliance record, not a permit database.</p>
+  </div></details>`;
+</script>
