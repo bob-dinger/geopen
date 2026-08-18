@@ -77,6 +77,7 @@
     border-radius: 3px; cursor: pointer; }
   .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
     color: #04201e; font-weight: 700; }
+  .hint { margin: 3px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
   .owners { font-size: 0.68rem; }
   .own { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0;
     color: var(--ink-2); cursor: pointer; border: 0; background: none; font: inherit;
@@ -124,8 +125,14 @@
   <div class="panel">
     <h2>Basemap</h2>
     <div class="bases" id="bases"></div>
-    <h2>Show</h2>
-    <label class="lyr"><input type="checkbox" id="f-new" checked> New construction only</label>
+    <h2>Filing type</h2>
+    <label class="lyr"><input type="checkbox" id="f-new" checked> New buildings only</label>
+    <p class="hint" id="typehint"></p>
+    <h2>Stage of review</h2>
+    <div class="owners" id="stages"></div>
+    <p class="hint">TDLR tracks its own accessibility review, not the building.
+      A closed project has finished that review — it is not a certificate of
+      occupancy.</p>
     <h2>Year filed</h2>
     <div class="hist" id="hist"></div>
     <div class="histnote" id="histnote"></div>
@@ -154,7 +161,7 @@ const BASES = [
     ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 0.55, dark: true },
 ];
-let baseKey = "topo", pickedYear = null, pickedOwner = null;
+let baseKey = "topo", pickedYear = null, pickedOwner = null, pickedStage = null;
 const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
   : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v).toLocaleString()}`;
 const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
@@ -205,6 +212,7 @@ function applyFilter() {
   if (document.getElementById("f-new").checked) f.push(["==", ["get", "work"], "New Construction"]);
   if (pickedYear) f.push(["==", ["slice", ["get", "registered"], 0, 4], pickedYear]);
   if (pickedOwner) f.push(["==", ["get", "owner_group"], pickedOwner]);
+  if (pickedStage) f.push(["==", ["get", "status"], pickedStage]);
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
@@ -212,8 +220,14 @@ function applyFilter() {
     b.classList.toggle("on", pickedYear === b.dataset.y);
     b.classList.toggle("off", pickedYear != null && pickedYear !== b.dataset.y);
   });
-  document.querySelectorAll(".own").forEach((b) =>
+  document.querySelectorAll("#owners .own").forEach((b) =>
     b.classList.toggle("on", pickedOwner === b.dataset.o));
+  document.querySelectorAll("#stages .own").forEach((b) =>
+    b.classList.toggle("on", pickedStage === b.dataset.s));
+  document.getElementById("typehint").textContent =
+    document.getElementById("f-new").checked
+      ? "90 new buildings. Unticking adds 232 renovations and 19 additions — work inside halls that already exist."
+      : "All 341 filings, including renovations of existing halls.";
   note();
 }
 function note() {
@@ -228,7 +242,10 @@ function note() {
 }
 window.pickYear = (y) => { pickedYear = (pickedYear === y) ? null : y; applyFilter(); };
 window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
-window.clearAll = () => { pickedYear = null; pickedOwner = null; applyFilter(); };
+window.pickStage = (x) => { pickedStage = (pickedStage === x) ? null : x; applyFilter(); };
+window.clearAll = () => {
+  pickedYear = null; pickedOwner = null; pickedStage = null; applyFilter();
+};
 
 Promise.all([
   fetch("/data/data_centers.geojson").then((r) => r.json()),
@@ -300,6 +317,18 @@ Promise.all([
       <i style="height:${(Y[y].cost / mx * 100).toFixed(1)}%"></i>
       <span>${y % 5 === 0 || y === years[years.length - 1] ? y.slice(2) : "&nbsp;"}</span></button>`).join("");
 
+  // stages counted off the loaded features so the list always matches the map
+  const st = {};
+  for (const f of gj.features) {
+    if (f.properties.work !== "New Construction") continue;
+    const k = f.properties.status || "not stated";
+    st[k] = (st[k] || 0) + 1;
+  }
+  const ORDER = ["Project Registered", "Review Complete", "Inspection Complete", "Project Closed"];
+  document.getElementById("stages").innerHTML = ORDER.filter((k) => st[k])
+    .map((k) => `<button class="own" data-s="${k}" onclick="pickStage(this.dataset.s)">
+      <span>${k.replace("Project ", "")}</span><b>${st[k]}</b></button>`).join("");
+
   document.getElementById("owners").innerHTML = Object.entries(s.nc_by_owner).slice(0, 8)
     .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
       onclick="pickOwner(this.dataset.o)"><span>${k}</span><b>${usd(v.cost)}</b></button>`).join("");
@@ -337,6 +366,13 @@ document.getElementById("foot").innerHTML = `<details><summary>
       Milam County Data Center LLC, Lockhart Property LLC, BT Gateway Data Center
       LLC. The operator behind them is not on the filing, and this map does not
       guess at one.</p>
+    <p><b>Stage is about the paperwork, not the building.</b> TDLR's status
+      tracks its own accessibility review: registered, reviewed, inspected,
+      closed. A closed project has finished that review — it is not proof the
+      building is up, and a registered one is not proof ground has not been
+      broken. It is the best signal in the file about how far along a project is,
+      and it is still only a proxy. Worth knowing that $7.23B of the $12.11B sits
+      in "registered" — the newest money is the least advanced.</p>
     <p><b>Cost is an estimate at filing</b>, not spend, and it moves. Floor area is
       the sturdier number but is stated on only ${""}70 of 90 new-construction
       filings. TDLR registers projects for accessibility review, so this is a
