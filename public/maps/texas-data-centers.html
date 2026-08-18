@@ -89,6 +89,8 @@
   .ramp i { height: 9px; flex: 1; display: block; }
   .ramplab { display: flex; justify-content: space-between; font-size: 0.57rem;
     color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .qual { text-transform: none; letter-spacing: 0; font-weight: 400;
+    color: var(--ink-3); opacity: 0.8; }
   .hint { margin: 3px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
   .owners { font-size: 0.68rem; }
   .own { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0;
@@ -138,18 +140,18 @@
     <h2>Basemap</h2>
     <div class="bases" id="bases"></div>
     <h2>Filing type</h2>
-    <label class="lyr"><input type="checkbox" id="f-new" checked> New buildings only</label>
+    <label class="lyr"><input type="checkbox" id="f-new"> New buildings only</label>
     <p class="hint" id="typehint"></p>
     <h2>Colour by</h2>
-    <label class="lyr"><input type="radio" name="cb" id="cb-year" checked> Year filed</label>
-    <label class="lyr"><input type="radio" name="cb" id="cb-work"> Filing type</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-year"> Year filed</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> Filing type</label>
     <label class="lyr"><input type="radio" name="cb" id="cb-status"> Stage of review</label>
     <div id="legend"></div>
     <p class="hint" id="leghint"></p>
     <h2>Year filed</h2>
     <div class="hist" id="hist"></div>
     <div class="histnote" id="histnote"></div>
-    <h2>Biggest builders</h2>
+    <h2>Biggest builders <span class="qual">new builds</span></h2>
     <div class="owners" id="owners"></div>
   </div>
 </div>
@@ -177,7 +179,7 @@ const BASES = [
 let baseKey = "topo", pickedYear = null, pickedOwner = null;
 // one categorical filter shared by whichever legend is showing
 let pickedCat = null;   // {field, value}
-let colourBy = "year";
+let colourBy = "work";
 
 // Three encodings. Year is sequential — a teal ramp running to a warm end so the
 // newest filings read as the news they are. The other two are categorical and
@@ -315,7 +317,7 @@ Promise.all([
         "circle-stroke-color": "#35e0d4", "circle-stroke-width": 0.9, "circle-stroke-opacity": 0.5 } });
     map.addLayer({ id: "dc", type: "circle", source: "dc",
       paint: { "circle-radius": r,
-        "circle-color": colourExpr("year"),
+        "circle-color": colourExpr("work"),
         "circle-opacity": 0.72, "circle-stroke-color": "#0b0f12", "circle-stroke-width": 0.6 } });
     map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
     setBase(BASES[0]);
