@@ -77,6 +77,18 @@
     border-radius: 3px; cursor: pointer; }
   .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
     color: #04201e; font-weight: 700; }
+  .swatch { display: flex; align-items: center; gap: 6px; padding: 2px 0; width: 100%;
+    background: none; border: 0; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    cursor: pointer; text-align: left; }
+  .swatch i { width: 11px; height: 11px; border-radius: 50%; flex: none;
+    border: 1px solid rgba(255,255,255,0.35); }
+  .swatch b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .swatch:hover { color: var(--ink); }
+  .swatch.on { color: var(--signal); font-weight: 700; }
+  .ramp { display: flex; gap: 2px; margin: 4px 0 1px; }
+  .ramp i { height: 9px; flex: 1; display: block; }
+  .ramplab { display: flex; justify-content: space-between; font-size: 0.57rem;
+    color: var(--ink-3); font-variant-numeric: tabular-nums; }
   .hint { margin: 3px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
   .owners { font-size: 0.68rem; }
   .own { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0;
@@ -128,11 +140,12 @@
     <h2>Filing type</h2>
     <label class="lyr"><input type="checkbox" id="f-new" checked> New buildings only</label>
     <p class="hint" id="typehint"></p>
-    <h2>Stage of review</h2>
-    <div class="owners" id="stages"></div>
-    <p class="hint">TDLR tracks its own accessibility review, not the building.
-      A closed project has finished that review — it is not a certificate of
-      occupancy.</p>
+    <h2>Colour by</h2>
+    <label class="lyr"><input type="radio" name="cb" id="cb-year" checked> Year filed</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-work"> Filing type</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-status"> Stage of review</label>
+    <div id="legend"></div>
+    <p class="hint" id="leghint"></p>
     <h2>Year filed</h2>
     <div class="hist" id="hist"></div>
     <div class="histnote" id="histnote"></div>
@@ -161,7 +174,43 @@ const BASES = [
     ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 0.55, dark: true },
 ];
-let baseKey = "topo", pickedYear = null, pickedOwner = null, pickedStage = null;
+let baseKey = "topo", pickedYear = null, pickedOwner = null;
+// one categorical filter shared by whichever legend is showing
+let pickedCat = null;   // {field, value}
+let colourBy = "year";
+
+// Three encodings. Year is sequential — a teal ramp running to a warm end so the
+// newest filings read as the news they are. The other two are categorical and
+// were checked for colourblind separation rather than picked by eye: worst
+// adjacent pair 13.2 (filing type) and 14.9 (stage) in OKLab against a floor of 8.
+const COLOUR = {
+  year: { legend: "ramp",
+    stops: [[2008, "#1d5e66"], [2018, "#2b8f95"], [2024, "#35e0d4"], [2026, "#ffb648"]],
+    lo: "2008", hi: "2026",
+    hint: "Filing year. The ramp runs cool to warm, so the recent build-out lights up." },
+  work: { legend: "cats", field: "work",
+    cats: [["New Construction", "New building", "#35e0d4"],
+           ["Renovation/Alteration", "Renovation", "#c77dff"],
+           ["Additions to Existing Building", "Addition", "#ffb648"]],
+    hint: "Renovations are work inside halls that already exist. Untick ‘New buildings only’ above to see them." },
+  status: { legend: "cats", field: "status",
+    cats: [["Project Registered", "Registered", "#ffb648"],
+           ["Review Complete", "Review complete", "#35e0d4"],
+           ["Inspection Complete", "Inspection complete", "#2b8f95"],
+           ["Project Closed", "Closed", "#1d5e66"]],
+    hint: "TDLR's own accessibility review, not the building. Closed means that review finished — it is not a certificate of occupancy." },
+};
+
+function colourExpr(mode) {
+  const C = COLOUR[mode];
+  if (C.legend === "ramp") {
+    return ["interpolate", ["linear"],
+      ["to-number", ["slice", ["get", "registered"], 0, 4]],
+      ...C.stops.flatMap(([v, c]) => [v, c])];
+  }
+  return ["match", ["get", C.field],
+    ...C.cats.flatMap(([v, , c]) => [v, c]), "#8a97a0"];
+}
 const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
   : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v).toLocaleString()}`;
 const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
@@ -212,7 +261,7 @@ function applyFilter() {
   if (document.getElementById("f-new").checked) f.push(["==", ["get", "work"], "New Construction"]);
   if (pickedYear) f.push(["==", ["slice", ["get", "registered"], 0, 4], pickedYear]);
   if (pickedOwner) f.push(["==", ["get", "owner_group"], pickedOwner]);
-  if (pickedStage) f.push(["==", ["get", "status"], pickedStage]);
+  if (pickedCat) f.push(["==", ["get", pickedCat.field], pickedCat.value]);
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
@@ -222,8 +271,8 @@ function applyFilter() {
   });
   document.querySelectorAll("#owners .own").forEach((b) =>
     b.classList.toggle("on", pickedOwner === b.dataset.o));
-  document.querySelectorAll("#stages .own").forEach((b) =>
-    b.classList.toggle("on", pickedStage === b.dataset.s));
+  document.querySelectorAll(".swatch").forEach((b) =>
+    b.classList.toggle("on", !!pickedCat && pickedCat.value === b.dataset.v));
   document.getElementById("typehint").textContent =
     document.getElementById("f-new").checked
       ? "90 new buildings. Unticking adds 232 renovations and 19 additions — work inside halls that already exist."
@@ -242,9 +291,13 @@ function note() {
 }
 window.pickYear = (y) => { pickedYear = (pickedYear === y) ? null : y; applyFilter(); };
 window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
-window.pickStage = (x) => { pickedStage = (pickedStage === x) ? null : x; applyFilter(); };
+window.pickCat = (v) => {
+  const field = COLOUR[colourBy].field;
+  pickedCat = (pickedCat && pickedCat.value === v) ? null : { field, value: v };
+  applyFilter();
+};
 window.clearAll = () => {
-  pickedYear = null; pickedOwner = null; pickedStage = null; applyFilter();
+  pickedYear = null; pickedOwner = null; pickedCat = null; applyFilter();
 };
 
 Promise.all([
@@ -262,10 +315,7 @@ Promise.all([
         "circle-stroke-color": "#35e0d4", "circle-stroke-width": 0.9, "circle-stroke-opacity": 0.5 } });
     map.addLayer({ id: "dc", type: "circle", source: "dc",
       paint: { "circle-radius": r,
-        // newest filings burn warm; the boom is the subject
-        "circle-color": ["interpolate", ["linear"],
-          ["to-number", ["slice", ["get", "registered"], 0, 4]],
-          2008, "#1d5e66", 2018, "#2b8f95", 2024, "#35e0d4", 2026, "#ffb648"],
+        "circle-color": colourExpr("year"),
         "circle-opacity": 0.72, "circle-stroke-color": "#0b0f12", "circle-stroke-width": 0.6 } });
     map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
     setBase(BASES[0]);
@@ -304,7 +354,10 @@ Promise.all([
         .setHTML(card(p, true)).addTo(map);
     });
 
-    document.getElementById("f-new").addEventListener("change", applyFilter);
+    document.getElementById("f-new").addEventListener("change", () => {
+      if (window.drawLegend) drawLegend();
+      applyFilter();
+    });
     applyFilter();
   });
 
@@ -317,18 +370,48 @@ Promise.all([
       <i style="height:${(Y[y].cost / mx * 100).toFixed(1)}%"></i>
       <span>${y % 5 === 0 || y === years[years.length - 1] ? y.slice(2) : "&nbsp;"}</span></button>`).join("");
 
-  // stages counted off the loaded features so the list always matches the map
-  const st = {};
-  for (const f of gj.features) {
-    if (f.properties.work !== "New Construction") continue;
-    const k = f.properties.status || "not stated";
-    st[k] = (st[k] || 0) + 1;
-  }
-  const ORDER = ["Project Registered", "Review Complete", "Inspection Complete", "Project Closed"];
-  document.getElementById("stages").innerHTML = ORDER.filter((k) => st[k])
-    .map((k) => `<button class="own" data-s="${k}" onclick="pickStage(this.dataset.s)">
-      <span>${k.replace("Project ", "")}</span><b>${st[k]}</b></button>`).join("");
+  // Counts come off the loaded features, and respect the new-buildings toggle,
+  // so a legend never advertises a category the map is not currently drawing.
+  window.__feats = gj.features;
+  window.drawLegend = () => {
+    const C = COLOUR[colourBy];
+    const el = document.getElementById("legend");
+    if (C.legend === "ramp") {
+      el.innerHTML = `<div class="ramp">${C.stops.map(([, c]) =>
+        `<i style="background:${c}"></i>`).join("")}</div>
+        <div class="ramplab"><span>${C.lo}</span><span>${C.hi}</span></div>`;
+    } else {
+      const onlyNew = document.getElementById("f-new").checked;
+      const n = {};
+      for (const f of window.__feats) {
+        if (onlyNew && f.properties.work !== "New Construction") continue;
+        const k = f.properties[C.field];
+        n[k] = (n[k] || 0) + 1;
+      }
+      el.innerHTML = C.cats.filter(([v]) => n[v]).map(([v, lab, col]) =>
+        `<button class="swatch" data-v="${v}" onclick="pickCat(this.dataset.v)">
+          <i style="background:${col}"></i><span>${lab}</span><b>${n[v]}</b></button>`).join("");
+    }
+    document.getElementById("leghint").textContent = C.hint;
+  };
 
+  for (const [id, mode] of [["cb-year", "year"], ["cb-work", "work"], ["cb-status", "status"]]) {
+    document.getElementById(id).addEventListener("change", () => {
+      colourBy = mode;
+      // a filter set from the previous legend would silently survive the switch
+      pickedCat = null;
+      // colouring by filing type while only new buildings are drawn paints the
+      // whole map one colour, so the toggle steps aside for that encoding
+      if (mode === "work" && document.getElementById("f-new").checked) {
+        document.getElementById("f-new").checked = false;
+      }
+      map.setPaintProperty("dc", "circle-color", colourExpr(mode));
+      drawLegend();
+      applyFilter();
+    });
+  }
+
+  drawLegend();
   document.getElementById("owners").innerHTML = Object.entries(s.nc_by_owner).slice(0, 8)
     .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
       onclick="pickOwner(this.dataset.o)"><span>${k}</span><b>${usd(v.cost)}</b></button>`).join("");
