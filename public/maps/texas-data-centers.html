@@ -40,7 +40,6 @@
 
   /* The year filter lives in the panel now, sized to it. The distribution is
      still legible at this width and each bar is still a click target. */
-  .hist { display: flex; align-items: flex-end; gap: 1px; height: 42px; margin: 2px 0 0; }
   .bar { flex: 1; min-width: 0; display: flex; flex-direction: column;
     justify-content: flex-end; align-items: center; height: 100%; cursor: pointer;
     background: none; border: 0; padding: 0; font: inherit; }
@@ -52,8 +51,6 @@
   .bar span { font-size: 0.5rem; color: var(--ink-3); margin-top: 2px;
     font-variant-numeric: tabular-nums; }
   .bar.on span { color: var(--ink); font-weight: 700; }
-  .histnote { font-size: 0.6rem; color: var(--ink-3); margin-top: 4px; line-height: 1.45; }
-  .histnote b { color: var(--ink-2); font-weight: 600; }
   .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
     border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
     margin-left: 8px; cursor: pointer; }
@@ -85,10 +82,6 @@
   .swatch b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
   .swatch:hover { color: var(--ink); }
   .swatch.on { color: var(--signal); font-weight: 700; }
-  .ramp { display: flex; gap: 2px; margin: 4px 0 1px; }
-  .ramp i { height: 9px; flex: 1; display: block; }
-  .ramplab { display: flex; justify-content: space-between; font-size: 0.57rem;
-    color: var(--ink-3); font-variant-numeric: tabular-nums; }
   .qual { text-transform: none; letter-spacing: 0; font-weight: 400;
     color: var(--ink-3); opacity: 0.8; }
   .hint { margin: 3px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
@@ -139,18 +132,11 @@
   <div class="panel">
     <h2>Basemap</h2>
     <div class="bases" id="bases"></div>
-    <h2>Filing type</h2>
-    <label class="lyr"><input type="checkbox" id="f-new"> New buildings only</label>
-    <p class="hint" id="typehint"></p>
     <h2>Colour by</h2>
-    <label class="lyr"><input type="radio" name="cb" id="cb-year"> Year filed</label>
-    <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> Filing type</label>
-    <label class="lyr"><input type="radio" name="cb" id="cb-status"> Stage of review</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> What the filing is</label>
+    <label class="lyr"><input type="radio" name="cb" id="cb-status"> How far along it is</label>
     <div id="legend"></div>
     <p class="hint" id="leghint"></p>
-    <h2>Year filed</h2>
-    <div class="hist" id="hist"></div>
-    <div class="histnote" id="histnote"></div>
     <h2>Biggest builders <span class="qual">M sq ft, new builds</span></h2>
     <div class="owners" id="owners"></div>
   </div>
@@ -176,7 +162,7 @@ const BASES = [
     ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 0.55, dark: true },
 ];
-let baseKey = "topo", pickedYear = null, pickedOwner = null;
+let baseKey = "topo", pickedOwner = null;
 // one categorical filter shared by whichever legend is showing
 let pickedCat = null;   // {field, value}
 let colourBy = "work";
@@ -186,30 +172,21 @@ let colourBy = "work";
 // were checked for colourblind separation rather than picked by eye: worst
 // adjacent pair 13.2 (filing type) and 14.9 (stage) in OKLab against a floor of 8.
 const COLOUR = {
-  year: { legend: "ramp",
-    stops: [[2008, "#1d5e66"], [2018, "#2b8f95"], [2024, "#35e0d4"], [2026, "#ffb648"]],
-    lo: "2008", hi: "2026",
-    hint: "Filing year. The ramp runs cool to warm, so the recent build-out lights up." },
   work: { legend: "cats", field: "work",
     cats: [["New Construction", "New building", "#35e0d4"],
            ["Renovation/Alteration", "Renovation", "#c77dff"],
            ["Additions to Existing Building", "Addition", "#ffb648"]],
-    hint: "Renovations are work inside halls that already exist. Untick ‘New buildings only’ above to see them." },
+    hint: "Renovations and additions are work on halls that already exist. Click one to show only those." },
   status: { legend: "cats", field: "status",
     cats: [["Project Registered", "Registered", "#ffb648"],
            ["Review Complete", "Review complete", "#35e0d4"],
            ["Inspection Complete", "Inspection complete", "#2b8f95"],
            ["Project Closed", "Closed", "#1d5e66"]],
-    hint: "TDLR's own accessibility review, not the building. Closed means that review finished — it is not a certificate of occupancy." },
+    hint: "TDLR's own accessibility review, not the building — closed means that review finished, not that anything opened. Click one to show only those." },
 };
 
 function colourExpr(mode) {
   const C = COLOUR[mode];
-  if (C.legend === "ramp") {
-    return ["interpolate", ["linear"],
-      ["to-number", ["slice", ["get", "registered"], 0, 4]],
-      ...C.stops.flatMap(([v, c]) => [v, c])];
-  }
   return ["match", ["get", C.field],
     ...C.cats.flatMap(([v, , c]) => [v, c]), "#8a97a0"];
 }
@@ -260,38 +237,32 @@ function setBase(bm) {
 
 function applyFilter() {
   const f = ["all"];
-  if (document.getElementById("f-new").checked) f.push(["==", ["get", "work"], "New Construction"]);
-  if (pickedYear) f.push(["==", ["slice", ["get", "registered"], 0, 4], pickedYear]);
   if (pickedOwner) f.push(["==", ["get", "owner_group"], pickedOwner]);
   if (pickedCat) f.push(["==", ["get", pickedCat.field], pickedCat.value]);
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
-  document.querySelectorAll(".bar").forEach((b) => {
-    b.classList.toggle("on", pickedYear === b.dataset.y);
-    b.classList.toggle("off", pickedYear != null && pickedYear !== b.dataset.y);
-  });
   document.querySelectorAll("#owners .own").forEach((b) =>
     b.classList.toggle("on", pickedOwner === b.dataset.o));
   document.querySelectorAll(".swatch").forEach((b) =>
     b.classList.toggle("on", !!pickedCat && pickedCat.value === b.dataset.v));
-  document.getElementById("typehint").textContent =
-    document.getElementById("f-new").checked
-      ? "90 new buildings. Unticking adds 232 renovations and 19 additions — work inside halls that already exist."
-      : "All 341 filings, including renovations of existing halls.";
+
   note();
 }
+/** The hint line under the legend doubles as the state readout: what the hint
+ *  says when nothing is filtered, what is filtered when something is. */
 function note() {
-  const el = document.getElementById("histnote");
+  const C = COLOUR[colourBy];
   const bits = [];
-  if (pickedYear) bits.push(`filed in <b>${pickedYear}</b>`);
+  if (pickedCat) {
+    const hit = C.cats.find(([v]) => v === pickedCat.value);
+    bits.push(`<b>${hit ? hit[1] : pickedCat.value}</b>`);
+  }
   if (pickedOwner) bits.push(`built by <b>${pickedOwner}</b>`);
-  el.innerHTML = bits.length
-    ? `Showing new construction ${bits.join(" and ")}` +
-      `<button class="clear" onclick="clearAll()">clear</button>`
-    : "Each bar is a year filed, by value of new construction. <b>Click one</b>, or a builder below.";
+  document.getElementById("leghint").innerHTML = bits.length
+    ? `Showing ${bits.join(", ")}<button class="clear" onclick="clearAll()">clear</button>`
+    : C.hint;
 }
-window.pickYear = (y) => { pickedYear = (pickedYear === y) ? null : y; applyFilter(); };
 window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
 window.pickCat = (v) => {
   const field = COLOUR[colourBy].field;
@@ -299,7 +270,7 @@ window.pickCat = (v) => {
   applyFilter();
 };
 window.clearAll = () => {
-  pickedYear = null; pickedOwner = null; pickedCat = null; applyFilter();
+  pickedOwner = null; pickedCat = null; applyFilter();
 };
 
 Promise.all([
@@ -360,57 +331,31 @@ Promise.all([
         .setHTML(card(p, true)).addTo(map);
     });
 
-    document.getElementById("f-new").addEventListener("change", () => {
-      if (window.drawLegend) drawLegend();
-      applyFilter();
-    });
     applyFilter();
   });
 
-  const Y = s.by_year;
-  const years = Object.keys(Y).sort();
-  const mx = Math.max(...years.map((y) => Y[y].sqft));
-  document.getElementById("hist").innerHTML = years.map((y) =>
-    `<button class="bar${y >= "2024" ? " hot" : ""}" data-y="${y}"
-      title="${Y[y].n} buildings, ${num(Y[y].sqft/1e6*10)/10}M sq ft, ${usd(Y[y].cost)}" onclick="pickYear('${y}')">
-      <i style="height:${(Y[y].sqft / mx * 100).toFixed(1)}%"></i>
-      <span>${y % 5 === 0 || y === years[years.length - 1] ? y.slice(2) : "&nbsp;"}</span></button>`).join("");
-
-  // Counts come off the loaded features, and respect the new-buildings toggle,
-  // so a legend never advertises a category the map is not currently drawing.
+  // Counts come off the loaded features rather than the stats file, so the
+  // legend can never advertise a category the map is not drawing.
   window.__feats = gj.features;
   window.drawLegend = () => {
     const C = COLOUR[colourBy];
-    const el = document.getElementById("legend");
-    if (C.legend === "ramp") {
-      el.innerHTML = `<div class="ramp">${C.stops.map(([, c]) =>
-        `<i style="background:${c}"></i>`).join("")}</div>
-        <div class="ramplab"><span>${C.lo}</span><span>${C.hi}</span></div>`;
-    } else {
-      const onlyNew = document.getElementById("f-new").checked;
-      const n = {};
-      for (const f of window.__feats) {
-        if (onlyNew && f.properties.work !== "New Construction") continue;
-        const k = f.properties[C.field];
-        n[k] = (n[k] || 0) + 1;
-      }
-      el.innerHTML = C.cats.filter(([v]) => n[v]).map(([v, lab, col]) =>
+    const n = {};
+    for (const f of window.__feats) {
+      const k = f.properties[C.field];
+      n[k] = (n[k] || 0) + 1;
+    }
+    document.getElementById("legend").innerHTML =
+      C.cats.filter(([v]) => n[v]).map(([v, lab, col]) =>
         `<button class="swatch" data-v="${v}" onclick="pickCat(this.dataset.v)">
           <i style="background:${col}"></i><span>${lab}</span><b>${n[v]}</b></button>`).join("");
-    }
-    document.getElementById("leghint").textContent = C.hint;
+    note();
   };
 
-  for (const [id, mode] of [["cb-year", "year"], ["cb-work", "work"], ["cb-status", "status"]]) {
+  for (const [id, mode] of [["cb-work", "work"], ["cb-status", "status"]]) {
     document.getElementById(id).addEventListener("change", () => {
       colourBy = mode;
       // a filter set from the previous legend would silently survive the switch
       pickedCat = null;
-      // colouring by filing type while only new buildings are drawn paints the
-      // whole map one colour, so the toggle steps aside for that encoding
-      if (mode === "work" && document.getElementById("f-new").checked) {
-        document.getElementById("f-new").checked = false;
-      }
       map.setPaintProperty("dc", "circle-color", colourExpr(mode));
       drawLegend();
       applyFilter();
