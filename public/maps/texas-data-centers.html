@@ -284,8 +284,16 @@ function stateLine() {
     return true;
   };
   const on = feats.filter(match);
-  const area = on.reduce((a, f) => a + (f.properties.area_is_campus ? 0
-    : (f.properties.sqft || 0)), 0);
+  // Floor area counts NEW CONSTRUCTION only. A renovation filing restates the
+  // area of the hall it sits inside, so adding it to the new-build total counts
+  // the same building twice — that is how this line first read 87.6M sq ft when
+  // the real figure is 70.7M.
+  const area = on.reduce((a, f) => {
+    const p = f.properties;
+    if (p.work !== "New Construction" || p.area_is_campus) return a;
+    return a + (p.sqft || 0);
+  }, 0);
+  const newN = on.filter((f) => f.properties.work === "New Construction").length;
   let what = "data center filings";
   if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
@@ -293,11 +301,16 @@ function stateLine() {
     what = colourBy === "work" ? `${lab}${lab.endsWith("g") ? "s" : "s"}`
       : `filings at "${lab}"`;
   }
+  // The count is what is drawn, not what is in the file: six of the 671 have an
+  // address Azure could not place inside Texas and are not on the map.
+  const sub = area > 0
+    ? `${(area / 1e6).toFixed(1)} million sq ft of new building` +
+      (newN !== on.length ? ` across ${newN.toLocaleString()} of them` : "")
+    : "no new construction in this selection";
   document.getElementById("state").innerHTML =
     `<b>${on.length.toLocaleString()}</b> ${what}` +
     (pickedOwner ? ` by ${pickedOwner}` : "") +
-    `<span>${(area / 1e6).toFixed(1)} million square feet` +
-    `${pickedCat || pickedOwner ? " · of 671 filings in Texas" : " across Texas"}</span>`;
+    `<span>${sub} · Texas</span>`;
 }
 
 function note() {
