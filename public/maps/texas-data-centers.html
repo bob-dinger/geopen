@@ -373,6 +373,9 @@ Promise.all([
       `${p.sqft ? `<b>${num(p.sqft)} sq ft</b>` : "floor area not stated"}` +
       `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
       `${p.work} · filed ${p.registered || "?"}<br>` +
+      (p.geo_precision === "county"
+        ? `<span style="color:#ffb648">Address could not be placed — shown at the ` +
+          `centre of ${p.county} County</span><br>` : "") +
       `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>` +
       // MapLibre hands array properties back as JSON strings, not arrays, so
       // this has to parse before it can join — calling .join() on the string
@@ -442,6 +445,13 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
+    <p><b>Every point sits inside the county its filing names</b>, checked
+      against the county boundary rather than trusted. Rural Texas addresses —
+      "615 FM 2404", "Co. Rd. 21" — name farm roads that recur across the state,
+      and geocoding on address alone put 61 of 665 in the wrong county, including
+      a Haskell building in Bexar and a Williamson County one in Nueces. Six
+      addresses still cannot be resolved and are drawn hollow at their county
+      centre, labelled as such.</p>
     <p><b>Every dot is one filing, at the address on that filing.</b> Nothing here
       is inferred: the position, the floor area, the type of work, the stage of
       review and the owner name are the fields as the document states them, and
