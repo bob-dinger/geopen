@@ -151,8 +151,6 @@
     <div class="state" id="state"></div>
     <div id="legend"></div>
     <p class="hint" id="leghint"></p>
-    <h2>Biggest builders <span class="qual">M sq ft</span></h2>
-    <div class="owners" id="owners"></div>
     <div class="controls">
       <h2>Colour by</h2>
       <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> What the filing is</label>
@@ -183,7 +181,7 @@ const BASES = [
     ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
     opacity: 0.55, dark: true },
 ];
-let baseKey = "topo", pickedOwner = null;
+let baseKey = "topo";
 // one categorical filter shared by whichever legend is showing
 let pickedCat = null;   // {field, value}
 let colourBy = "work";
@@ -258,13 +256,10 @@ function setBase(bm) {
 
 function applyFilter() {
   const f = ["all"];
-  if (pickedOwner) f.push(["==", ["get", "owner_group"], pickedOwner]);
   if (pickedCat) f.push(["==", ["get", pickedCat.field], pickedCat.value]);
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
-  document.querySelectorAll("#owners .own").forEach((b) =>
-    b.classList.toggle("on", pickedOwner === b.dataset.o));
   document.querySelectorAll(".swatch").forEach((b) =>
     b.classList.toggle("on", !!pickedCat && pickedCat.value === b.dataset.v));
 
@@ -281,7 +276,6 @@ function stateLine() {
   const match = (f) => {
     const p = f.properties;
     if (pickedCat && p[pickedCat.field] !== pickedCat.value) return false;
-    if (pickedOwner && p.owner_group !== pickedOwner) return false;
     return true;
   };
   const on = feats.filter(match);
@@ -314,7 +308,6 @@ function stateLine() {
     : "no new construction in this selection";
   document.getElementById("state").innerHTML =
     `<b>${on.length.toLocaleString()}</b> ${what}` +
-    (pickedOwner ? ` by ${pickedOwner}` : "") +
     `<span>${sub} · Texas</span>`;
 }
 
@@ -325,20 +318,18 @@ function note() {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
     bits.push(`<b>${hit ? hit[1] : pickedCat.value}</b>`);
   }
-  if (pickedOwner) bits.push(`built by <b>${pickedOwner}</b>`);
   document.getElementById("leghint").innerHTML = bits.length
     ? `<button class="clear" onclick="clearAll()">show all 671 again</button>`
     : `<b>Click a colour</b> to show only those. ${C.hint}`;
   stateLine();
 }
-window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
 window.pickCat = (v) => {
   const field = COLOUR[colourBy].field;
   pickedCat = (pickedCat && pickedCat.value === v) ? null : { field, value: v };
   applyFilter();
 };
 window.clearAll = () => {
-  pickedOwner = null; pickedCat = null; applyFilter();
+  pickedCat = null; applyFilter();
 };
 
 Promise.all([
@@ -369,9 +360,7 @@ Promise.all([
     // follow through to the filing itself.
     const card = (p, withLink) =>
       `<b>${p.name || "Unnamed"}</b><br>` +
-      `${p.owner_group || "owner not stated"}` +
-      `${p.owner && p.owner_group && p.owner.toLowerCase() !== p.owner_group.toLowerCase()
-        ? ` <span style="color:#6d818d">(filed as ${p.owner})</span>` : ""}<br>` +
+      `${p.owner ? `Filed by ${p.owner}` : "owner not stated"}<br>` +
       `${p.address ? p.address + "<br>" : ""}${p.city}, ${p.county} County<br>` +
       `${p.sqft ? `<b>${num(p.sqft)} sq ft</b>` : "floor area not stated"}` +
       `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
@@ -431,10 +420,6 @@ Promise.all([
   }
 
   drawLegend();
-  document.getElementById("owners").innerHTML = Object.entries(s.by_owner).slice(0, 9)
-    .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
-      onclick="pickOwner(this.dataset.o)"><span>${k}</span>
-      <b>${(v.sqft / 1e6).toFixed(2)}M</b></button>`).join("");
   note();
 });
 
@@ -446,35 +431,42 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
-    <p><b>How these were found, and how the first attempt failed.</b> Searching
-      TDLR's API for project names containing "data center" returns 341 filings.
-      That is a third of them. Only <b>110 of 671</b> are findable that way:
-      operators file under code names — Project Pumpkin, Project Eagle, DA12-2,
-      Sharka — and the words appear instead in the facility name or the scope of
-      work. The facility name sits in the statewide extract and costs nothing to
-      search; the scope of work is on each filing's detail page, so finding those
-      meant fetching 8,292 large filings and reading them.</p>
-    <p><b>Floor area is the primary measure here, not money.</b> Cost is an
-      estimate made at filing, and on the largest projects it is sometimes the
-      whole campus written onto one building's paperwork — the median new build
-      is $683 per square foot, and the flagged ones reach $8,532. Seven filings
-      are excluded from the cost total for that reason and are marked in the
-      popup. Floor area has the same failure in one case, an El Paso filing
-      stating 596 acres of site as though it were floor, which is excluded too.</p>
+    <p><b>Every dot is one filing, at the address on that filing.</b> Nothing here
+      is inferred: the position, the floor area, the type of work, the stage of
+      review and the owner name are the fields as the document states them, and
+      each popup links to the filing on the state's site so any of it can be
+      checked. Six of the 671 have an address that could not be placed inside
+      Texas and are not drawn.</p>
+    <p><b>How these were found, and how a name search fails.</b> Searching TDLR's
+      API for project names containing "data center" returns 341 filings — a
+      third of them. Only <b>110 of 671</b> are findable that way: operators file
+      under code names — Project Pumpkin, Project Eagle, DA12-2, Sharka — and the
+      words appear instead in the facility name or the scope of work. The
+      facility name sits in the statewide extract and costs nothing to search;
+      the scope of work is on each filing's detail page, so the rest meant
+      fetching and reading 8,292 large filings.</p>
+    <p><b>Floor area is the measure here, not money.</b> Cost is an estimate made
+      at filing, and on the largest projects it is sometimes the whole campus
+      written onto one building's paperwork — the median new build is $683 per
+      square foot and the flagged ones reach $8,532. Those are marked in the
+      popup. One El Paso filing states 596 acres of site as though it were floor
+      area, and is left out of the totals.</p>
     <p><b>A big data centre is filed twice</b>, once for the core and shell and
-      once for the fit-out built into it, each carrying the full area and cost.
-      Eight such filings are collapsed into the building they belong to.
-      Identical <i>sibling</i> buildings are not collapsed: a campus builds to
-      one design, so Crusoe 5 through 8 and Llano 1 through 6 genuinely share a
-      floor plate, and their scopes say so — "the ninth data center", "the second
-      building of a campus".</p>
-    <p><b>The register lags a proposal by months.</b> A project registers with
-      TDLR when it reaches design and construction, not when it is proposed or
-      rezoned. A data centre being argued over at a council meeting today is not
-      here. This is the committed pipeline, not the whole of it.</p>
-    <p><b>Still a floor.</b> The scope sweep only read filings of $20M or more —
-      8,292 of them. Below that, small fit-outs inside existing halls remain
-      invisible, and no amount of name searching would surface them. TDLR is an
-      accessibility regulator; none of this exists to track data centres.</p>
+      once for the fit-out built into it, each carrying the full area. Eight such
+      filings are folded into the building they belong to. Identical <i>sibling</i>
+      buildings are not: a campus builds to one design, so Crusoe 5 through 8 and
+      Llano 1 through 6 genuinely share a floor plate, and their scopes say so —
+      "the ninth data center", "the second building of a campus".</p>
+    <p><b>Who owns these is not on this map</b>, because the filings do not
+      reliably say. Most are held by a company formed for one building, and
+      connecting those to an operator takes corporate and deed records this map
+      does not use. The owner name in each popup is what the filing states and
+      nothing more.</p>
+    <p><b>The register lags a proposal by months</b>, and this is still a floor.
+      A project registers when it reaches design and construction, not when it is
+      proposed or rezoned, so a data centre being argued over at a council
+      meeting is not here. The scope sweep only read filings of $20M or more.
+      TDLR is an accessibility regulator; none of this exists to track data
+      centres.</p>
   </div></details>`;
 </script>
