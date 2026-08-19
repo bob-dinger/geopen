@@ -290,10 +290,14 @@ function stateLine() {
   // the real figure is 70.7M.
   const area = on.reduce((a, f) => {
     const p = f.properties;
-    if (p.work !== "New Construction" || p.area_is_campus) return a;
+    // `primary` is false on the second filing of a building that was filed
+    // twice — a core-and-shell and a fit-out, each carrying the full area.
+    // Without this the total reads 73.9M against a true 70.7M.
+    if (!p.primary || p.work !== "New Construction" || p.area_is_campus) return a;
     return a + (p.sqft || 0);
   }, 0);
-  const newN = on.filter((f) => f.properties.work === "New Construction").length;
+  const newN = on.filter((f) => f.properties.primary
+    && f.properties.work === "New Construction").length;
   let what = "data center filings";
   if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
