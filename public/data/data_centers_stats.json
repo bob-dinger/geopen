@@ -1,277 +1,287 @@
 {
- "filings": 341,
- "new_construction": 90,
- "nc_cost": 12106518355,
- "nc_sqft": 18671929,
- "nc_sqft_n": 70,
- "reno": 232,
- "reno_cost": 1072758736,
- "nc_by_year": {
+ "filings": 671,
+ "primary": 663,
+ "new_construction": 279,
+ "sqft": 70729191,
+ "sqft_n": 236,
+ "cost": 61993657792,
+ "reno": 329,
+ "reno_cost": 7039793750,
+ "found_by_name_only": 110,
+ "by_year": {
   "2009": {
    "n": 1,
-   "cost": 85000000,
-   "sqft": 0
+   "sqft": 0,
+   "cost": 85000000
   },
   "2010": {
    "n": 1,
-   "cost": 1206000,
-   "sqft": 0
+   "sqft": 0,
+   "cost": 1206000
   },
   "2011": {
-   "n": 3,
-   "cost": 31300000,
-   "sqft": 0
+   "n": 1,
+   "sqft": 0,
+   "cost": 12300000
   },
   "2012": {
-   "n": 3,
-   "cost": 47585000,
-   "sqft": 0
+   "n": 2,
+   "sqft": 0,
+   "cost": 35085000
+  },
+  "2013": {
+   "n": 2,
+   "sqft": 0,
+   "cost": 22400000
   },
   "2014": {
-   "n": 2,
-   "cost": 7300000,
-   "sqft": 0
+   "n": 5,
+   "sqft": 0,
+   "cost": 16737750
   },
   "2015": {
-   "n": 3,
-   "cost": 22880070,
-   "sqft": 0
+   "n": 6,
+   "sqft": 0,
+   "cost": 356880070
   },
   "2016": {
-   "n": 2,
-   "cost": 13125000,
-   "sqft": 0
+   "n": 7,
+   "sqft": 0,
+   "cost": 478125000
+  },
+  "2017": {
+   "n": 5,
+   "sqft": 0,
+   "cost": 724000000
   },
   "2018": {
-   "n": 6,
-   "cost": 369668000,
-   "sqft": 10000
+   "n": 9,
+   "sqft": 685001,
+   "cost": 577668000
   },
   "2019": {
-   "n": 2,
-   "cost": 600000000,
-   "sqft": 588000
+   "n": 4,
+   "sqft": 834460,
+   "cost": 709000000
   },
   "2020": {
-   "n": 3,
-   "cost": 12000000,
-   "sqft": 2762295
+   "n": 7,
+   "sqft": 3200695,
+   "cost": 179850000
   },
   "2021": {
-   "n": 12,
-   "cost": 534158945,
-   "sqft": 941306
+   "n": 20,
+   "sqft": 1905366,
+   "cost": 1099358945
   },
   "2022": {
-   "n": 4,
-   "cost": 432975500,
-   "sqft": 689491
+   "n": 18,
+   "sqft": 3482866,
+   "cost": 2208975500
   },
   "2023": {
-   "n": 8,
-   "cost": 465623731,
-   "sqft": 947547
+   "n": 23,
+   "sqft": 2749033,
+   "cost": 1683623731
   },
   "2024": {
-   "n": 13,
-   "cost": 1575695200,
-   "sqft": 1716999
+   "n": 46,
+   "sqft": 13213849,
+   "cost": 9137929719
   },
   "2025": {
-   "n": 15,
-   "cost": 4280400909,
-   "sqft": 4329155
+   "n": 58,
+   "sqft": 19387711,
+   "cost": 13626504459
   },
   "2026": {
-   "n": 12,
-   "cost": 3627600000,
-   "sqft": 6687136
+   "n": 64,
+   "sqft": 25270210,
+   "cost": 31039013618
   }
  },
- "nc_by_owner": {
+ "by_owner": {
+  "GN DC LLCs": {
+   "n": 10,
+   "sqft": 6771963,
+   "cost": 4584000000
+  },
   "QTS": {
+   "n": 16,
+   "sqft": 5113820,
+   "cost": 3234000000
+  },
+  "Vantage": {
    "n": 14,
-   "cost": 3140000000,
-   "sqft": 8204420
+   "sqft": 4966505,
+   "cost": 11367852058
+  },
+  "Compass": {
+   "n": 11,
+   "sqft": 4285822,
+   "cost": 766000000
+  },
+  "Microsoft": {
+   "n": 18,
+   "sqft": 3685382,
+   "cost": 3552700000
+  },
+  "Data Center 3-8 Hold Co, L": {
+   "n": 5,
+   "sqft": 2399721,
+   "cost": 1460000000
+  },
+  "Ip Meitner Land Llc": {
+   "n": 3,
+   "sqft": 2283000,
+   "cost": 1200000000
+  },
+  "Abilene DC LLCs": {
+   "n": 4,
+   "sqft": 2088149,
+   "cost": 320000000
+  },
+  "Amazon": {
+   "n": 14,
+   "sqft": 2053832,
+   "cost": 2678900000
+  },
+  "C1 Fort Worth, Llc": {
+   "n": 1,
+   "sqft": 1904000,
+   "cost": 200000000
+  },
+  "DataBank": {
+   "n": 5,
+   "sqft": 1724480,
+   "cost": 1162250000
+  },
+  "Burr Computer Environment ": {
+   "n": 2,
+   "sqft": 1460000,
+   "cost": 1400000000
+  },
+  "CyrusOne": {
+   "n": 11,
+   "sqft": 1214647,
+   "cost": 1509500000
+  },
+  "Galaxy Digital": {
+   "n": 5,
+   "sqft": 1174769,
+   "cost": 2607000000
+  },
+  "Homebound Group Llc": {
+   "n": 4,
+   "sqft": 1125702,
+   "cost": 1500000000
+  },
+  "Aligned": {
+   "n": 3,
+   "sqft": 1081713,
+   "cost": 435817941
   },
   "Sharka LLC": {
    "n": 5,
-   "cost": 1741727252,
-   "sqft": 1046600
+   "sqft": 1046600,
+   "cost": 1741727252
   },
-  "Microsoft": {
-   "n": 3,
-   "cost": 1647600000,
-   "sqft": 929746
-  },
-  "Amazon": {
-   "n": 4,
-   "cost": 1200000000,
-   "sqft": 756240
-  },
-  "Vantage": {
-   "n": 4,
-   "cost": 801852058,
-   "sqft": 1249993
-  },
-  "Homebound Group Llc": {
+  "Serverfarm": {
    "n": 2,
-   "cost": 700000000,
-   "sqft": 630000
+   "sqft": 1003000,
+   "cost": 274000000
   },
-  "Milam County Data Center Llc": {
+  "Platon Investments Llc": {
    "n": 1,
-   "cost": 470000000,
-   "sqft": 548950
+   "sqft": 991000,
+   "cost": 500000000
   },
-  "Lockhart Property, Llc": {
+  "Planton Investments Llc": {
    "n": 1,
-   "cost": 400000000,
-   "sqft": 760000
-  },
-  "Bt Gateway Data Center Llc": {
-   "n": 1,
-   "cost": 384000000,
-   "sqft": 100000
-  },
-  "Sdc Dfwc, Lp": {
-   "n": 1,
-   "cost": 300000000,
-   "sqft": 360750
-  },
-  "Copt San Antonio Ii, Lp": {
-   "n": 2,
-   "cost": 294988945,
-   "sqft": 92180
-  },
-  "Polmer Llc": {
-   "n": 2,
-   "cost": 197300000,
-   "sqft": 185000
-  },
-  "Verizon": {
-   "n": 1,
-   "cost": 187675500,
-   "sqft": 97500
-  },
-  "Cisco Systems Inc.": {
-   "n": 1,
-   "cost": 85000000,
-   "sqft": 0
-  },
-  "Temple Green Data Llc": {
-   "n": 1,
-   "cost": 70000000,
-   "sqft": 133274
-  },
-  "University Of Texas At San Antonio": {
-   "n": 1,
-   "cost": 64000000,
-   "sqft": 165000
-  },
-  "Oppidan": {
-   "n": 2,
-   "cost": 58173000,
-   "sqft": 123108
-  },
-  "Ip Stream Houston Llc": {
-   "n": 1,
-   "cost": 35000000,
-   "sqft": 0
-  },
-  "Lit Industrial Limited Partnership C/O Clarion Partners": {
-   "n": 1,
-   "cost": 32000000,
-   "sqft": 0
-  },
-  "Copt San Antonio Ii L.P.": {
-   "n": 1,
-   "cost": 22500000,
-   "sqft": 0
+   "sqft": 991000,
+   "cost": 500000000
   }
  },
- "nc_by_county": {
+ "by_county": {
   "Dallas": {
-   "n": 20,
-   "cost": 2961038000
+   "n": 49,
+   "sqft": 10756293
+  },
+  "Armstrong": {
+   "n": 10,
+   "sqft": 6771963
   },
   "Ellis": {
-   "n": 6,
-   "cost": 1746727252
+   "n": 21,
+   "sqft": 6349085
   },
-  "Medina": {
-   "n": 3,
-   "cost": 1647600000
-  },
-  "Bexar": {
+  "Taylor": {
    "n": 12,
-   "cost": 1266891003
-  },
-  "Pecos": {
-   "n": 3,
-   "cost": 900000000
+   "sqft": 5939790
   },
   "Tarrant": {
-   "n": 6,
-   "cost": 732275500
+   "n": 21,
+   "sqft": 5847723
   },
-  "Haskell": {
-   "n": 2,
-   "cost": 700000000
+  "Bexar": {
+   "n": 32,
+   "sqft": 4490449
   },
-  "Milam": {
-   "n": 1,
-   "cost": 470000000
-  },
-  "Caldwell": {
-   "n": 1,
-   "cost": 400000000
-  },
-  "Hunt": {
-   "n": 1,
-   "cost": 384000000
-  },
-  "Floyd": {
-   "n": 1,
-   "cost": 300000000
-  },
-  "Bell": {
-   "n": 4,
-   "cost": 298300000
-  },
-  "Collin": {
-   "n": 5,
-   "cost": 118250000
-  },
-  "Montgomery": {
-   "n": 2,
-   "cost": 42500000
-  },
-  "El Paso": {
-   "n": 1,
-   "cost": 27173000
+  "Shackelford": {
+   "n": 10,
+   "sqft": 3716512
   },
   "Williamson": {
-   "n": 1,
-   "cost": 22000000
+   "n": 15,
+   "sqft": 2918270
+  },
+  "Medina": {
+   "n": 10,
+   "sqft": 2796770
+  },
+  "Collin": {
+   "n": 13,
+   "sqft": 2305848
+  },
+  "Gray": {
+   "n": 3,
+   "sqft": 2283000
+  },
+  "Bastrop": {
+   "n": 4,
+   "sqft": 2038000
+  },
+  "Wilbarger": {
+   "n": 2,
+   "sqft": 1982000
+  },
+  "Caldwell": {
+   "n": 2,
+   "sqft": 1629684
+  },
+  "Bell": {
+   "n": 6,
+   "sqft": 1581459
+  },
+  "Dickens": {
+   "n": 5,
+   "sqft": 1174769
+  },
+  "Haskell": {
+   "n": 4,
+   "sqft": 1125702
   },
   "Harris": {
-   "n": 6,
-   "cost": 21211330
+   "n": 10,
+   "sqft": 1043679
   },
-  "Childress": {
+  "Hill": {
    "n": 2,
-   "cost": 18863400
+   "sqft": 982756
   },
-  "Hays": {
-   "n": 2,
-   "cost": 14300000
-  },
-  "Brazos": {
+  "Mitchell": {
    "n": 1,
-   "cost": 10000000
+   "sqft": 800000
   }
- },
- "recent2": 7908000909,
- "earlier": 4198517446
+ }
 }

@@ -1,8 +1,8 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Every data center filed in Texas, and who is building it</title>
-<meta name="description" content="341 data center construction filings from the Texas Department of Licensing and Regulation, at their street addresses, with the owner named on each. $12.1B of new construction — and 65% of it filed in the last two years.">
+<title>Every data center filed in Texas — 671 filings, 70 million square feet</title>
+<meta name="description" content="671 data center filings from the Texas licensing record, at their street addresses. 279 new buildings, 70.7 million square feet — and two thirds of it filed since the start of 2025.">
 <link rel="canonical" href="https://geopen.io/maps/texas-data-centers.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
@@ -132,7 +132,7 @@
 <div class="wrap">
   <div id="map"></div>
   <div class="titlecard">
-    <h1>Every data center filed in Texas, and who is building it</h1>
+    <h1>Every data center filed in Texas</h1>
     <p class="sub">341 construction filings at their street addresses, from the state
       licensing record. <a class="home" href="https://geopen.io/">geopen.io</a></p>
   </div>
@@ -151,7 +151,7 @@
     <h2>Year filed</h2>
     <div class="hist" id="hist"></div>
     <div class="histnote" id="histnote"></div>
-    <h2>Biggest builders <span class="qual">new builds</span></h2>
+    <h2>Biggest builders <span class="qual">M sq ft, new builds</span></h2>
     <div class="owners" id="owners"></div>
   </div>
 </div>
@@ -309,9 +309,12 @@ Promise.all([
   map.on("load", () => {
     map.addSource("dc", { type: "geojson", data: gj });
     // area tracks cost, so a $765M hall reads as what it is next to a $2M fit-out
+    // Sized by floor area, not cost. Cost at filing turned out to be the
+    // campus figure on some of the largest projects — $8,532/sq ft where the
+    // median build is $683 — so it cannot drive the geometry.
     const r = ["interpolate", ["linear"], ["zoom"],
-      5, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "cost"], 0]], 0, 3, 8000, 7, 27000, 18],
-      11, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "cost"], 0]], 0, 5, 8000, 16, 27000, 44]];
+      5, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "sqft"], 0]], 0, 3, 500, 7, 1400, 17],
+      11, ["interpolate", ["linear"], ["sqrt", ["coalesce", ["get", "sqft"], 0]], 0, 5, 500, 16, 1400, 42]];
     map.addLayer({ id: "dc-halo", type: "circle", source: "dc",
       paint: { "circle-radius": r, "circle-color": "rgba(0,0,0,0)",
         "circle-stroke-color": "#35e0d4", "circle-stroke-width": 0.9, "circle-stroke-opacity": 0.5 } });
@@ -331,10 +334,11 @@ Promise.all([
       `${p.owner && p.owner_group && p.owner.toLowerCase() !== p.owner_group.toLowerCase()
         ? ` <span style="color:#6d818d">(filed as ${p.owner})</span>` : ""}<br>` +
       `${p.address ? p.address + "<br>" : ""}${p.city}, ${p.county} County<br>` +
-      `${p.cost ? usd(p.cost) : "cost not stated"}` +
-      `${p.sqft ? ` · ${num(p.sqft)} sq ft` : ""}<br>` +
+      `${p.sqft ? `<b>${num(p.sqft)} sq ft</b>` : "floor area not stated"}` +
+      `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
       `${p.work} · filed ${p.registered || "?"}<br>` +
       `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>` +
+      `<br><span style="color:#6d818d">found via ${(p.found_by || []).join(", ") || "?"}</span>` +
       (withLink
         ? `<br><a href="${p.url}" target="_blank" rel="noopener"
              style="color:#35e0d4;font-weight:600">Filing ${p.project} at TDLR →</a>`
@@ -363,13 +367,13 @@ Promise.all([
     applyFilter();
   });
 
-  const Y = s.nc_by_year;
+  const Y = s.by_year;
   const years = Object.keys(Y).sort();
-  const mx = Math.max(...years.map((y) => Y[y].cost));
+  const mx = Math.max(...years.map((y) => Y[y].sqft));
   document.getElementById("hist").innerHTML = years.map((y) =>
     `<button class="bar${y >= "2024" ? " hot" : ""}" data-y="${y}"
-      title="${Y[y].n} filings, ${usd(Y[y].cost)}" onclick="pickYear('${y}')">
-      <i style="height:${(Y[y].cost / mx * 100).toFixed(1)}%"></i>
+      title="${Y[y].n} buildings, ${num(Y[y].sqft/1e6*10)/10}M sq ft, ${usd(Y[y].cost)}" onclick="pickYear('${y}')">
+      <i style="height:${(Y[y].sqft / mx * 100).toFixed(1)}%"></i>
       <span>${y % 5 === 0 || y === years[years.length - 1] ? y.slice(2) : "&nbsp;"}</span></button>`).join("");
 
   // Counts come off the loaded features, and respect the new-buildings toggle,
@@ -414,9 +418,10 @@ Promise.all([
   }
 
   drawLegend();
-  document.getElementById("owners").innerHTML = Object.entries(s.nc_by_owner).slice(0, 8)
+  document.getElementById("owners").innerHTML = Object.entries(s.by_owner).slice(0, 9)
     .map(([k, v]) => `<button class="own" data-o="${k.replace(/"/g, "&quot;")}"
-      onclick="pickOwner(this.dataset.o)"><span>${k}</span><b>${usd(v.cost)}</b></button>`).join("");
+      onclick="pickOwner(this.dataset.o)"><span>${k}</span>
+      <b>${(v.sqft / 1e6).toFixed(2)}M</b></button>`).join("");
   note();
 });
 
@@ -428,39 +433,35 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
+    <p><b>How these were found, and how the first attempt failed.</b> Searching
+      TDLR's API for project names containing "data center" returns 341 filings.
+      That is a third of them. Only <b>110 of 671</b> are findable that way:
+      operators file under code names — Project Pumpkin, Project Eagle, DA12-2,
+      Sharka — and the words appear instead in the facility name or the scope of
+      work. The facility name sits in the statewide extract and costs nothing to
+      search; the scope of work is on each filing's detail page, so finding those
+      meant fetching 8,292 large filings and reading them.</p>
+    <p><b>Floor area is the primary measure here, not money.</b> Cost is an
+      estimate made at filing, and on the largest projects it is sometimes the
+      whole campus written onto one building's paperwork — the median new build
+      is $683 per square foot, and the flagged ones reach $8,532. Seven filings
+      are excluded from the cost total for that reason and are marked in the
+      popup. Floor area has the same failure in one case, an El Paso filing
+      stating 596 acres of site as though it were floor, which is excluded too.</p>
+    <p><b>A big data centre is filed twice</b>, once for the core and shell and
+      once for the fit-out built into it, each carrying the full area and cost.
+      Eight such filings are collapsed into the building they belong to.
+      Identical <i>sibling</i> buildings are not collapsed: a campus builds to
+      one design, so Crusoe 5 through 8 and Llano 1 through 6 genuinely share a
+      floor plate, and their scopes say so — "the ninth data center", "the second
+      building of a campus".</p>
     <p><b>The register lags a proposal by months.</b> A project registers with
       TDLR when it reaches design and construction, not when it is proposed or
-      rezoned. So a data centre being argued over at a council meeting today does
-      not appear here, and will not for some time. What this map shows is what
-      has been committed to construction — a floor on the pipeline, not a measure
-      of it.</p>
-    <p><b>It is a floor in the other direction too.</b> Projects are found by
-      searching filing names for "data center", "data hall" and known operator
-      names. A hyperscaler filing under a code name is missed, and they routinely
-      use them. There are certainly more data centers in Texas than 341.</p>
-    <p><b>Every one of the 341 is at its real street address.</b> The address, the
-      floor area, the owner and the scope of work sit on each project's detail
-      page, not in the search results — all 341 were fetched and geocoded, none is
-      a city centroid.</p>
-    <p><b>Owner names are typed by hand and had to be merged.</b> Quality
-      Investment Properties Irving LLC is QTS — its filings sit at the same
-      Longhorn Drive addresses as filings that say QTS outright, and are named
-      "QTS DFW1 DC3". Sharka LLC files four different ways at one Midlothian
-      address. Both were merged; without that the totals split one builder in two.</p>
-    <p><b>Many owners are single-purpose companies</b> — Homebound Group LLC,
-      Milam County Data Center LLC, Lockhart Property LLC, BT Gateway Data Center
-      LLC. The operator behind them is not on the filing, and this map does not
-      guess at one.</p>
-    <p><b>Stage is about the paperwork, not the building.</b> TDLR's status
-      tracks its own accessibility review: registered, reviewed, inspected,
-      closed. A closed project has finished that review — it is not proof the
-      building is up, and a registered one is not proof ground has not been
-      broken. It is the best signal in the file about how far along a project is,
-      and it is still only a proxy. Worth knowing that $7.23B of the $12.11B sits
-      in "registered" — the newest money is the least advanced.</p>
-    <p><b>Cost is an estimate at filing</b>, not spend, and it moves. Floor area is
-      the sturdier number but is stated on only ${""}70 of 90 new-construction
-      filings. TDLR registers projects for accessibility review, so this is a
-      compliance record, not a permit database.</p>
+      rezoned. A data centre being argued over at a council meeting today is not
+      here. This is the committed pipeline, not the whole of it.</p>
+    <p><b>Still a floor.</b> The scope sweep only read filings of $20M or more —
+      8,292 of them. Below that, small fit-outs inside existing halls remain
+      invisible, and no amount of name searching would surface them. TDLR is an
+      accessibility regulator; none of this exists to track data centres.</p>
   </div></details>`;
 </script>
