@@ -358,6 +358,14 @@ Promise.all([
     // Two popups, because a hover popup cannot hold a link — moving the cursor
     // toward it dismisses it. Hover scans; click pins one you can read and
     // follow through to the filing itself.
+    const foundBy = (v) => {
+      if (Array.isArray(v)) return v.join(", ");
+      if (typeof v === "string") {
+        try { const a = JSON.parse(v); return Array.isArray(a) ? a.join(", ") : v; }
+        catch (e) { return v; }
+      }
+      return "?";
+    };
     const card = (p, withLink) =>
       `<b>${p.name || "Unnamed"}</b><br>` +
       `${p.owner ? `Filed by ${p.owner}` : "owner not stated"}<br>` +
@@ -366,7 +374,10 @@ Promise.all([
       `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
       `${p.work} · filed ${p.registered || "?"}<br>` +
       `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>` +
-      `<br><span style="color:#6d818d">found via ${(p.found_by || []).join(", ") || "?"}</span>` +
+      // MapLibre hands array properties back as JSON strings, not arrays, so
+      // this has to parse before it can join — calling .join() on the string
+      // threw on every hover and every click, and killed both popups outright
+      `<br><span style="color:#6d818d">found via ${foundBy(p.found_by)}</span>` +
       (withLink
         ? `<br><a href="${p.url}" target="_blank" rel="noopener"
              style="color:#35e0d4;font-weight:600">Filing ${p.project} at TDLR →</a>`
