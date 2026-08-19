@@ -51,9 +51,10 @@
   .bar span { font-size: 0.5rem; color: var(--ink-3); margin-top: 2px;
     font-variant-numeric: tabular-nums; }
   .bar.on span { color: var(--ink); font-weight: 700; }
-  .clear { background: none; border: 1px solid var(--rule); color: var(--ink-2);
-    border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 2px 7px;
-    margin-left: 8px; cursor: pointer; }
+  .clear { background: none; border: 1px solid var(--rule); color: var(--signal);
+    border-radius: 3px; font: inherit; font-size: 0.63rem; padding: 3px 8px;
+    cursor: pointer; }
+  .clear:hover { border-color: var(--signal); }
 
   .wrap { flex: 1; min-height: 0; position: relative; }
   #map { position: absolute; inset: 0; }
@@ -74,14 +75,30 @@
     border-radius: 3px; cursor: pointer; }
   .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
     color: #04201e; font-weight: 700; }
-  .swatch { display: flex; align-items: center; gap: 6px; padding: 2px 0; width: 100%;
+  .swatch { display: flex; align-items: center; gap: 6px; padding: 3px 5px; width: 100%;
+    border-radius: 3px;
     background: none; border: 0; font: inherit; font-size: 0.68rem; color: var(--ink-2);
     cursor: pointer; text-align: left; }
   .swatch i { width: 11px; height: 11px; border-radius: 50%; flex: none;
     border: 1px solid rgba(255,255,255,0.35); }
   .swatch b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .swatch:hover { color: var(--ink); }
-  .swatch.on { color: var(--signal); font-weight: 700; }
+  .swatch:hover { color: var(--ink); background: var(--panel-2); }
+  .swatch.on { color: var(--signal); font-weight: 700; background: var(--panel-2);
+    box-shadow: inset 0 0 0 1px var(--signal); }
+  /* The panel reads as a caption first: a headline saying what is on screen,
+     then the key. The controls sit under a rule at the bottom, quieter, because
+     in a screenshot they are furniture — most people will only ever see the
+     picture. */
+  .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em;
+    margin-bottom: 7px; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.66rem; font-weight: 400; color: var(--ink-3);
+    margin-top: 2px; letter-spacing: 0; }
+  .controls { margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.72; }
+  .controls:hover { opacity: 1; }
+  .controls h2 { margin-top: 0; }
+  .controls h2:not(:first-child) { margin-top: 8px; }
   .qual { text-transform: none; letter-spacing: 0; font-weight: 400;
     color: var(--ink-3); opacity: 0.8; }
   .hint { margin: 3px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
@@ -130,15 +147,18 @@
       licensing record. <a class="home" href="https://geopen.io/">geopen.io</a></p>
   </div>
   <div class="panel">
-    <h2>Basemap</h2>
-    <div class="bases" id="bases"></div>
-    <h2>Colour by</h2>
-    <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> What the filing is</label>
-    <label class="lyr"><input type="radio" name="cb" id="cb-status"> How far along it is</label>
+    <div class="state" id="state"></div>
     <div id="legend"></div>
     <p class="hint" id="leghint"></p>
-    <h2>Biggest builders <span class="qual">M sq ft, new builds</span></h2>
+    <h2>Biggest builders <span class="qual">M sq ft</span></h2>
     <div class="owners" id="owners"></div>
+    <div class="controls">
+      <h2>Colour by</h2>
+      <label class="lyr"><input type="radio" name="cb" id="cb-work" checked> What the filing is</label>
+      <label class="lyr"><input type="radio" name="cb" id="cb-status"> How far along it is</label>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
   </div>
 </div>
 
@@ -251,6 +271,35 @@ function applyFilter() {
 }
 /** The hint line under the legend doubles as the state readout: what the hint
  *  says when nothing is filtered, what is filtered when something is. */
+/** The headline above the key: what is on screen, in plain words and a number.
+ *  This is the line a reader of a screenshot uses to know what they are seeing,
+ *  so it has to be true of the current filter, not of the whole file. */
+function stateLine() {
+  const C = COLOUR[colourBy];
+  const feats = window.__feats || [];
+  const match = (f) => {
+    const p = f.properties;
+    if (pickedCat && p[pickedCat.field] !== pickedCat.value) return false;
+    if (pickedOwner && p.owner_group !== pickedOwner) return false;
+    return true;
+  };
+  const on = feats.filter(match);
+  const area = on.reduce((a, f) => a + (f.properties.area_is_campus ? 0
+    : (f.properties.sqft || 0)), 0);
+  let what = "data center filings";
+  if (pickedCat) {
+    const hit = C.cats.find(([v]) => v === pickedCat.value);
+    const lab = hit ? hit[1].toLowerCase() : pickedCat.value;
+    what = colourBy === "work" ? `${lab}${lab.endsWith("g") ? "s" : "s"}`
+      : `filings at "${lab}"`;
+  }
+  document.getElementById("state").innerHTML =
+    `<b>${on.length.toLocaleString()}</b> ${what}` +
+    (pickedOwner ? ` by ${pickedOwner}` : "") +
+    `<span>${(area / 1e6).toFixed(1)} million square feet` +
+    `${pickedCat || pickedOwner ? " · of 671 filings in Texas" : " across Texas"}</span>`;
+}
+
 function note() {
   const C = COLOUR[colourBy];
   const bits = [];
@@ -260,8 +309,9 @@ function note() {
   }
   if (pickedOwner) bits.push(`built by <b>${pickedOwner}</b>`);
   document.getElementById("leghint").innerHTML = bits.length
-    ? `Showing ${bits.join(", ")}<button class="clear" onclick="clearAll()">clear</button>`
-    : C.hint;
+    ? `<button class="clear" onclick="clearAll()">show all 671 again</button>`
+    : `<b>Click a colour</b> to show only those. ${C.hint}`;
+  stateLine();
 }
 window.pickOwner = (o) => { pickedOwner = (pickedOwner === o) ? null : o; applyFilter(); };
 window.pickCat = (v) => {
