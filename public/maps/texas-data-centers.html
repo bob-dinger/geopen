@@ -184,9 +184,11 @@ const BASES = [
 ];
 let baseKey = "topo";
 // one categorical filter shared by whichever legend is showing
-// Opens filtered to new construction: that is what a reader means by a data
-// centre, and it is the population every headline figure is quoted over.
-let pickedCat = { field: "work", value: "New Construction" };
+// One filter slot per field rather than one shared slot, so switching the
+// encoding keeps the cut you already made. Opens on new construction: that is
+// what a reader means by a data centre, and the population every headline
+// figure is quoted over.
+let picked = { work: "New Construction", status: null };
 let colourBy = "work";
 
 // Three encodings. Year is sequential — a teal ramp running to a warm end so the
@@ -264,12 +266,14 @@ function setBase(bm) {
 
 function applyFilter() {
   const f = ["all"];
-  if (pickedCat) f.push(["==", ["get", pickedCat.field], pickedCat.value]);
+  for (const [field, value] of Object.entries(picked)) {
+    if (value) f.push(["==", ["get", field], value]);
+  }
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
   document.querySelectorAll(".swatch").forEach((b) =>
-    b.classList.toggle("on", !!pickedCat && pickedCat.value === b.dataset.v));
+    b.classList.toggle("on", picked[COLOUR[colourBy].field] === b.dataset.v));
 
   note();
 }
@@ -283,7 +287,9 @@ function stateLine() {
   const feats = window.__feats || [];
   const match = (f) => {
     const p = f.properties;
-    if (pickedCat && p[pickedCat.field] !== pickedCat.value) return false;
+    for (const [field, value] of Object.entries(picked)) {
+      if (value && p[field] !== value) return false;
+    }
     return true;
   };
   const on = feats.filter(match);
@@ -309,18 +315,21 @@ function stateLine() {
   // When the filter is new construction the count to show is the building count,
   // not the filing count — they differ by the phase duplicates and the four
   // buildings that are primarily a garage or a shop.
-  const onlyNew = pickedCat && pickedCat.field === "work"
-    && pickedCat.value === "New Construction";
+  const onlyNew = picked.work === "New Construction";
+  const lab = (v, mode) => {
+    const hit = (COLOUR[mode].cats.find(([x]) => x === v) || [, v])[1];
+    return hit.toLowerCase();
+  };
   let what = "filings describing data centre work";
   let headN = on.length;
   if (onlyNew) {
     what = "new data centre buildings";
     headN = newN;
-  } else if (pickedCat) {
-    const hit = C.cats.find(([v]) => v === pickedCat.value);
-    const lab = hit ? hit[1].toLowerCase() : pickedCat.value;
-    what = colourBy === "work" ? `${lab}s` : `filings at "${lab}"`;
+  } else if (picked.work) {
+    what = `${lab(picked.work, "work")}s`;
   }
+  // a stage filter reads as a qualifier on whatever the count already is
+  if (picked.status) what += ` at "${lab(picked.status, "status")}"`;
   // The count is what is drawn, not what is in the file: six of the 671 have an
   // address Azure could not place inside Texas and are not on the map.
   // Lead with the number that survives scrutiny. New construction of a whole
@@ -338,22 +347,22 @@ function stateLine() {
 function note() {
   const C = COLOUR[colourBy];
   const bits = [];
-  if (pickedCat) {
-    const hit = C.cats.find(([v]) => v === pickedCat.value);
-    bits.push(`<b>${hit ? hit[1] : pickedCat.value}</b>`);
+  if (picked[C.field]) {
+    const hit = C.cats.find(([v]) => v === picked[C.field]);
+    bits.push(`<b>${hit ? hit[1] : picked[C.field]}</b>`);
   }
   document.getElementById("leghint").innerHTML = bits.length
-    ? `<button class="clear" onclick="clearAll()">show all 671 again</button>`
+    ? `<button class="clear" onclick="clearAll()">show every filing</button>`
     : `<b>Click a colour</b> to show only those. ${C.hint}`;
   stateLine();
 }
 window.pickCat = (v) => {
   const field = COLOUR[colourBy].field;
-  pickedCat = (pickedCat && pickedCat.value === v) ? null : { field, value: v };
+  picked[field] = picked[field] === v ? null : v;
   applyFilter();
 };
 window.clearAll = () => {
-  pickedCat = null; applyFilter();
+  picked = { work: null, status: null }; applyFilter();
 };
 
 Promise.all([
@@ -452,8 +461,6 @@ Promise.all([
   for (const [id, mode] of [["cb-work", "work"], ["cb-status", "status"]]) {
     document.getElementById(id).addEventListener("change", () => {
       colourBy = mode;
-      // a filter set from the previous legend would silently survive the switch
-      pickedCat = null;
       map.setPaintProperty("dc", "circle-color", colourExpr(mode));
       drawLegend();
   applyFilter();
