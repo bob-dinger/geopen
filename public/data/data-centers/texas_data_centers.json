@@ -27,6 +27,7 @@
   "area_is_campus": true,
   "cost_per_sqft": 11,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -106.349034,
   "lat": 31.986867
@@ -59,6 +60,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 105,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.434737,
   "lat": 32.69068
@@ -92,6 +94,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65741,
   "lat": 33.138672
@@ -124,6 +127,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 505,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.377737,
   "lat": 34.17223
@@ -156,6 +160,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 505,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.377737,
   "lat": 34.17223
@@ -189,6 +194,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 5,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.804292,
   "lat": 32.53873
@@ -221,6 +227,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3220,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.810363,
   "lat": 29.868061
@@ -253,6 +260,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -285,6 +293,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -317,6 +326,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -349,6 +359,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -381,6 +392,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -413,6 +425,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 621,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -445,6 +458,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 62,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.922233,
   "lat": 32.407805
@@ -478,6 +492,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 526,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.700796,
   "lat": 35.250955
@@ -511,6 +526,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 526,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.700795,
   "lat": 35.250956
@@ -544,6 +560,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 526,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.700795,
   "lat": 35.250956
@@ -577,6 +594,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 526,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.747532,
   "lat": 29.925383
@@ -610,6 +628,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 8532,
   "cost_suspect": true,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775154,
   "lat": 32.509739
@@ -642,6 +661,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 8532,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775154,
   "lat": 32.509739
@@ -675,6 +695,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 8532,
   "cost_suspect": true,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775154,
   "lat": 32.509739
@@ -707,6 +728,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 8532,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775154,
   "lat": 32.509739
@@ -739,6 +761,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 959,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.560156,
   "lat": 30.139326
@@ -771,6 +794,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 959,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.560156,
   "lat": 30.139326
@@ -803,6 +827,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1254,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.368102,
   "lat": 31.128277
@@ -835,6 +860,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 92,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "county",
   "lon": -99.108648,
   "lat": 29.386425
@@ -867,6 +893,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 117,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.76596,
   "lat": 33.015739
@@ -899,6 +926,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 761,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.56748,
   "lat": 30.140881
@@ -931,6 +959,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 242,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.860792,
   "lat": 30.021863
@@ -964,6 +993,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 625,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.695879,
   "lat": 32.584506
@@ -997,6 +1027,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 856,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.035272,
   "lat": 31.000808
@@ -1031,6 +1062,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.526211,
   "lat": 30.54554
@@ -1063,6 +1095,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1560,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.295482,
   "lat": 31.065267
@@ -1095,6 +1128,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 575,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.519787,
   "lat": 30.542019
@@ -1127,6 +1161,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 814,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.736224,
   "lat": 31.826949
@@ -1159,6 +1194,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 814,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.736224,
   "lat": 31.826949
@@ -1193,6 +1229,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1563,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.940451,
   "lat": 29.34898
@@ -1225,6 +1262,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 614,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.487298,
   "lat": 32.663711
@@ -1258,6 +1296,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1291,6 +1330,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1324,6 +1364,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1357,6 +1398,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1389,6 +1431,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1031,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -1421,6 +1464,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1454,6 +1498,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1487,6 +1532,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 792,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -99.679096,
   "lat": 32.348499
@@ -1519,6 +1565,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1551,6 +1598,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.679096,
   "lat": 32.348499
@@ -1583,6 +1631,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 289,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.780251,
   "lat": 32.508418
@@ -1615,6 +1664,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1031,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -1647,6 +1697,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -1679,6 +1730,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.458242,
   "lat": 35.015923
@@ -1711,6 +1763,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 606,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.780251,
   "lat": 32.508418
@@ -1743,6 +1796,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 608,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1775,6 +1829,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 608,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1807,6 +1862,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 608,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1839,6 +1895,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 608,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1871,6 +1928,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 609,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775097,
   "lat": 32.509711
@@ -1903,6 +1961,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1327,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.210947,
   "lat": 33.220659
@@ -1936,6 +1995,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 466,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -1969,6 +2029,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 212,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -2002,6 +2063,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 638,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.695879,
   "lat": 32.584506
@@ -2034,6 +2096,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2900,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -2066,6 +2129,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 313,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.564137,
   "lat": 29.995477
@@ -2099,6 +2163,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 640,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.80174,
   "lat": 29.42001
@@ -2131,6 +2196,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 281,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.075826,
   "lat": 32.550406
@@ -2163,6 +2229,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 58,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.26046,
   "lat": 32.98518
@@ -2195,6 +2262,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 378,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.657418,
   "lat": 33.005332
@@ -2227,6 +2295,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 764,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -2259,6 +2328,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 764,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -2291,6 +2361,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 764,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -2323,6 +2394,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -2355,6 +2427,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 602,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -2387,6 +2460,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 359,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.373299,
   "lat": 29.74909
@@ -2420,6 +2494,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 423,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.704187,
   "lat": 32.587369
@@ -2453,6 +2528,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 696,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.695879,
   "lat": 32.584506
@@ -2485,6 +2561,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 293,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.652861,
   "lat": 32.975219
@@ -2518,6 +2595,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 86,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -2550,6 +2628,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 238,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -2582,6 +2661,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2977,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -2614,6 +2694,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2916,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -2646,6 +2727,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2889,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -2678,6 +2760,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1457,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.85885,
   "lat": 32.82077
@@ -2712,6 +2795,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 798,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.702287,
   "lat": 32.580655
@@ -2745,6 +2829,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 798,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.690985,
   "lat": 32.583899
@@ -2778,6 +2863,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 798,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.690985,
   "lat": 32.583899
@@ -2811,6 +2897,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 832,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.704874,
   "lat": 32.587763
@@ -2843,6 +2930,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 561,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.734291,
   "lat": 32.586183
@@ -2875,6 +2963,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 221,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.734932,
   "lat": 32.58041
@@ -2908,6 +2997,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 436,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.700563,
   "lat": 29.482938
@@ -2942,6 +3032,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1000,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.561653,
   "lat": 33.095131
@@ -2974,6 +3065,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3719,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.829649,
   "lat": 33.766275
@@ -3006,6 +3098,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3719,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.829649,
   "lat": 33.766275
@@ -3039,6 +3132,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 9,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.117003,
   "lat": 29.535949
@@ -3071,6 +3165,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2871,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3103,6 +3198,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2799,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3135,6 +3231,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2770,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3167,6 +3264,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2755,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3199,6 +3297,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2755,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3231,6 +3330,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2741,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.294683,
   "lat": 32.726424
@@ -3264,6 +3364,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 178,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.652897,
   "lat": 29.449222
@@ -3297,6 +3398,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 534,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.97978,
   "lat": 32.896023
@@ -3330,6 +3432,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1193,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.510943,
   "lat": 31.965202
@@ -3362,6 +3465,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.677173,
   "lat": 30.60228
@@ -3394,6 +3498,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 143,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -97.343666,
   "lat": 32.735543
@@ -3427,6 +3532,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 157,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.939484,
   "lat": 32.88771
@@ -3461,6 +3567,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1000,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -3493,6 +3600,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1333,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.652284,
   "lat": 32.928031
@@ -3525,6 +3633,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 115,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.679055,
   "lat": 32.900195
@@ -3559,6 +3668,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1707,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.057418,
   "lat": 32.449933
@@ -3593,6 +3703,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1042,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -3625,6 +3736,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1402,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.571967,
   "lat": 33.141817
@@ -3657,6 +3769,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 353,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.395718,
   "lat": 32.907164
@@ -3689,6 +3802,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 353,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.398861,
   "lat": 32.894672
@@ -3723,6 +3837,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1250,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.561653,
   "lat": 33.095131
@@ -3755,6 +3870,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 268,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65286,
   "lat": 32.975219
@@ -3787,6 +3903,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 22,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259345,
   "lat": 32.983779
@@ -3819,6 +3936,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 369,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.560353,
   "lat": 29.844061
@@ -3851,6 +3969,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 791,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.767742,
   "lat": 32.569973
@@ -3883,6 +4002,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 635,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.767742,
   "lat": 32.569973
@@ -3915,6 +4035,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 969,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.767742,
   "lat": 32.569973
@@ -3947,6 +4068,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 314,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.767742,
   "lat": 32.569973
@@ -3979,6 +4101,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2041,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.499093,
   "lat": 32.67847
@@ -4011,6 +4134,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2041,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.499093,
   "lat": 32.67847
@@ -4043,6 +4167,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1854,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.499093,
   "lat": 32.67847
@@ -4075,6 +4200,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1801,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65607,
   "lat": 32.958677
@@ -4107,6 +4233,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1700,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65607,
   "lat": 32.958677
@@ -4139,6 +4266,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1697,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65607,
   "lat": 32.958677
@@ -4171,6 +4299,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 519,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.564137,
   "lat": 29.995477
@@ -4204,6 +4333,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 681,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.97978,
   "lat": 32.896023
@@ -4236,6 +4366,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 598,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.732924,
   "lat": 29.461308
@@ -4268,6 +4399,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 690,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.91738,
   "lat": 32.819218
@@ -4300,6 +4432,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 339,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -4332,6 +4465,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.796613,
   "lat": 32.541713
@@ -4364,6 +4498,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.796889,
   "lat": 32.541015
@@ -4396,6 +4531,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.7967,
   "lat": 32.542202
@@ -4428,6 +4564,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.79672,
   "lat": 32.541719
@@ -4460,6 +4597,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.796988,
   "lat": 32.541049
@@ -4492,6 +4630,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 397,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.797212,
   "lat": 32.54078
@@ -4525,6 +4664,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.231626,
   "lat": 32.900322
@@ -4557,6 +4697,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1114,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.39546,
   "lat": 32.909738
@@ -4589,6 +4730,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3000,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "county",
   "lon": -97.647791,
   "lat": 31.897391
@@ -4621,6 +4763,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 400,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.804292,
   "lat": 32.53873
@@ -4653,6 +4796,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 228,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.560353,
   "lat": 29.844061
@@ -4685,6 +4829,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2007,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -4718,6 +4863,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1429,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.822734,
   "lat": 29.456168
@@ -4751,6 +4897,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1429,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.822734,
   "lat": 29.456168
@@ -4784,6 +4931,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 881,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.698362,
   "lat": 29.469999
@@ -4816,6 +4964,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 878,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.698362,
   "lat": 29.469999
@@ -4848,6 +4997,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 878,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.698362,
   "lat": 29.469999
@@ -4880,6 +5030,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 106,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.822734,
   "lat": 29.456168
@@ -4912,6 +5063,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 106,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.822734,
   "lat": 29.456168
@@ -4946,6 +5098,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1972,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.881861,
   "lat": 29.431251
@@ -4979,6 +5132,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 395,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.786962,
   "lat": 29.41388
@@ -5011,6 +5165,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 592,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.65286,
   "lat": 32.975219
@@ -5043,6 +5198,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 178,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.656976,
   "lat": 32.981761
@@ -5075,6 +5231,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 691,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -5107,6 +5264,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 632,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -5139,6 +5297,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 332,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -5171,6 +5330,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2002,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -5203,6 +5363,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 532,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.517711,
   "lat": 30.537554
@@ -5236,6 +5397,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 479,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.635698,
   "lat": 32.913272
@@ -5269,6 +5431,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 479,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.656976,
   "lat": 32.981761
@@ -5301,6 +5464,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 681,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.67669,
   "lat": 33.00933
@@ -5334,6 +5498,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 324,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.072388,
   "lat": 32.473511
@@ -5366,6 +5531,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1423,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -5398,6 +5564,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1359,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -5430,6 +5597,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 700,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -5462,6 +5630,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 207,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -5494,6 +5663,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 303,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.980893,
   "lat": 32.893641
@@ -5527,6 +5697,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1269,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.700563,
   "lat": 29.482938
@@ -5559,6 +5730,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 850,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.820836,
   "lat": 32.801822
@@ -5592,6 +5764,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 721,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.97978,
   "lat": 32.896023
@@ -5624,6 +5797,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1901,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.571967,
   "lat": 33.141817
@@ -5656,6 +5830,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 310,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.786429,
   "lat": 29.419393
@@ -5689,6 +5864,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.659922,
   "lat": 33.138559
@@ -5723,6 +5899,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 10,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -5755,6 +5932,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 150,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.770163,
   "lat": 33.015403
@@ -5788,6 +5966,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 225,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "county",
   "lon": -95.433443,
   "lat": 31.259445
@@ -5820,6 +5999,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 228,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.560353,
   "lat": 29.844061
@@ -5852,6 +6032,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 4520,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.829649,
   "lat": 33.766275
@@ -5884,6 +6065,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 151,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.672574,
   "lat": 30.487843
@@ -5916,6 +6098,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 102,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.672574,
   "lat": 30.487843
@@ -5948,6 +6131,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 102,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.672574,
   "lat": 30.487843
@@ -5981,6 +6165,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2044,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.886442,
   "lat": 29.428454
@@ -6013,6 +6198,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 292,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.79672,
   "lat": 32.541719
@@ -6045,6 +6231,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 292,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.796988,
   "lat": 32.541049
@@ -6077,6 +6264,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 292,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.802337,
   "lat": 32.540305
@@ -6109,6 +6297,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 292,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.797212,
   "lat": 32.54078
@@ -6141,6 +6330,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 630,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.657418,
   "lat": 33.005332
@@ -6174,6 +6364,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -101.185421,
   "lat": 34.068734
@@ -6207,6 +6398,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.266428,
   "lat": 29.515402
@@ -6240,6 +6432,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.291805,
   "lat": 29.454664
@@ -6273,6 +6466,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.225876,
   "lat": 29.567449
@@ -6306,6 +6500,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.266428,
   "lat": 29.515402
@@ -6339,6 +6534,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -102.912447,
   "lat": 30.90816
@@ -6372,6 +6568,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -102.912447,
   "lat": 30.90816
@@ -6405,6 +6602,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -102.912447,
   "lat": 30.90816
@@ -6437,6 +6635,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 325,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.004765,
   "lat": 33.002203
@@ -6469,6 +6668,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 328,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.650069,
   "lat": 32.974414
@@ -6501,6 +6701,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 44,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.981301,
   "lat": 32.89671
@@ -6533,6 +6734,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 310,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -6567,6 +6769,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2052,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -6599,6 +6802,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1032,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.798221,
   "lat": 32.538116
@@ -6631,6 +6835,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 708,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.657418,
   "lat": 33.005332
@@ -6664,6 +6869,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 249,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -6697,6 +6903,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 770,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -6730,6 +6937,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 260,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -6762,6 +6970,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 388,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.495933,
   "lat": 29.423754
@@ -6794,6 +7003,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 829,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.700563,
   "lat": 29.482938
@@ -6827,6 +7037,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 215,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.918115,
   "lat": 32.817593
@@ -6859,6 +7070,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1855,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.85885,
   "lat": 32.82077
@@ -6891,6 +7103,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 127,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.556578,
   "lat": 29.844346
@@ -6924,6 +7137,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1148,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.802942,
   "lat": 29.414005
@@ -6956,6 +7170,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 67,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.445123,
   "lat": 30.227515
@@ -6988,6 +7203,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 424,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.658767,
   "lat": 30.422521
@@ -7021,6 +7237,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2028,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -7053,6 +7270,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 5425,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.86692,
   "lat": 33.780398
@@ -7085,6 +7303,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 410,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.658767,
   "lat": 30.422521
@@ -7118,6 +7337,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1359,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.360462,
   "lat": 31.124665
@@ -7150,6 +7370,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 176,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.636852,
   "lat": 29.450895
@@ -7182,6 +7403,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 354,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.636852,
   "lat": 29.450895
@@ -7214,6 +7436,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 177,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.623052,
   "lat": 30.482391
@@ -7247,6 +7470,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 179,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.65802,
   "lat": 32.9824
@@ -7280,6 +7504,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 179,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.659932,
   "lat": 32.982401
@@ -7312,6 +7537,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 725,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.65391,
   "lat": 32.9836
@@ -7344,6 +7570,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 234,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -7376,6 +7603,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 370,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.704874,
   "lat": 32.587763
@@ -7409,6 +7637,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 525,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.297303,
   "lat": 31.055962
@@ -7443,6 +7672,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 54,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.86692,
   "lat": 33.780398
@@ -7475,6 +7705,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1424,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.775154,
   "lat": 32.509739
@@ -7507,6 +7738,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 685,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.636022,
   "lat": 30.504357
@@ -7539,6 +7771,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 250,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.663434,
   "lat": 33.137098
@@ -7571,6 +7804,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 638,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.696395,
   "lat": 32.98421
@@ -7603,6 +7837,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 638,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.696395,
   "lat": 32.98421
@@ -7635,6 +7870,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 544,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.391841,
   "lat": 29.293115
@@ -7667,6 +7903,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 435,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.786962,
   "lat": 29.41388
@@ -7699,6 +7936,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 446,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.787797,
   "lat": 29.418359
@@ -7731,6 +7969,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 314,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.711007,
   "lat": 32.966092
@@ -7763,6 +8002,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1226,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.652861,
   "lat": 32.975219
@@ -7795,6 +8035,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 541,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.652861,
   "lat": 32.975219
@@ -7827,6 +8068,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 510,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.779202,
   "lat": 29.418783
@@ -7859,6 +8101,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 510,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "county",
   "lon": -96.523489,
   "lat": 29.60462
@@ -7891,6 +8134,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 283,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.638548,
   "lat": 29.450861
@@ -7923,6 +8167,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 228,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.638548,
   "lat": 29.450861
@@ -7955,6 +8200,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2752,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.393695,
   "lat": 32.901783
@@ -7988,6 +8234,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 896,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.881861,
   "lat": 29.431251
@@ -8021,6 +8268,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1273,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.881861,
   "lat": 29.431251
@@ -8053,6 +8301,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 478,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.623052,
   "lat": 30.482391
@@ -8087,6 +8336,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3840,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.291862,
   "lat": 33.018968
@@ -8119,6 +8369,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 415,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.586426,
   "lat": 29.987915
@@ -8152,6 +8403,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1925,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.156854,
   "lat": 32.972055
@@ -8185,6 +8437,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 227,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.879833,
   "lat": 32.837386
@@ -8217,6 +8470,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1136,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.820836,
   "lat": 32.801822
@@ -8249,6 +8503,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 4608,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -8281,6 +8536,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 698,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.776503,
   "lat": 29.408084
@@ -8313,6 +8569,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 281,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -8347,6 +8604,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3147,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.643791,
   "lat": 29.444995
@@ -8379,6 +8637,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 4501,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -8411,6 +8670,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 4219,
   "cost_suspect": true,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -8443,6 +8703,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1954,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.701471,
   "lat": 32.596217
@@ -8475,6 +8736,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 3313,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.428032,
   "lat": 32.767305
@@ -8508,6 +8770,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 604,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.659922,
   "lat": 33.138559
@@ -8540,6 +8803,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 488,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.650069,
   "lat": 32.974414
@@ -8572,6 +8836,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 488,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.996094,
   "lat": 32.693037
@@ -8604,6 +8869,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 515,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.659922,
   "lat": 33.138559
@@ -8636,6 +8902,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 314,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.667651,
   "lat": 30.379059
@@ -8668,6 +8935,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1764,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.802942,
   "lat": 29.414005
@@ -8700,6 +8968,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 519,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -8732,6 +9001,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 519,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -8764,6 +9034,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 519,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -8797,6 +9068,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 147,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.666642,
   "lat": 33.007542
@@ -8829,6 +9101,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 548,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.69093,
   "lat": 30.479591
@@ -8861,6 +9134,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 275,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.668401,
   "lat": 30.488857
@@ -8894,6 +9168,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 231,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.711955,
   "lat": 32.965116
@@ -8927,6 +9202,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 231,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.711955,
   "lat": 32.965116
@@ -8961,6 +9237,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 504,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.360182,
   "lat": 31.125096
@@ -8995,6 +9272,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 441,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -106.28983,
   "lat": 31.67831
@@ -9029,6 +9307,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 180,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -9062,6 +9341,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 522,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.732924,
   "lat": 29.461308
@@ -9094,6 +9374,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 333,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.701471,
   "lat": 32.596217
@@ -9127,6 +9408,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 496,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.623052,
   "lat": 30.482391
@@ -9160,6 +9442,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 240,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.700668,
   "lat": 30.207107
@@ -9193,6 +9476,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 591,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.732924,
   "lat": 29.461308
@@ -9226,6 +9510,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 583,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.732924,
   "lat": 29.461308
@@ -9259,6 +9544,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 109,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.275729,
   "lat": 30.552281
@@ -9291,6 +9577,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 218,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.275729,
   "lat": 30.552281
@@ -9323,6 +9610,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1242,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.409639,
   "lat": 30.140276
@@ -9355,6 +9643,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1121,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.823686,
   "lat": 32.545839
@@ -9388,6 +9677,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 8,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.368102,
   "lat": 31.128277
@@ -9420,6 +9710,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1876,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.078851,
   "lat": 30.575899
@@ -9452,6 +9743,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 172,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.459106,
   "lat": 30.066711
@@ -9484,6 +9776,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 32,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.569628,
   "lat": 27.802125
@@ -9516,6 +9809,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 32,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.569628,
   "lat": 27.802125
@@ -9548,6 +9842,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 32,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.569628,
   "lat": 27.802125
@@ -9580,6 +9875,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1990,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.65015,
   "lat": 32.974417
@@ -9612,6 +9908,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1996,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.004765,
   "lat": 33.002203
@@ -9644,6 +9941,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 587,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.60714,
   "lat": 32.936267
@@ -9676,6 +9974,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 29,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.931525,
   "lat": 32.992145
@@ -9709,6 +10008,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1379,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.879833,
   "lat": 32.837386
@@ -9741,6 +10041,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 454,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.755096,
   "lat": 29.807977
@@ -9774,6 +10075,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 95,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.918115,
   "lat": 32.817593
@@ -9806,6 +10108,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 439,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.870715,
   "lat": 32.911569
@@ -9839,6 +10142,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 201,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.858961,
   "lat": 32.624095
@@ -9871,6 +10175,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 517,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.056492,
   "lat": 34.381433
@@ -9904,6 +10209,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 4,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.437159,
   "lat": 30.098757
@@ -9937,6 +10243,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 582,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.304164,
   "lat": 33.102591
@@ -9970,6 +10277,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 673,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.79429,
   "lat": 32.787314
@@ -10003,6 +10311,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 137,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.213884,
   "lat": 32.777105
@@ -10035,6 +10344,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 24,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.607035,
   "lat": 29.584092
@@ -10068,6 +10378,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 148,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.459106,
   "lat": 30.066711
@@ -10101,6 +10412,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.705265,
   "lat": 29.44841
@@ -10134,6 +10446,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.705265,
   "lat": 29.44841
@@ -10167,6 +10480,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.705265,
   "lat": 29.44841
@@ -10200,6 +10514,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.705265,
   "lat": 29.44841
@@ -10233,6 +10548,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.705265,
   "lat": 29.44841
@@ -10266,6 +10582,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 417,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.259558,
   "lat": 32.988591
@@ -10299,6 +10616,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 11,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.815613,
   "lat": 33.08728
@@ -10331,6 +10649,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 844,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.810382,
   "lat": 33.06664
@@ -10363,6 +10682,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 117,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.975779,
   "lat": 32.89595
@@ -10395,6 +10715,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 108,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.975779,
   "lat": 32.89595
@@ -10429,6 +10750,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 961,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.830693,
   "lat": 30.580818
@@ -10462,6 +10784,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 163,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -10495,6 +10818,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 212,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.060343,
   "lat": 32.832345
@@ -10527,6 +10851,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1180,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.931525,
   "lat": 32.992145
@@ -10561,6 +10886,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 98,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.487327,
   "lat": 29.429566
@@ -10595,6 +10921,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 70,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.865667,
   "lat": 32.806827
@@ -10627,6 +10954,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 101,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -100.483136,
   "lat": 31.462505
@@ -10659,6 +10987,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1020,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.755096,
   "lat": 29.807977
@@ -10692,6 +11021,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 358,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -103.09504,
   "lat": 31.713323
@@ -10724,6 +11054,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1304,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.004765,
   "lat": 33.002203
@@ -10756,6 +11087,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1343,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.65015,
   "lat": 32.974417
@@ -10788,6 +11120,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 287,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -10821,6 +11154,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 188,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.815613,
   "lat": 33.08728
@@ -10855,6 +11189,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 951,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.088334,
   "lat": 32.760296
@@ -10887,6 +11222,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 127,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -10919,6 +11255,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 176,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -101.837738,
   "lat": 33.544047
@@ -10952,6 +11289,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 30,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.683544,
   "lat": 33.094921
@@ -10984,6 +11322,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 258,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -100.056492,
   "lat": 34.381433
@@ -11017,6 +11356,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 642,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.201865,
   "lat": 26.218748
@@ -11049,6 +11389,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 2778,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.424781,
   "lat": 29.945041
@@ -11082,6 +11423,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 85,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -11114,6 +11456,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 312,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.809445,
   "lat": 33.064996
@@ -11147,6 +11490,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 300,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.246158,
   "lat": 32.849717
@@ -11179,6 +11523,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1235,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.687396,
   "lat": 32.999965
@@ -11212,6 +11557,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 87,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -95.703881,
   "lat": 29.946564
@@ -11244,6 +11590,7 @@
   "area_is_campus": false,
   "cost_per_sqft": 1248,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.689241,
   "lat": 29.47186
@@ -11276,6 +11623,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.31555,
   "lat": 29.732723
@@ -11309,6 +11657,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -94.676279,
   "lat": 31.653131
@@ -11341,6 +11690,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -11373,6 +11723,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.82273,
   "lat": 32.960053
@@ -11406,6 +11757,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.76596,
   "lat": 33.015739
@@ -11438,6 +11790,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -11470,6 +11823,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.81948,
   "lat": 32.801159
@@ -11503,6 +11857,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -11535,6 +11890,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.929784,
   "lat": 32.85941
@@ -11568,6 +11924,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.485008,
   "lat": 30.179841
@@ -11602,6 +11959,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.486868,
   "lat": 29.429345
@@ -11634,6 +11992,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.82273,
   "lat": 32.960053
@@ -11667,6 +12026,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.210207,
   "lat": 33.214783
@@ -11700,6 +12060,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.210207,
   "lat": 33.214783
@@ -11733,6 +12094,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.59861,
   "lat": 29.406643
@@ -11765,6 +12127,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -11797,6 +12160,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.697403,
   "lat": 30.342481
@@ -11829,6 +12193,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.342154,
   "lat": 31.870932
@@ -11861,6 +12226,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.363134,
   "lat": 31.855075
@@ -11895,6 +12261,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.353855,
   "lat": 30.619727
@@ -11927,6 +12294,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.837228,
   "lat": 33.085698
@@ -11959,6 +12327,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.74157,
   "lat": 32.532569
@@ -11992,6 +12361,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.481722,
   "lat": 30.430739
@@ -12025,6 +12395,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -102.213761,
   "lat": 31.931239
@@ -12057,6 +12428,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -12090,6 +12462,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.802337,
   "lat": 32.540305
@@ -12123,6 +12496,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -106.504249,
   "lat": 31.77024
@@ -12156,6 +12530,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.075944,
   "lat": 29.726005
@@ -12189,6 +12564,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.371408,
   "lat": 29.755293
@@ -12223,6 +12599,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.232154,
   "lat": 26.19939
@@ -12255,6 +12632,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.799253,
   "lat": 32.787716
@@ -12288,6 +12666,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.393445,
   "lat": 29.710554
@@ -12320,6 +12699,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.824281,
   "lat": 32.943406
@@ -12353,6 +12733,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.643791,
   "lat": 29.444995
@@ -12385,6 +12766,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.668919,
   "lat": 29.7861
@@ -12417,6 +12799,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.952784,
   "lat": 32.756965
@@ -12450,6 +12833,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.041516,
   "lat": 29.395954
@@ -12483,6 +12867,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -12516,6 +12901,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -12548,6 +12934,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.017193,
   "lat": 32.923346
@@ -12580,6 +12967,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.66993,
   "lat": 32.984146
@@ -12612,6 +13000,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.672387,
   "lat": 29.471791
@@ -12644,6 +13033,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.755096,
   "lat": 29.807977
@@ -12676,6 +13066,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.694111,
   "lat": 29.479098
@@ -12708,6 +13099,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.666642,
   "lat": 33.007542
@@ -12740,6 +13132,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.651847,
   "lat": 32.99048
@@ -12772,6 +13165,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.934601,
   "lat": 29.888981
@@ -12806,6 +13200,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.395767,
   "lat": 29.938509
@@ -12838,6 +13233,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.687396,
   "lat": 32.999965
@@ -12870,6 +13266,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -93.939262,
   "lat": 29.868881
@@ -12902,6 +13299,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.711955,
   "lat": 32.965116
@@ -12936,6 +13334,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.643791,
   "lat": 29.444995
@@ -12969,6 +13368,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.299342,
   "lat": 32.352121
@@ -13003,6 +13403,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.486868,
   "lat": 29.429345
@@ -13035,6 +13436,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.523697,
   "lat": 29.516758
@@ -13069,6 +13471,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.320884,
   "lat": 32.652016
@@ -13101,6 +13504,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.09658,
   "lat": 32.680365
@@ -13133,6 +13537,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -13166,6 +13571,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -13199,6 +13605,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.79429,
   "lat": 32.787314
@@ -13233,6 +13640,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.754784,
   "lat": 32.714596
@@ -13265,6 +13673,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.706802,
   "lat": 30.416381
@@ -13298,6 +13707,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.398682,
   "lat": 29.58728
@@ -13330,6 +13740,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.070062,
   "lat": 32.761549
@@ -13362,6 +13773,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.368102,
   "lat": 31.128277
@@ -13394,6 +13806,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.931525,
   "lat": 32.992145
@@ -13427,6 +13840,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.398682,
   "lat": 29.58728
@@ -13461,6 +13875,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.210207,
   "lat": 33.214783
@@ -13495,6 +13910,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.210207,
   "lat": 33.214783
@@ -13527,6 +13943,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -96.86949,
   "lat": 33.22065
@@ -13561,6 +13978,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.70108,
   "lat": 32.985514
@@ -13595,6 +14013,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.81948,
   "lat": 32.801159
@@ -13628,6 +14047,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.304164,
   "lat": 33.102591
@@ -13660,6 +14080,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.830041,
   "lat": 32.968606
@@ -13694,6 +14115,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.062162,
   "lat": 32.44658
@@ -13726,6 +14148,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.683815,
   "lat": 30.340491
@@ -13758,6 +14181,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.67669,
   "lat": 33.00933
@@ -13791,6 +14215,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.857905,
   "lat": 32.809602
@@ -13825,6 +14250,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.873685,
   "lat": 32.821794
@@ -13857,6 +14283,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -13890,6 +14317,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.873685,
   "lat": 32.821794
@@ -13923,6 +14351,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.671738,
   "lat": 33.104193
@@ -13955,6 +14384,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -13987,6 +14417,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.627977,
   "lat": 33.239574
@@ -14020,6 +14451,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.627977,
   "lat": 33.239574
@@ -14052,6 +14484,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.770163,
   "lat": 33.015403
@@ -14085,6 +14518,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -14117,6 +14551,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.000658,
   "lat": 32.912741
@@ -14149,6 +14584,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.372656,
   "lat": 29.753174
@@ -14181,6 +14617,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.870715,
   "lat": 32.911569
@@ -14213,6 +14650,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.513302,
   "lat": 29.845589
@@ -14245,6 +14683,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -14278,6 +14717,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.67719,
   "lat": 33.053746
@@ -14310,6 +14750,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.697403,
   "lat": 30.342481
@@ -14342,6 +14783,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.213884,
   "lat": 32.777105
@@ -14374,6 +14816,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.531377,
   "lat": 29.936673
@@ -14407,6 +14850,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.669922,
   "lat": 30.34432
@@ -14441,6 +14885,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -94.964086,
   "lat": 29.789799
@@ -14473,6 +14918,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.613402,
   "lat": 30.175995
@@ -14506,6 +14952,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.616819,
   "lat": 33.133561
@@ -14539,6 +14986,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.050738,
   "lat": 32.825294
@@ -14571,6 +15019,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -14604,6 +15053,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.736418,
   "lat": 30.40179
@@ -14637,6 +15087,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.997983,
   "lat": 33.001922
@@ -14669,6 +15120,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -106.577921,
   "lat": 31.874147
@@ -14701,6 +15153,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.100105,
   "lat": 29.59163
@@ -14734,6 +15187,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -101.838348,
   "lat": 35.209438
@@ -14766,6 +15220,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.931525,
   "lat": 32.992145
@@ -14799,6 +15254,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.725545,
   "lat": 30.326576
@@ -14833,6 +15289,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.6647,
   "lat": 33.027479
@@ -14866,6 +15323,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -99.237093,
   "lat": 30.075761
@@ -14899,6 +15357,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.583976,
   "lat": 29.922658
@@ -14932,6 +15391,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.755096,
   "lat": 29.807977
@@ -14964,6 +15424,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.156854,
   "lat": 32.972055
@@ -14997,6 +15458,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.760588,
   "lat": 29.79302
@@ -15031,6 +15493,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -98.100978,
   "lat": 30.198237
@@ -15064,6 +15527,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.050738,
   "lat": 32.825294
@@ -15097,6 +15561,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.407875,
   "lat": 29.948096
@@ -15130,6 +15595,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.322479,
   "lat": 32.707849
@@ -15163,6 +15629,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "county",
   "lon": -96.777392,
   "lat": 32.767003
@@ -15196,6 +15663,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.780521,
   "lat": 32.835149
@@ -15229,6 +15697,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.102749,
   "lat": 28.926136
@@ -15263,6 +15732,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -102.372592,
   "lat": 31.8511
@@ -15295,6 +15765,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.711948,
   "lat": 32.96511
@@ -15327,6 +15798,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -94.967147,
   "lat": 29.817262
@@ -15359,6 +15831,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -15391,6 +15864,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.81948,
   "lat": 32.801159
@@ -15423,6 +15897,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.822589,
   "lat": 32.965202
@@ -15456,6 +15931,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.044828,
   "lat": 32.757944
@@ -15488,6 +15964,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.481268,
   "lat": 29.586143
@@ -15521,6 +15998,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -101.835702,
   "lat": 35.208896
@@ -15553,6 +16031,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.685559,
   "lat": 30.383667
@@ -15585,6 +16064,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.641428,
   "lat": 33.111885
@@ -15617,6 +16097,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.442232,
   "lat": 29.658436
@@ -15651,6 +16132,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.367952,
   "lat": 32.704748
@@ -15685,6 +16167,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.683068,
   "lat": 30.790324
@@ -15718,6 +16201,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.745189,
   "lat": 29.794594
@@ -15751,6 +16235,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.282526,
   "lat": 29.599034
@@ -15785,6 +16270,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.575255,
   "lat": 29.534809
@@ -15818,6 +16304,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.790209,
   "lat": 30.262866
@@ -15850,6 +16337,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -15882,6 +16370,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -15915,6 +16404,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -15947,6 +16437,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -15980,6 +16471,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -16012,6 +16504,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.591636,
   "lat": 30.421016
@@ -16045,6 +16538,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.318206,
   "lat": 32.658337
@@ -16078,6 +16572,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -16111,6 +16606,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.745189,
   "lat": 29.794594
@@ -16144,6 +16640,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.599937,
   "lat": 29.55522
@@ -16177,6 +16674,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.70627,
   "lat": 30.200169
@@ -16210,6 +16708,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -96.941573,
   "lat": 32.863485
@@ -16243,6 +16742,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -16276,6 +16776,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -16308,6 +16809,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.809445,
   "lat": 33.064996
@@ -16340,6 +16842,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.624509,
   "lat": 30.0866
@@ -16374,6 +16877,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.551407,
   "lat": 29.267548
@@ -16407,6 +16911,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.415888,
   "lat": 29.944474
@@ -16440,6 +16945,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -16473,6 +16979,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.844581,
   "lat": 33.021644
@@ -16506,6 +17013,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.793452,
   "lat": 32.768152
@@ -16539,6 +17047,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.793452,
   "lat": 32.768152
@@ -16571,6 +17080,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.698247,
   "lat": 33.019917
@@ -16604,6 +17114,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.923736,
   "lat": 32.94513
@@ -16636,6 +17147,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.215893,
   "lat": 29.662954
@@ -16669,6 +17181,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.389963,
   "lat": 29.684951
@@ -16701,6 +17214,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.113849,
   "lat": 32.732414
@@ -16733,6 +17247,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.686555,
   "lat": 29.470398
@@ -16766,6 +17281,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.98304,
   "lat": 32.991509
@@ -16798,6 +17314,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.64357,
   "lat": 30.4785
@@ -16830,6 +17347,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.329463,
   "lat": 32.862746
@@ -16863,6 +17381,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.362115,
   "lat": 29.760047
@@ -16895,6 +17414,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.686122,
   "lat": 32.810301
@@ -16929,6 +17449,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.487227,
   "lat": 30.178484
@@ -16961,6 +17482,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.7734,
   "lat": 32.786885
@@ -16993,6 +17515,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.766822,
   "lat": 32.912011
@@ -17026,6 +17549,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -17058,6 +17582,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.41601,
   "lat": 29.942677
@@ -17090,6 +17615,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.456951,
   "lat": 29.521633
@@ -17123,6 +17649,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.69173,
   "lat": 29.787285
@@ -17156,6 +17683,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.417306,
   "lat": 29.942515
@@ -17189,6 +17717,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.809445,
   "lat": 33.064996
@@ -17222,6 +17751,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.81948,
   "lat": 32.801159
@@ -17254,6 +17784,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -17288,6 +17819,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.040183,
   "lat": 32.831777
@@ -17321,6 +17853,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.809979,
   "lat": 33.068858
@@ -17354,6 +17887,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.596956,
   "lat": 29.377294
@@ -17386,6 +17920,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.66969,
   "lat": 30.267677
@@ -17418,6 +17953,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.827985,
   "lat": 32.933939
@@ -17451,6 +17987,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.849967,
   "lat": 32.973012
@@ -17485,6 +18022,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Not counted",
   "geo_precision": "address",
   "lon": -97.938093,
   "lat": 29.885787
@@ -17518,6 +18056,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.835848,
   "lat": 32.933135
@@ -17552,6 +18091,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -17585,6 +18125,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.829603,
   "lat": 33.070939
@@ -17618,6 +18159,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -98.689241,
   "lat": 29.47186
@@ -17651,6 +18193,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.596956,
   "lat": 29.377294
@@ -17684,6 +18227,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.766822,
   "lat": 32.912011
@@ -17716,6 +18260,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.93198,
   "lat": 32.950112
@@ -17748,6 +18293,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.741164,
   "lat": 30.26866
@@ -17781,6 +18327,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -99.743605,
   "lat": 32.375095
@@ -17814,6 +18361,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.380789,
   "lat": 29.693428
@@ -17847,6 +18395,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.712137,
   "lat": 30.424129
@@ -17879,6 +18428,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.997983,
   "lat": 33.001922
@@ -17912,6 +18462,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.7734,
   "lat": 32.786885
@@ -17945,6 +18496,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.695008,
   "lat": 30.21498
@@ -17977,6 +18529,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.335033,
   "lat": 32.755226
@@ -18011,6 +18564,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.502426,
   "lat": 29.751261
@@ -18044,6 +18598,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.417306,
   "lat": 29.942515
@@ -18076,6 +18631,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.380687,
   "lat": 29.545741
@@ -18110,6 +18666,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.400233,
   "lat": 32.686665
@@ -18142,6 +18699,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.555184,
   "lat": 29.844215
@@ -18174,6 +18732,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.252473,
   "lat": 32.979607
@@ -18206,6 +18765,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.835848,
   "lat": 32.933135
@@ -18238,6 +18798,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.873992,
   "lat": 32.827262
@@ -18270,6 +18831,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.93198,
   "lat": 32.950112
@@ -18303,6 +18865,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.133385,
   "lat": 31.554977
@@ -18336,6 +18899,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.540597,
   "lat": 29.62155
@@ -18369,6 +18933,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.555184,
   "lat": 29.844215
@@ -18403,6 +18968,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.680107,
   "lat": 33.089679
@@ -18436,6 +19002,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -18469,6 +19036,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.653178,
   "lat": 29.440829
@@ -18502,6 +19070,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.796828,
   "lat": 32.873458
@@ -18535,6 +19104,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.578569,
   "lat": 29.993362
@@ -18568,6 +19138,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.965436,
   "lat": 32.893973
@@ -18600,6 +19171,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.800375,
   "lat": 30.34716
@@ -18633,6 +19205,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.695008,
   "lat": 30.21498
@@ -18665,6 +19238,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.553104,
   "lat": 29.906012
@@ -18699,6 +19273,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.128701,
   "lat": 32.59409
@@ -18732,6 +19307,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.770719,
   "lat": 32.923015
@@ -18764,6 +19340,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -18797,6 +19374,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -95.555184,
   "lat": 29.844215
@@ -18830,6 +19408,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.718806,
   "lat": 30.214166
@@ -18862,6 +19441,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.491025,
   "lat": 29.429592
@@ -18896,6 +19476,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -18929,6 +19510,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.645521,
   "lat": 32.774026
@@ -18962,6 +19544,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.299032,
   "lat": 32.828929
@@ -18995,6 +19578,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.689702,
   "lat": 29.471584
@@ -19029,6 +19613,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.662385,
   "lat": 33.136199
@@ -19062,6 +19647,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.718655,
   "lat": 33.020636
@@ -19096,6 +19682,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.857905,
   "lat": 32.809602
@@ -19129,6 +19716,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.545381,
   "lat": 29.874458
@@ -19162,6 +19750,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.014209,
   "lat": 32.988369
@@ -19195,6 +19784,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.44492,
   "lat": 29.728176
@@ -19228,6 +19818,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.997983,
   "lat": 33.001922
@@ -19261,6 +19852,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.739917,
   "lat": 33.006633
@@ -19293,6 +19885,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.365684,
   "lat": 29.75356
@@ -19326,6 +19919,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.824012,
   "lat": 32.940968
@@ -19359,6 +19953,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.767862,
   "lat": 32.849283
@@ -19391,6 +19986,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.44492,
   "lat": 29.728176
@@ -19423,6 +20019,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.445673,
   "lat": 29.728227
@@ -19456,6 +20053,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.133385,
   "lat": 31.554977
@@ -19489,6 +20087,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.695008,
   "lat": 30.21498
@@ -19522,6 +20121,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -19554,6 +20154,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.997983,
   "lat": 33.001922
@@ -19586,6 +20187,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.726113,
   "lat": 30.282772
@@ -19620,6 +20222,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.68199,
   "lat": 29.471795
@@ -19652,6 +20255,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -19685,6 +20289,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -19717,6 +20322,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -19749,6 +20355,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.840512,
   "lat": 33.073357
@@ -19782,6 +20389,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.698742,
   "lat": 32.632172
@@ -19815,6 +20423,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.445673,
   "lat": 29.728227
@@ -19849,6 +20458,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -19881,6 +20491,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.81948,
   "lat": 32.801159
@@ -19914,6 +20525,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.56954,
   "lat": 29.518712
@@ -19946,6 +20558,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -98.456533,
   "lat": 29.520031
@@ -19980,6 +20593,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.853458,
   "lat": 32.979968
@@ -20012,6 +20626,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.66969,
   "lat": 30.267677
@@ -20046,6 +20661,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.842205,
   "lat": 32.987338
@@ -20078,6 +20694,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -98.643791,
   "lat": 29.444995
@@ -20110,6 +20727,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -98.088902,
   "lat": 29.705933
@@ -20143,6 +20761,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "county",
   "lon": -96.777392,
   "lat": 32.767003
@@ -20175,6 +20794,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -20207,6 +20827,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -98.572392,
   "lat": 29.586754
@@ -20239,6 +20860,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -97.244896,
   "lat": 33.006719
@@ -20271,6 +20893,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -95.459106,
   "lat": 30.066711
@@ -20303,6 +20926,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.878272,
   "lat": 32.838088
@@ -20335,6 +20959,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.591547,
   "lat": 29.550429
@@ -20367,6 +20992,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -106.37167,
   "lat": 31.772336
@@ -20399,6 +21025,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -98.607035,
   "lat": 29.584092
@@ -20431,6 +21058,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.685865,
   "lat": 32.833554
@@ -20463,6 +21091,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.685865,
   "lat": 32.833554
@@ -20495,6 +21124,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.786391,
   "lat": 32.797041
@@ -20527,6 +21157,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.778508,
   "lat": 32.836673
@@ -20559,6 +21190,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -97.898271,
   "lat": 29.855545
@@ -20591,6 +21223,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.99603,
   "lat": 32.691996
@@ -20623,6 +21256,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -95.338674,
   "lat": 29.736202
@@ -20655,6 +21289,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Work type not stated",
   "geo_precision": "address",
   "lon": -96.798199,
   "lat": 32.778137
@@ -20688,6 +21323,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -20721,6 +21357,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -20754,6 +21391,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.612463,
   "lat": 32.897705
@@ -20787,6 +21425,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.931525,
   "lat": 32.992145
@@ -20819,6 +21458,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.707308,
   "lat": 30.219866
@@ -20851,6 +21491,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259345,
   "lat": 32.983779
@@ -20883,6 +21524,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259345,
   "lat": 32.983779
@@ -20915,6 +21557,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.242481,
   "lat": 32.985048
@@ -20947,6 +21590,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.259345,
   "lat": 32.983779
@@ -20979,6 +21623,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.820708,
   "lat": 32.801997
@@ -21011,6 +21656,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.786471,
   "lat": 29.411989
@@ -21043,6 +21689,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.980408,
   "lat": 32.894873
@@ -21075,6 +21722,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.983142,
   "lat": 32.897028
@@ -21107,6 +21755,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.662977,
   "lat": 33.144459
@@ -21139,6 +21788,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.659922,
   "lat": 33.138559
@@ -21171,6 +21821,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.246733,
   "lat": 33.00339
@@ -21203,6 +21854,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -95.570026,
   "lat": 29.828493
@@ -21235,6 +21887,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Addition",
   "geo_precision": "address",
   "lon": -97.156854,
   "lat": 32.972055
@@ -21267,6 +21920,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -96.711955,
   "lat": 32.965116
@@ -21299,6 +21953,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.713216,
   "lat": 32.967369
@@ -21331,6 +21986,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.714604,
   "lat": 32.964281
@@ -21363,6 +22019,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.353855,
   "lat": 30.619727
@@ -21395,6 +22052,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -98.672922,
   "lat": 29.470903
@@ -21427,6 +22085,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.554243,
   "lat": 32.967845
@@ -21459,6 +22118,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -95.41694,
   "lat": 29.944022
@@ -21491,6 +22151,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -96.711955,
   "lat": 32.965116
@@ -21523,6 +22184,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "Renovation",
   "geo_precision": "address",
   "lon": -97.695505,
   "lat": 30.212239
@@ -21555,6 +22217,7 @@
   "area_is_campus": false,
   "cost_per_sqft": null,
   "cost_suspect": false,
+  "category": "New building",
   "geo_precision": "address",
   "lon": -97.713789,
   "lat": 30.198926

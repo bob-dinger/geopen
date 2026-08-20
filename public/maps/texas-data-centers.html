@@ -186,9 +186,9 @@ let baseKey = "topo";
 // one categorical filter shared by whichever legend is showing
 // One filter slot per field rather than one shared slot, so switching the
 // encoding keeps the cut you already made. Opens on new construction: that is
-// what a reader means by a data centre, and the population every headline
+// what a reader means by a data center, and the population every headline
 // figure is quoted over.
-let picked = { work: "New Construction", status: null };
+let picked = { category: "New building", status: null };
 let colourBy = "work";
 
 // Three encodings. Year is sequential — a teal ramp running to a warm end so the
@@ -196,10 +196,16 @@ let colourBy = "work";
 // were checked for colourblind separation rather than picked by eye: worst
 // adjacent pair 13.2 (filing type) and 14.9 (stage) in OKLab against a floor of 8.
 const COLOUR = {
-  work: { legend: "cats", field: "work",
-    cats: [["New Construction", "New building", "#35e0d4"],
-           ["Renovation/Alteration", "Renovation", "#c77dff"],
-           ["Additions to Existing Building", "Addition", "#ffb648"]],
+  // keyed on `category`, not `work`, so the legend counts exactly what the
+  // headline counts — `work` says 285 new-construction filings where 273 of
+  // them are buildings, the other 12 being a second phase of one already
+  // counted, a garage that contains a data center, or a site-acreage figure
+  work: { legend: "cats", field: "category",
+    cats: [["New building", "New building", "#35e0d4"],
+           ["Renovation", "Renovation", "#c77dff"],
+           ["Addition", "Addition", "#ffb648"],
+           ["Not counted", "Not counted", "#7a8791"],
+           ["Work type not stated", "Not stated", "#5a6570"]],
     hint: "Renovations and additions are work on halls that already exist. Click one to show only those." },
   // Four distinct hues rather than three shades of teal, which were 15.4 apart
   // in normal vision - right on the floor, and far too close as small dots.
@@ -307,31 +313,27 @@ function stateLine() {
     // `primary` is false on the second filing of a building that was filed
     // twice — a core-and-shell and a fit-out, each carrying the full area.
     // Without this the total reads 73.9M against a true 70.7M.
-    if (!p.primary || p.work !== "New Construction" || p.area_is_campus
-        || p.primary_use_other) return a;
+    if (p.category !== "New building") return a;
     return a + (p.sqft || 0);
   }, 0);
   // must exclude the same rows the area sum excludes, or the line reads
   // "70.7M sq ft across 279 of them" when the area is across 278
-  const newN = on.filter((f) => f.properties.primary
-    && f.properties.work === "New Construction"
-    && !f.properties.area_is_campus
-    && !f.properties.primary_use_other).length;
+  const newN = on.filter((f) => f.properties.category === "New building").length;
   // When the filter is new construction the count to show is the building count,
   // not the filing count — they differ by the phase duplicates and the four
   // buildings that are primarily a garage or a shop.
-  const onlyNew = picked.work === "New Construction";
+  const onlyNew = picked.category === "New building";
   const lab = (v, mode) => {
     const hit = (COLOUR[mode].cats.find(([x]) => x === v) || [, v])[1];
     return hit.toLowerCase();
   };
-  let what = "filings describing data centre work";
+  let what = "filings describing data center work";
   let headN = on.length;
   if (onlyNew) {
-    what = "new data centre buildings";
+    what = "new data center buildings";
     headN = newN;
-  } else if (picked.work) {
-    what = `${lab(picked.work, "work")}s`;
+  } else if (picked.category) {
+    what = `${lab(picked.category, "work")}s`;
   }
   // a stage filter reads as a qualifier on whatever the count already is
   if (picked.status) what += ` at "${lab(picked.status, "status")}"`;
@@ -367,7 +369,7 @@ window.pickCat = (v) => {
   applyFilter();
 };
 window.clearAll = () => {
-  picked = { work: null, status: null }; applyFilter();
+  picked = { category: null, status: null }; applyFilter();
 };
 
 Promise.all([
@@ -412,11 +414,11 @@ Promise.all([
       `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
       `${p.work} · filed ${p.registered || "?"}<br>` +
       (p.primary_use_other
-        ? `<span style="color:#ffb648">Not counted as a data centre building — ` +
+        ? `<span style="color:#ffb648">Not counted as a data center building — ` +
           `${p.primary_use_other}</span><br>` : "") +
       (p.geo_precision === "county"
         ? `<span style="color:#ffb648">Address could not be placed — shown at the ` +
-          `centre of ${p.county} County</span><br>` : "") +
+          `center of ${p.county} County</span><br>` : "") +
       `<span style="color:#6d818d">${(p.scope || "").slice(0, 150)}</span>` +
       // MapLibre hands array properties back as JSON strings, not arrays, so
       // this has to parse before it can join — calling .join() on the string
@@ -499,11 +501,11 @@ document.getElementById("foot").innerHTML = `<details><summary>
       Lowe's are in this file next to QTS and Vantage. Nothing in a filing
       classifies the building, and cost does not divide them either: a retailer's
       server room here cost $25M while a colocation fit-out cost $300,000. So
-      treat the <b>filing count</b> as filings, not as data centres.
+      treat the <b>filing count</b> as filings, not as data centers.
       <b>The new-construction figures are far cleaner</b> — a
       700,000 sq ft building is not a server closet, though four buildings that
       are primarily a parking garage, a medical office or a convenience store
-      with a data centre inside are excluded by hand — which is why the floor
+      with a data center inside are excluded by hand — which is why the floor
       area is quoted over new buildings only.</p>
     <p><b>Every point sits inside the county its filing names</b>, checked
       against the county boundary rather than trusted. Rural Texas addresses —
@@ -511,7 +513,7 @@ document.getElementById("foot").innerHTML = `<details><summary>
       and geocoding on address alone put 61 of 665 in the wrong county, including
       a Haskell building in Bexar and a Williamson County one in Nueces. Six
       addresses still cannot be resolved and are drawn hollow at their county
-      centre, labelled as such.</p>
+      center, labelled as such.</p>
     <p><b>Every dot is one filing, at the address on that filing.</b> Nothing here
       is inferred: the position, the floor area, the type of work, the stage of
       review and the owner name are the fields as the document states them, and
@@ -532,7 +534,7 @@ document.getElementById("foot").innerHTML = `<details><summary>
       square foot and the flagged ones reach $8,532. Those are marked in the
       popup. One El Paso filing states 596 acres of site as though it were floor
       area, and is left out of the totals.</p>
-    <p><b>A big data centre is filed twice</b>, once for the core and shell and
+    <p><b>A big data center is filed twice</b>, once for the core and shell and
       once for the fit-out built into it, each carrying the full area. Eight such
       filings are folded into the building they belong to. Identical <i>sibling</i>
       buildings are not: a campus builds to one design, so Crusoe 5 through 8 and
@@ -545,9 +547,9 @@ document.getElementById("foot").innerHTML = `<details><summary>
       nothing more.</p>
     <p><b>The register lags a proposal by months</b>, and this is still a floor.
       A project registers when it reaches design and construction, not when it is
-      proposed or rezoned, so a data centre being argued over at a council
+      proposed or rezoned, so a data center being argued over at a council
       meeting is not here. The scope sweep only read filings of $20M or more.
       TDLR is an accessibility regulator; none of this exists to track data
-      centres.</p>
+      centers.</p>
   </div></details>`;
 </script>

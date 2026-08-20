@@ -1,6 +1,6 @@
-# Texas data centre filings — data dictionary
+# Texas data center filings — data dictionary
 
-Every data centre construction filing on the Texas Department of Licensing and
+Every data center construction filing on the Texas Department of Licensing and
 Regulation's architectural barriers register, at its street address.
 
 **663 filings · 277 new-construction buildings · 71,033,970 sq ft of new building**
@@ -8,7 +8,7 @@ Regulation's architectural barriers register, at its street address.
 TDLR is an accessibility regulator. Every substantial construction project in
 Texas registers with it for barriers review, which makes the register an
 accidental and fairly complete record of what is being built — but nothing in it
-exists to track data centres, and that shapes every limitation below.
+exists to track data centers, and that shapes every limitation below.
 
 ---
 
@@ -30,14 +30,14 @@ under code names — Project Pumpkin, Project Eagle, DA12-2, Sharka — and the 
 land in the facility name or the scope instead. The `found_by` column records
 which routes matched each filing.
 
-Matching terms: `data center`, `data centre`, `data hall`, `datacenter`,
+Matching terms: `data center`, `data center`, `data hall`, `datacenter`,
 `colocation`, `hyperscale`, `server farm`. Narrow on purpose: `server` alone
 catches every office with a server closet.
 
 `co-location` with a hyphen was dropped. It is not an industry term in these
 filings — it means two tenants sharing a space, and it caught eight projects that
 were airline gate swaps (American, US Airways, United/Continental), Parkland
-hospital and a Bank of America branch. Not one was a data centre.
+hospital and a Bank of America branch. Not one was a data center.
 
 ---
 
@@ -74,9 +74,10 @@ These are the document's own values, unaltered.
 | `cost_per_sqft` | `cost / sqft` where both exist and area exceeds 10,000 sq ft |
 | `cost_suspect` | `true` above $4,000/sq ft — the cost stated is the campus, not this building. 7 filings. **Exclude from cost totals** |
 | `area_is_campus` | `true` where a filing over 2M sq ft describes a campus. 1 filing: Project Seafox, El Paso, stating 596 acres of site. **Exclude from area totals** |
+| `category` | the one field to count on: **New building** (273), Renovation (323), Addition (39), Work type not stated (16), Not counted (12 — a second-phase filing, a garage or shop containing a data center, or a site-acreage figure). These sum to the full 663 |
 | `found_by` | which of the four search routes matched |
-| `primary_use_other` | set where the building is primarily something else that happens to contain a data centre — a parking garage, a medical office, a convenience store. 4 filings, read individually rather than caught by a rule. **Excluded from building and area totals** |
-| `geo_precision` | `"address"` where the geocode fell inside the filing's county; `"county"` for the 6 that could not be resolved and sit at the county centre |
+| `primary_use_other` | set where the building is primarily something else that happens to contain a data center — a parking garage, a medical office, a convenience store. 4 filings, read individually rather than caught by a rule. **Excluded from building and area totals** |
+| `geo_precision` | `"address"` where the geocode fell inside the filing's county; `"county"` for the 6 that could not be resolved and sit at the county center |
 | `lon`, `lat` | position, WGS84 |
 
 ---
@@ -86,11 +87,7 @@ These are the document's own values, unaltered.
 ```python
 rows = json.load(open("texas_data_centers.json"))
 
-new_buildings = [r for r in rows
-                 if r["primary"]                      # not a second-phase filing
-                 and r["work"] == "New Construction"
-                 and not r["area_is_campus"]          # not a site-area figure
-                 and not r["primary_use_other"]]      # not a garage with a server room
+new_buildings = [r for r in rows if r["category"] == "New building"]
 floor_area = sum(r["sqft"] or 0 for r in new_buildings)
 
 cost = sum(r["cost"] or 0 for r in new_buildings if not r["cost_suspect"])
@@ -112,11 +109,11 @@ building twice.
 them. Below that, small fit-outs inside existing halls remain invisible, and no
 name search would surface them. Treat every total as a floor.
 
-**Not a list of operating data centres.** These are construction filings. A
+**Not a list of operating data centers.** These are construction filings. A
 filing registered in 2026 may not be built.
 
 **Not current with the news.** A project registers when it reaches design and
-construction, not when it is proposed or rezoned, so a data centre being argued
+construction, not when it is proposed or rezoned, so a data center being argued
 over at a council meeting is months from appearing here.
 
 **Two populations are mixed, and no field separates them.** A purpose-built hall
@@ -129,7 +126,7 @@ room"), BBVA, Saxon Mortgage, Lowe's, Micron, AIG.
 Cost does not divide them: in that same sample the Lowe's server room was $25.2M
 while an H5 colocation fit-out was $300,000. Facility name gets partway there and
 leaves half the file unresolved. So the dataset does not label them, and **the
-filing count should be described as filings, not as data centres**.
+filing count should be described as filings, not as data centers**.
 
 **The new-construction figures are not affected.** A new 700,000 sq ft building
 is not a server closet. Reading the twenty largest — 41% of all floor area —
@@ -141,7 +138,7 @@ with.
 **Crypto mining and AI sit in the same file, and the line between them moves.**
 Crusoe, Lancium and Galaxy built for bitcoin and now build for AI — Core
 Scientific's Denton filing literally reads "Convert bitcoin mining buildings into
-data centers". They are counted, because they are data centres now. Saxet Energy
+data centers". They are counted, because they are data centers now. Saxet Energy
 Park in Corpus Christi is the ambiguous case, its scope reading "TO HOUSE DATA
 CENTERS/MINING EQUIPMENT"; it is counted too, at three buildings of 37,813 sq ft.
 Together, filings tied to companies with mining histories are about 7% of floor
