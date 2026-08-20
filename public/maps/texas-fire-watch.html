@@ -94,6 +94,7 @@
     <label class="lyr"><input type="checkbox" id="t-drought" checked> Drought severity</label>
     <label class="lyr"><input type="checkbox" id="t-bans" checked> County burn bans</label>
     <label class="lyr"><input type="checkbox" id="t-fires" checked> Active wildfires</label>
+    <label class="lyr"><input type="checkbox" id="t-perim" checked> Fire perimeters</label>
     <div class="key" id="key"></div>
     <div class="keylab"><span>Abnormally dry</span><span>Exceptional</span></div>
   </div>
@@ -109,6 +110,10 @@
 const USDM_STATS = "/api/drought/texas";
 const BANS = "https://gis.tfs.tamu.edu/arcgis/rest/services/EOC/BurnBan/FeatureServer/0/query";
 const FIRES = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+// The same feed publishes mapped perimeters for fires big enough to have been
+// flown or satellite-traced — 211 of the 530 incidents right now. A point says
+// where a fire is; the polygon says how much ground it is on.
+const PERIM = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query";
 const DCOL = ["#ffff00", "#fcd37f", "#ffaa00", "#e60000", "#730000"];
 
 document.getElementById("key").innerHTML =
@@ -191,6 +196,28 @@ map.on("load", async () => {
     window.__bans = on.size;
   } catch (e) { window.__bans = null; }
 
+  // ---------- mapped fire perimeters, live
+  try {
+    const g = await j(`${PERIM}?where=${encodeURIComponent("1=1")}` +
+      "&outFields=poly_IncidentName,attr_IncidentName,poly_GISAcres,attr_PercentContained,attr_POOState" +
+      "&outSR=4326&resultRecordCount=1000&f=geojson");
+    map.addSource("perim", { type: "geojson", data: g });
+    // drawn under the incident points, so a small fire inside a big burn scar
+    // is still findable
+    map.addLayer({ id: "perim-fill", type: "fill", source: "perim",
+      paint: { "fill-color": "#c1441f", "fill-opacity": 0.32 } });
+    map.addLayer({ id: "perim-line", type: "line", source: "perim",
+      paint: { "line-color": "#ff7a45", "line-width": 1.1, "line-opacity": 0.85 } });
+    hover("perim-fill", (p) =>
+      `<b>${p.poly_IncidentName || p.attr_IncidentName || "Unnamed"}</b><br>` +
+      `${p.poly_GISAcres ? Math.round(p.poly_GISAcres).toLocaleString() + " acres mapped" : "area not stated"}` +
+      `${p.attr_PercentContained != null ? ` · ${p.attr_PercentContained}% contained` : ""}<br>` +
+      `<span style="color:#7d7168">${(p.attr_POOState || "").slice(-2)} · perimeter, not a point</span>`);
+    const ps = g.features || [];
+    window.__perim = { n: ps.length,
+      acres: ps.reduce((a, x) => a + (x.properties.poly_GISAcres || 0), 0) };
+  } catch (e) { window.__perim = null; }
+
   // ---------- active wildfires, live
   try {
     const f = await j(`${FIRES}?where=${encodeURIComponent("IncidentTypeCategory='WF'")}` +
@@ -222,11 +249,15 @@ map.on("load", async () => {
 
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.85 } });
 
-  for (const [box, id] of [["t-drought", "drought"], ["t-bans", "bans"], ["t-fires", "fires"]]) {
+  for (const [box, ids] of [["t-drought", ["drought"]], ["t-bans", ["bans"]],
+                            ["t-fires", ["fires"]],
+                            ["t-perim", ["perim-fill", "perim-line"]]]) {
     const el = document.getElementById(box);
     el.addEventListener("change", () => {
-      if (map.getLayer(id)) {
-        map.setLayoutProperty(id, "visibility", el.checked ? "visible" : "none");
+      for (const id of ids) {
+        if (map.getLayer(id)) {
+          map.setLayoutProperty(id, "visibility", el.checked ? "visible" : "none");
+        }
       }
     });
   }
@@ -256,6 +287,9 @@ async function paint() {
          window.__bans != null ? `of 254 &middot; ${Math.round(window.__bans / 254 * 100)}%` : ""),
     card("Wildfires burning in Texas", F ? fmt(F.tx) : "—", F ? `${fmt(F.us)} nationwide` : ""),
     card("Acres burning nationwide", F ? fmt(Math.round(F.acres)) : "—", F ? "all active incidents" : ""),
+    card("Acres inside a mapped perimeter",
+         window.__perim ? fmt(Math.round(window.__perim.acres)) : "—",
+         window.__perim ? `${window.__perim.n} fires traced on the ground` : ""),
   ].join("");
 
   document.getElementById("foot").innerHTML =
@@ -264,6 +298,8 @@ async function paint() {
     ` · burn bans from <a href="https://tfsweb.tamu.edu/wildfire-and-other-disasters/burn-bans-and-information/" target="_blank" rel="noopener">Texas A&amp;M Forest Service</a>` +
     ` · fires from <a href="https://data-nifc.opendata.arcgis.com/" target="_blank" rel="noopener">NIFC</a>, refreshed constantly. ` +
     `Burn bans and fires are read live; drought polygons are cached because the Monitor only redraws them once a week. ` +
+    `Perimeters are drawn only for fires big enough to have been flown or satellite-traced — ` +
+    `about 40% of active incidents — so a fire can be a point here with no shape. ` +
     `A fire fought entirely by a county volunteer department may appear in none of these feeds. ` +
     `Page loaded ${new Date().toLocaleString()}.`;
 }
