@@ -184,7 +184,9 @@ const BASES = [
 ];
 let baseKey = "topo";
 // one categorical filter shared by whichever legend is showing
-let pickedCat = null;   // {field, value}
+// Opens filtered to new construction: that is what a reader means by a data
+// centre, and it is the population every headline figure is quoted over.
+let pickedCat = { field: "work", value: "New Construction" };
 let colourBy = "work";
 
 // Three encodings. Year is sequential — a teal ramp running to a warm end so the
@@ -197,11 +199,16 @@ const COLOUR = {
            ["Renovation/Alteration", "Renovation", "#c77dff"],
            ["Additions to Existing Building", "Addition", "#ffb648"]],
     hint: "Renovations and additions are work on halls that already exist. Click one to show only those." },
+  // Four distinct hues rather than three shades of teal, which were 15.4 apart
+  // in normal vision - right on the floor, and far too close as small dots.
+  // Warm to cool reads as a progression without red implying alarm. Checked in
+  // OKLab against deuteran, protan and tritan simulation: worst pair 26.7 in
+  // normal vision, 15.2 under colour blindness, against floors of 15 and 8.
   status: { legend: "cats", field: "status",
-    cats: [["Project Registered", "Registered", "#ffb648"],
-           ["Review Complete", "Review complete", "#35e0d4"],
-           ["Inspection Complete", "Inspection complete", "#2b8f95"],
-           ["Project Closed", "Closed", "#1d5e66"]],
+    cats: [["Project Registered", "Registered", "#ffb02e"],
+           ["Review Complete", "Review complete", "#d6409f"],
+           ["Inspection Complete", "Inspection complete", "#5ec8f0"],
+           ["Project Closed", "Closed", "#1f3d78"]],
     hint: "TDLR's own accessibility review, not the building — closed means that review finished, not that anything opened. Click one to show only those." },
 };
 
@@ -299,24 +306,32 @@ function stateLine() {
     && f.properties.work === "New Construction"
     && !f.properties.area_is_campus
     && !f.properties.primary_use_other).length;
+  // When the filter is new construction the count to show is the building count,
+  // not the filing count — they differ by the phase duplicates and the four
+  // buildings that are primarily a garage or a shop.
+  const onlyNew = pickedCat && pickedCat.field === "work"
+    && pickedCat.value === "New Construction";
   let what = "filings describing data centre work";
-  if (pickedCat) {
+  let headN = on.length;
+  if (onlyNew) {
+    what = "new data centre buildings";
+    headN = newN;
+  } else if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
     const lab = hit ? hit[1].toLowerCase() : pickedCat.value;
-    what = colourBy === "work" ? `${lab}${lab.endsWith("g") ? "s" : "s"}`
-      : `filings at "${lab}"`;
+    what = colourBy === "work" ? `${lab}s` : `filings at "${lab}"`;
   }
   // The count is what is drawn, not what is in the file: six of the 671 have an
   // address Azure could not place inside Texas and are not on the map.
   // Lead with the number that survives scrutiny. New construction of a whole
   // building cannot be a server room inside an office; the renovation filings
   // include plenty that are, and no field in the record separates them.
-  const sub = area > 0
-    ? `<b>${newN.toLocaleString()}</b> are new buildings — ` +
-      `${(area / 1e6).toFixed(1)} million sq ft`
-    : "none of these are new buildings";
+  const sub = area <= 0 ? "none of these are new buildings"
+    : onlyNew ? `<b>${(area / 1e6).toFixed(1)} million</b> square feet`
+    : `<b>${newN.toLocaleString()}</b> are new buildings — ` +
+      `${(area / 1e6).toFixed(1)} million sq ft`;
   document.getElementById("state").innerHTML =
-    `<b>${on.length.toLocaleString()}</b> ${what}` +
+    `<b>${headN.toLocaleString()}</b> ${what}` +
     `<span>${sub} · Texas</span>`;
 }
 
@@ -441,6 +456,7 @@ Promise.all([
       pickedCat = null;
       map.setPaintProperty("dc", "circle-color", colourExpr(mode));
       drawLegend();
+  applyFilter();
       applyFilter();
     });
   }
