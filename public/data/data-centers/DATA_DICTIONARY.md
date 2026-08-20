@@ -3,7 +3,7 @@
 Every data centre construction filing on the Texas Department of Licensing and
 Regulation's architectural barriers register, at its street address.
 
-**671 filings · 278 new-construction buildings · 70,729,191 sq ft of new building**
+**663 filings · 277 new-construction buildings · 71,033,970 sq ft of new building**
 
 TDLR is an accessibility regulator. Every substantial construction project in
 Texas registers with it for barriers review, which makes the register an
@@ -20,19 +20,24 @@ places the words can appear.
 
 | Route | Where it lives | Filings found this way |
 |---|---|---|
-| Project name | statewide extract | 317 |
+| Project name | statewide extract | 309 |
 | Facility name | statewide extract | 195 |
-| Scope of work | detail page only | 440 |
+| Scope of work | detail page only | 459 |
 | Operator name in owner field | detail page only | 35 |
 
-**Searching project names alone finds 110 of 671.** Operators file
+**Searching project names alone finds 101 of 663.** Operators file
 under code names — Project Pumpkin, Project Eagle, DA12-2, Sharka — and the words
 land in the facility name or the scope instead. The `found_by` column records
 which routes matched each filing.
 
 Matching terms: `data center`, `data centre`, `data hall`, `datacenter`,
-`colocation`, `co-location`, `hyperscale`, `server farm`. Narrow on purpose:
-`server` alone catches every office with a server closet.
+`colocation`, `hyperscale`, `server farm`. Narrow on purpose: `server` alone
+catches every office with a server closet.
+
+`co-location` with a hyphen was dropped. It is not an industry term in these
+filings — it means two tenants sharing a space, and it caught eight projects that
+were airline gate swaps (American, US Airways, United/Continental), Parkland
+hospital and a Bank of America branch. Not one was a data centre.
 
 ---
 
@@ -70,6 +75,7 @@ These are the document's own values, unaltered.
 | `cost_suspect` | `true` above $4,000/sq ft — the cost stated is the campus, not this building. 7 filings. **Exclude from cost totals** |
 | `area_is_campus` | `true` where a filing over 2M sq ft describes a campus. 1 filing: Project Seafox, El Paso, stating 596 acres of site. **Exclude from area totals** |
 | `found_by` | which of the four search routes matched |
+| `primary_use_other` | set where the building is primarily something else that happens to contain a data centre — a parking garage, a medical office, a convenience store. 4 filings, read individually rather than caught by a rule. **Excluded from building and area totals** |
 | `geo_precision` | `"address"` where the geocode fell inside the filing's county; `"county"` for the 6 that could not be resolved and sit at the county centre |
 | `lon`, `lat` | position, WGS84 |
 
@@ -81,9 +87,10 @@ These are the document's own values, unaltered.
 rows = json.load(open("texas_data_centers.json"))
 
 new_buildings = [r for r in rows
-                 if r["primary"]                    # not a second-phase filing
+                 if r["primary"]                      # not a second-phase filing
                  and r["work"] == "New Construction"
-                 and not r["area_is_campus"]]       # not a site-area figure
+                 and not r["area_is_campus"]          # not a site-area figure
+                 and not r["primary_use_other"]]      # not a garage with a server room
 floor_area = sum(r["sqft"] or 0 for r in new_buildings)
 
 cost = sum(r["cost"] or 0 for r in new_buildings if not r["cost_suspect"])
@@ -130,6 +137,15 @@ every one states a whole building: "1-story data center", "single story Data
 Center approximately 805,380 sf", "800,000sf data center facility". This is why
 floor area is quoted over new buildings only, and why it is the number to lead
 with.
+
+**Crypto mining and AI sit in the same file, and the line between them moves.**
+Crusoe, Lancium and Galaxy built for bitcoin and now build for AI — Core
+Scientific's Denton filing literally reads "Convert bitcoin mining buildings into
+data centers". They are counted, because they are data centres now. Saxet Energy
+Park in Corpus Christi is the ambiguous case, its scope reading "TO HOUSE DATA
+CENTERS/MINING EQUIPMENT"; it is counted too, at three buildings of 37,813 sq ft.
+Together, filings tied to companies with mining histories are about 7% of floor
+area.
 
 **Ownership is not resolved.** `owner` is the string on the filing. Most are
 single-purpose companies, and identifying the operator behind one takes Secretary

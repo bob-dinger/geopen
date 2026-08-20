@@ -289,14 +289,16 @@ function stateLine() {
     // `primary` is false on the second filing of a building that was filed
     // twice — a core-and-shell and a fit-out, each carrying the full area.
     // Without this the total reads 73.9M against a true 70.7M.
-    if (!p.primary || p.work !== "New Construction" || p.area_is_campus) return a;
+    if (!p.primary || p.work !== "New Construction" || p.area_is_campus
+        || p.primary_use_other) return a;
     return a + (p.sqft || 0);
   }, 0);
   // must exclude the same rows the area sum excludes, or the line reads
   // "70.7M sq ft across 279 of them" when the area is across 278
   const newN = on.filter((f) => f.properties.primary
     && f.properties.work === "New Construction"
-    && !f.properties.area_is_campus).length;
+    && !f.properties.area_is_campus
+    && !f.properties.primary_use_other).length;
   let what = "filings describing data centre work";
   if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
@@ -380,6 +382,9 @@ Promise.all([
       `${p.sqft ? `<b>${num(p.sqft)} sq ft</b>` : "floor area not stated"}` +
       `${p.cost ? ` · ${usd(p.cost)}${p.cost_suspect ? " (campus figure)" : ""}` : ""}<br>` +
       `${p.work} · filed ${p.registered || "?"}<br>` +
+      (p.primary_use_other
+        ? `<span style="color:#ffb648">Not counted as a data centre building — ` +
+          `${p.primary_use_other}</span><br>` : "") +
       (p.geo_precision === "county"
         ? `<span style="color:#ffb648">Address could not be placed — shown at the ` +
           `centre of ${p.county} County</span><br>` : "") +
@@ -460,8 +465,10 @@ document.getElementById("foot").innerHTML = `<details><summary>
       classifies the building, and cost does not divide them either: a retailer's
       server room here cost $25M while a colocation fit-out cost $300,000. So
       treat the <b>filing count</b> as filings, not as data centres.
-      <b>The new-construction figures do not have this problem</b> — a
-      700,000 sq ft building is not a server closet — which is why the floor
+      <b>The new-construction figures are far cleaner</b> — a
+      700,000 sq ft building is not a server closet, though four buildings that
+      are primarily a parking garage, a medical office or a convenience store
+      with a data centre inside are excluded by hand — which is why the floor
       area is quoted over new buildings only.</p>
     <p><b>Every point sits inside the county its filing names</b>, checked
       against the county boundary rather than trusted. Rural Texas addresses —
