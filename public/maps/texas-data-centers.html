@@ -291,8 +291,11 @@ function stateLine() {
     if (!p.primary || p.work !== "New Construction" || p.area_is_campus) return a;
     return a + (p.sqft || 0);
   }, 0);
+  // must exclude the same rows the area sum excludes, or the line reads
+  // "70.7M sq ft across 279 of them" when the area is across 278
   const newN = on.filter((f) => f.properties.primary
-    && f.properties.work === "New Construction").length;
+    && f.properties.work === "New Construction"
+    && !f.properties.area_is_campus).length;
   let what = "data center filings";
   if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
@@ -441,7 +444,8 @@ const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
 document.getElementById("foot").innerHTML = `<details><summary>
     <span class="src">Filings from the ${A("https://www.tdlr.texas.gov/tabs/search",
       "Texas Department of Licensing and Regulation")} architectural barriers register ·
-      free to download at ${A("https://geopen.io/", "geopen.io")}</span>
+      ${A("/data/data-centers/texas_data_centers.csv", "download the data")} ·
+      ${A("/data/data-centers/DATA_DICTIONARY.md", "what every column means")}</span>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
