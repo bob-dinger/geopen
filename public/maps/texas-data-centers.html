@@ -272,6 +272,11 @@ function applyFilter() {
   for (const id of ["dc", "dc-halo"]) {
     if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
   }
+  if (window.drawLegend && !window.__drawing) {
+    window.__drawing = true;   // drawLegend calls note() calls applyFilter path
+    window.drawLegend();
+    window.__drawing = false;
+  }
   document.querySelectorAll(".swatch").forEach((b) =>
     b.classList.toggle("on", picked[COLOUR[colourBy].field] === b.dataset.v));
 
@@ -448,6 +453,13 @@ Promise.all([
     const C = COLOUR[colourBy];
     const n = {};
     for (const f of window.__feats) {
+      // count under every OTHER field's filter but not this one, so the number
+      // beside a swatch is what clicking it would actually give you
+      let pass = true;
+      for (const [field, value] of Object.entries(picked)) {
+        if (field !== C.field && value && f.properties[field] !== value) pass = false;
+      }
+      if (!pass) continue;
       const k = f.properties[C.field];
       n[k] = (n[k] || 0) + 1;
     }
