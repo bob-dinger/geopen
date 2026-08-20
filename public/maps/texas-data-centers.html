@@ -92,8 +92,9 @@
   .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em;
     margin-bottom: 7px; }
   .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
-  .state span { display: block; font-size: 0.66rem; font-weight: 400; color: var(--ink-3);
-    margin-top: 2px; letter-spacing: 0; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; letter-spacing: 0; }
+  .state span b { color: var(--signal); font-weight: 700; }
   .controls { margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--rule);
     opacity: 0.72; }
   .controls:hover { opacity: 1; }
@@ -296,7 +297,7 @@ function stateLine() {
   const newN = on.filter((f) => f.properties.primary
     && f.properties.work === "New Construction"
     && !f.properties.area_is_campus).length;
-  let what = "data center filings";
+  let what = "filings describing data centre work";
   if (pickedCat) {
     const hit = C.cats.find(([v]) => v === pickedCat.value);
     const lab = hit ? hit[1].toLowerCase() : pickedCat.value;
@@ -305,10 +306,13 @@ function stateLine() {
   }
   // The count is what is drawn, not what is in the file: six of the 671 have an
   // address Azure could not place inside Texas and are not on the map.
+  // Lead with the number that survives scrutiny. New construction of a whole
+  // building cannot be a server room inside an office; the renovation filings
+  // include plenty that are, and no field in the record separates them.
   const sub = area > 0
-    ? `${(area / 1e6).toFixed(1)} million sq ft of new building` +
-      (newN !== on.length ? ` across ${newN.toLocaleString()} of them` : "")
-    : "no new construction in this selection";
+    ? `<b>${newN.toLocaleString()}</b> are new buildings — ` +
+      `${(area / 1e6).toFixed(1)} million sq ft`
+    : "none of these are new buildings";
   document.getElementById("state").innerHTML =
     `<b>${on.length.toLocaleString()}</b> ${what}` +
     `<span>${sub} · Texas</span>`;
@@ -449,6 +453,16 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">What's in this, and what isn't</span>
   </summary>
   <div class="notes">
+    <p><b>Two different things are in here, and the record cannot separate
+      them.</b> A purpose-built hall and a server room inside a hospital, bank or
+      shop both file work described as a "data center" — Ben Taub Hospital and
+      Lowe's are in this file next to QTS and Vantage. Nothing in a filing
+      classifies the building, and cost does not divide them either: a retailer's
+      server room here cost $25M while a colocation fit-out cost $300,000. So
+      treat the <b>filing count</b> as filings, not as data centres.
+      <b>The new-construction figures do not have this problem</b> — a
+      700,000 sq ft building is not a server closet — which is why the floor
+      area is quoted over new buildings only.</p>
     <p><b>Every point sits inside the county its filing names</b>, checked
       against the county boundary rather than trusted. Rural Texas addresses —
       "615 FM 2404", "Co. Rd. 21" — name farm roads that recur across the state,

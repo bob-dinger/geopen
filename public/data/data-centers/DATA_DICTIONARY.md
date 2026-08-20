@@ -112,11 +112,24 @@ filing registered in 2026 may not be built.
 construction, not when it is proposed or rezoned, so a data centre being argued
 over at a council meeting is months from appearing here.
 
-**Two populations are mixed.** Purpose-built halls and corporate server rooms
-inside offices, hospitals and warehouses both use the words. They separate
-reasonably on cost — of 671 filings, 271 are under $5M and contribute
-1,627,020 sq ft of new building — but the dataset does not draw the line for
-you, because where it falls is a judgement.
+**Two populations are mixed, and no field separates them.** A purpose-built hall
+and a server room inside a hospital, bank or shop both file work described as a
+"data center". Reading 22 renovation filings at random, about nine were corporate
+server rooms — Ben Taub Hospital, Farm Credit Bank ("data room on 2nd floor of
+existing office building"), Tomball Regional Medical Center ("expanding computer
+room"), BBVA, Saxon Mortgage, Lowe's, Micron, AIG.
+
+Cost does not divide them: in that same sample the Lowe's server room was $25.2M
+while an H5 colocation fit-out was $300,000. Facility name gets partway there and
+leaves half the file unresolved. So the dataset does not label them, and **the
+filing count should be described as filings, not as data centres**.
+
+**The new-construction figures are not affected.** A new 700,000 sq ft building
+is not a server closet. Reading the twenty largest — 41% of all floor area —
+every one states a whole building: "1-story data center", "single story Data
+Center approximately 805,380 sf", "800,000sf data center facility". This is why
+floor area is quoted over new buildings only, and why it is the number to lead
+with.
 
 **Ownership is not resolved.** `owner` is the string on the filing. Most are
 single-purpose companies, and identifying the operator behind one takes Secretary
