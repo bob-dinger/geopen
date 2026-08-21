@@ -58,6 +58,13 @@
   .lyr { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.76rem;
     color: var(--ink-2); cursor: pointer; }
   .lyr input { accent-color: var(--ember); }
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 2px; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.66rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button:hover { color: var(--ink); border-color: var(--ember); }
+  .bases button[aria-pressed="true"] { background: var(--ember); border-color: var(--ember);
+    color: #1a1005; font-weight: 700; }
   .key { display: flex; gap: 3px; margin: 8px 0 2px; }
   .key i { height: 9px; flex: 1; display: block; }
   .keylab { display: flex; justify-content: space-between; font-size: 0.6rem;
@@ -90,6 +97,8 @@
 <div class="wrap">
   <div id="map"></div>
   <div class="panel">
+    <h2>Basemap</h2>
+    <div class="bases" id="bases"></div>
     <h2>Layers</h2>
     <label class="lyr"><input type="checkbox" id="t-drought" checked> Drought severity</label>
     <label class="lyr"><input type="checkbox" id="t-bans" checked> County burn bans</label>
@@ -115,6 +124,24 @@ const FIRES = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/service
 // where a fire is; the polygon says how much ground it is on.
 const PERIM = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query";
 const DCOL = ["#ffff00", "#fcd37f", "#ffaa00", "#e60000", "#730000"];
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+// Drought is a translucent wash over the whole state, so each ground needs its
+// own opacity: on satellite it has to be light enough to see terrain through,
+// on the pale canvas it can be stronger without drowning the labels.
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 0.62, drought: 0.62, perim: 0.32, county: "rgba(255,255,255,0.14)" },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 1, drought: 0.55, perim: 0.42, county: "rgba(0,0,0,0.16)" },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, drought: 0.45, perim: 0.42, county: "rgba(0,0,0,0.18)" },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
+    opacity: 1, drought: 0.42, perim: 0.36, county: "rgba(255,255,255,0.2)" },
+];
+let baseKey = "dark";
 
 document.getElementById("key").innerHTML =
   DCOL.map((c) => `<i style="background:${c}"></i>`).join("");
@@ -133,16 +160,52 @@ const map = new maplibregl.Map({
     version: 8,
     glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sources: {
-      base: { type: "raster", tileSize: 256, attribution: "© Esri",
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
-      ref: { type: "raster", tileSize: 256,
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+        tiles: [BASES[0].url] },
+      // seeded from the first basemap that HAS a reference layer — Streets has
+      // none, and a null in tiles[] fails style validation and kills every layer
+      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: [BASES.find((b) => b.ref).ref] },
     },
-    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.62 } }],
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
   },
   center: [-99.4, 31.3], zoom: 5.1, attributionControl: { compact: true },
 });
 map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+/** Swap the ground and retune everything drawn on it. The drought wash, the
+ *  county outlines and the fire perimeters all read differently against a dark
+ *  canvas than against satellite imagery, so each carries per-basemap values. */
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) {
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  }
+  if (map.getLayer("drought")) map.setPaintProperty("drought", "fill-opacity", bm.drought);
+  if (map.getLayer("perim-fill")) map.setPaintProperty("perim-fill", "fill-opacity", bm.perim);
+  if (map.getLayer("bans")) {
+    // a county with no ban is drawn as a hairline; it has to flip with the ground
+    map.setPaintProperty("bans", "line-color",
+      ["case", ["==", ["get", "ban"], "Yes"], "#ff7a45", bm.county]);
+  }
+  if (map.getLayer("fires")) {
+    map.setPaintProperty("fires", "circle-stroke-color",
+      bm.id === "dark" ? "#14100e" : "#ffffff");
+  }
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
 
 const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "260px" });
 function hover(layer, html) {
@@ -248,6 +311,7 @@ map.on("load", async () => {
   } catch (e) { window.__fires = null; }
 
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.85 } });
+  setBase(BASES.find((b) => b.id === baseKey));
 
   for (const [box, ids] of [["t-drought", ["drought"]], ["t-bans", ["bans"]],
                             ["t-fires", ["fires"]],
