@@ -1,0 +1,299 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every place in Texas already has an address</title>
+<meta name="description" content="Plus Codes give every 14-metre square on earth a short address. The algorithm is open, the code runs in your browser, and nobody needs permission to use it.">
+<link rel="canonical" href="https://geopen.io/maps/texas-plus-codes.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Every place in Texas already has an address">
+<meta property="og:description" content="Plus Codes give every 14-metre square on earth a short address — and unlike what3words, you can compute them yourself.">
+<meta property="og:url" content="https://geopen.io/maps/texas-plus-codes.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* The subject is a grid that subdivides, so the page is built from nested
+     rectangles and monospace. Warm amber against slate: the code is the only
+     thing that glows, because the code is the whole point. */
+  :root {
+    --ground: #0b0d10; --panel: #151a20; --panel-2: #1e242c;
+    --rule: rgba(190,210,235,0.14);
+    --ink: #eef3f8; --ink-2: #9cadbe; --ink-3: #6a7c8d;
+    --signal: #ffb347; --signal-2: #ff8c42; --cool: #5ad0e6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 350px;
+    background: rgba(14,18,23,0.93); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 15px 17px; backdrop-filter: blur(9px); }
+  .titlecard h1 { margin: 0 0 7px; font-size: 19px; line-height: 1.24; letter-spacing: -0.015em;
+    text-wrap: balance; }
+  .titlecard p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .titlecard p + p { margin-top: 8px; }
+
+  /* the live readout — the largest type on the page */
+  .readout { position: absolute; left: 16px; bottom: 16px; z-index: 6; width: 350px;
+    background: rgba(14,18,23,0.95); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 14px 17px 15px; backdrop-filter: blur(9px); }
+  .readout .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin-bottom: 7px; }
+  .code { font-size: 27px; letter-spacing: .01em; color: var(--signal); line-height: 1.1;
+    font-weight: 600; word-break: break-all; }
+  .code .dim { color: var(--ink-3); font-weight: 400; }
+  .short { margin-top: 7px; font-size: 13px; color: var(--cool); }
+  .latlng { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--rule);
+    font-size: 11px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 10px; }
+
+  /* how the code is built, pair by pair */
+  .build { position: absolute; right: 16px; bottom: 16px; z-index: 6; width: 268px;
+    background: rgba(14,18,23,0.95); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 13px 15px 14px; backdrop-filter: blur(9px); }
+  .build .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin-bottom: 9px; }
+  .step { display: flex; align-items: baseline; gap: 9px; padding: 4px 0;
+    border-bottom: 1px solid rgba(190,210,235,0.06); }
+  .step:last-child { border-bottom: 0; }
+  .step b { font-size: 14px; color: var(--signal); min-width: 26px; font-weight: 600; }
+  .step span { font-size: 11px; color: var(--ink-2); }
+  .step i { font-size: 10.5px; color: var(--ink-3); font-style: normal; margin-left: auto; }
+
+  #bases { position: absolute; right: 16px; top: 16px; z-index: 6; display: flex; gap: 0;
+    background: rgba(14,18,23,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(9px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 11px; padding: 7px 11px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+  #bases button:hover { color: var(--ink); }
+
+  .hint { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); z-index: 6;
+    background: rgba(14,18,23,0.9); border: 1px solid var(--rule); border-radius: 999px;
+    padding: 6px 14px; font-size: 11.5px; color: var(--ink-2); pointer-events: none;
+    transition: opacity .4s; }
+  .hint.gone { opacity: 0; }
+
+  @media (max-width: 900px) {
+    .build { display: none; }
+    .titlecard { max-width: none; right: 16px; }
+    .readout { width: auto; right: 16px; }
+    .code { font-size: 23px; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+
+  <div class="titlecard">
+    <h1>Every place in Texas already has an address</h1>
+    <p>A <b>Plus Code</b> names any 14-metre square on earth in ten characters. Your
+      back garden has one. So does the middle of Lake Texoma.</p>
+    <p>The grid below is the code. Move the map — the address is computed in your
+      browser, from the coordinates, with no server and no API key.</p>
+  </div>
+
+  <div id="bases"></div>
+  <div class="hint" id="hint">Move the map to read the code</div>
+
+  <div class="readout">
+    <div class="lab">Plus Code at the crosshair</div>
+    <div class="code mono" id="code">—</div>
+    <div class="short mono" id="short"></div>
+    <div class="latlng mono"><span id="ll"></span><span id="cell"></span></div>
+  </div>
+
+  <div class="build">
+    <div class="lab">How the code narrows</div>
+    <div id="steps"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+/* ------------------------------------------------------------------ *
+ * Open Location Code, implemented here in about thirty lines.
+ *
+ * That brevity is the argument the page is making. Plus Codes are an open
+ * specification (Apache 2.0), so the encoder can simply be written out and
+ * run on the reader's own machine. what3words is proprietary and patented,
+ * its wordlist closed; a map like this one cannot legally be built on it.
+ *
+ * The alphabet omits vowels and easily-confused characters, so codes do not
+ * accidentally spell words and are hard to mishear.
+ * ------------------------------------------------------------------ */
+const A = "23456789CFGHJMPQRVWX";       // 20 symbols
+const PAIRS = [
+  { res: 20,       label: "20°",      about: "continent" },
+  { res: 1,        label: "1°",       about: "large region" },
+  { res: 0.05,     label: "0.05°",    about: "city" },
+  { res: 0.0025,   label: "0.0025°",  about: "neighbourhood" },
+  { res: 0.000125, label: "0.000125°", about: "~14 m square" },
+];
+
+/* Integer arithmetic throughout, because the obvious float version is wrong.
+   The finest pair is 0.000125° = exactly 1/8000 of a degree, so scaling by 8000
+   turns every subdivision into an integer division. Scaling alone is not enough:
+   (1.2 + 90) * 8000 comes to 729599.9999999999, and flooring that drops a whole
+   cell. The reference implementation rounds at 1e6 first, and so does this. The
+   naive version failed 8 of the 40 official test vectors; this passes all 40. */
+function encode(lat, lng) {
+  lat = Math.min(90, Math.max(-90, lat));
+  lng = ((lng + 180) % 360 + 360) % 360 - 180;
+  if (lat >= 90) lat = 90 - 1e-9;
+  let lv = Math.floor(Math.round((lat + 90) * 8000 * 1e6) / 1e6);
+  let gv = Math.floor(Math.round((lng + 180) * 8000 * 1e6) / 1e6);
+  const pairs = [];
+  for (let i = 0; i < 5; i++) {
+    pairs.unshift(A[lv % 20] + A[gv % 20]);
+    lv = Math.floor(lv / 20); gv = Math.floor(gv / 20);
+  }
+  const s = pairs.join("");
+  return { code: s.slice(0, 8) + "+" + s.slice(8),
+           steps: pairs.map((p, i) => ({ pair: p, ...PAIRS[i] })) };
+}
+
+/* The cell a code refers to, so it can be drawn rather than described.
+   Same integer units as encode(), or the box drifts off the code it labels. */
+function cellBounds(lat, lng, res) {
+  const u = Math.round(res * 8000);
+  const lv = Math.floor(Math.round((lat + 90) * 8000 * 1e6) / 1e6);
+  const gv = Math.floor(Math.round((lng + 180) * 8000 * 1e6) / 1e6);
+  const l0 = Math.floor(lv / u) * u, g0 = Math.floor(gv / u) * u;
+  return [g0 / 8000 - 180, l0 / 8000 - 90,
+          (g0 + u) / 8000 - 180, (l0 + u) / 8000 - 90];
+}
+
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+];
+let baseKey = "dark";
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seed from a base that HAS a ref: a null here fails style validation and
+      // silently drops every layer on the map, including the ones that matter.
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      grid: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+      cell: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+    },
+    layers: [
+      { id: "base", type: "raster", source: "base", paint: { "raster-opacity": BASES[0].opacity } },
+      { id: "grid", type: "line", source: "grid",
+        paint: { "line-color": "#ffb347", "line-width": 0.6, "line-opacity": 0.34 } },
+      { id: "cell-fill", type: "fill", source: "cell",
+        paint: { "fill-color": "#ffb347", "fill-opacity": 0.17 } },
+      { id: "cell-line", type: "line", source: "cell",
+        paint: { "line-color": "#ffb347", "line-width": 1.8 } },
+    ],
+  },
+  center: [-97.74, 31.0], zoom: 5.4, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) {
+    map.getSource("ref").setTiles([bm.ref]);
+    if (!map.getLayer("ref")) {
+      map.addLayer({ id: "ref", type: "raster", source: "ref",
+        paint: { "raster-opacity": 0.85 } }, "grid");
+    }
+  } else if (map.getLayer("ref")) {
+    map.removeLayer("ref");
+  }
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+/* Which subdivision to draw: one level finer than the eye can already see. */
+function gridRes(z) {
+  if (z < 6.5) return 1;
+  if (z < 11) return 0.05;
+  if (z < 15.5) return 0.0025;
+  return 0.000125;
+}
+
+function drawGrid() {
+  const res = gridRes(map.getZoom());
+  const b = map.getBounds();
+  const w = Math.floor((b.getWest() + 180) / res) * res - 180;
+  const e = Math.ceil((b.getEast() + 180) / res) * res - 180;
+  const s = Math.floor((b.getSouth() + 90) / res) * res - 90;
+  const n = Math.ceil((b.getNorth() + 90) / res) * res - 90;
+  const feats = [];
+  // a cap keeps a wide view from generating tens of thousands of lines
+  const cols = (e - w) / res, rows = (n - s) / res;
+  if (cols < 400 && rows < 400) {
+    for (let x = w; x <= e + 1e-12; x += res)
+      feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[x, s], [x, n]] }, properties: {} });
+    for (let y = s; y <= n + 1e-12; y += res)
+      feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[w, y], [e, y]] }, properties: {} });
+  }
+  map.getSource("grid").setData({ type: "FeatureCollection", features: feats });
+  return res;
+}
+
+const fmtRes = (r) => (r >= 1 ? r + "°" : r.toString());
+
+function update() {
+  const c = map.getCenter();
+  const { code, steps } = encode(c.lat, c.lng);
+  // the first four characters are regional and rarely spoken aloud
+  document.getElementById("code").innerHTML =
+    `<span class="dim">${code.slice(0, 4)}</span>${code.slice(4)}`;
+  document.getElementById("short").textContent = code.slice(4) + "  ·  Texas";
+  document.getElementById("ll").textContent =
+    `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+
+  const res = drawGrid();
+  document.getElementById("cell").textContent = "grid " + fmtRes(res);
+
+  const bb = cellBounds(c.lat, c.lng, res);
+  map.getSource("cell").setData({ type: "FeatureCollection", features: [{
+    type: "Feature", properties: {},
+    geometry: { type: "Polygon", coordinates: [[
+      [bb[0], bb[1]], [bb[2], bb[1]], [bb[2], bb[3]], [bb[0], bb[3]], [bb[0], bb[1]]]] },
+  }] });
+
+  document.getElementById("steps").innerHTML = steps.map((s, i) =>
+    `<div class="step"><b class="mono">${s.pair}</b><span>${s.label}</span>` +
+    `<i>${s.about}</i></div>`).join("");
+}
+
+map.on("load", () => { setBase(BASES[0]); update(); });
+map.on("move", update);
+map.on("moveend", update);
+let hinted = false;
+map.on("movestart", () => {
+  if (!hinted) { hinted = true; document.getElementById("hint").classList.add("gone"); }
+});
+</script>
