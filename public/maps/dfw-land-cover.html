@@ -180,13 +180,16 @@ function paint() {
     `<button type="button" data-y="${y}" aria-pressed="${y===year}">${y}</button>`).join("");
   document.querySelectorAll("#modes button").forEach((b) =>
     b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
-  // the classified raster needs the dark ground under it; imagery does not
-  map.setPaintProperty("base", "raster-opacity", mode === "nlcd" ? 0.5 : 0);
+  // the classified raster needs the dark ground under it; imagery does not.
+  // guarded because paint() runs once before the style has finished loading
+  if (map.isStyleLoaded() && map.getLayer("base")) {
+    map.setPaintProperty("base", "raster-opacity", mode === "nlcd" ? 0.5 : 0);
+  }
   document.getElementById("legend").style.display = mode === "nlcd" ? "" : "none";
 }
 function show(y) {
   year = y;
-  map.getSource("cover").setTiles([tilesFor(y)]);
+  if (map.getSource("cover")) map.getSource("cover").setTiles([tilesFor(y)]);
   paint();
 }
 document.getElementById("years").addEventListener("click", (e) => {
@@ -207,6 +210,7 @@ document.getElementById("modes").addEventListener("click", (e) => {
 document.getElementById("legend").innerHTML = "<h2>Land cover class</h2>" +
   LEGEND.map(([c, l]) => `<div class="lg"><i style="background:${c}"></i>${l}</div>`).join("");
 paint();
+map.on("load", paint);
 
 document.getElementById("foot").innerHTML =
   `Land cover from the <a href="https://www.mrlc.gov/" target="_blank" rel="noopener">USGS National Land Cover Database</a>, ` +
