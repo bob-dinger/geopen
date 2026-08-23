@@ -1,0 +1,353 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every licence plate reader mapped in Texas</title>
+<meta name="description" content="16,243 automatic licence plate readers across Texas, mapped by volunteers. 92% are Flock Safety. Only 8.7% say who runs them.">
+<link rel="canonical" href="https://geopen.io/maps/texas-alpr-cameras.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Every licence plate reader mapped in Texas">
+<meta property="og:description" content="16,243 plate readers, 92% of them Flock Safety — and nine in ten don't say who operates them.">
+<meta property="og:url" content="https://geopen.io/maps/texas-alpr-cameras.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Cold and procedural — this is surveillance infrastructure, not a heat map.
+     One acid accent for the cameras, everything else recedes. */
+  :root {
+    --ground: #0c0e11; --panel: #14181d; --panel-2: #1d232a;
+    --rule: rgba(200,220,240,0.14);
+    --ink: #e9eff5; --ink-2: #9daebe; --ink-3: #6b7d8d;
+    --signal: #48e5c2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 336px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; text-wrap: balance; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px 11px;
+    max-width: 244px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+  .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; margin-bottom: 7px; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; }
+  h2 { margin: 10px 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  h2:first-child { margin-top: 0; }
+  .row { display: flex; align-items: center; gap: 6px; padding: 3px 5px; width: 100%;
+    border: 0; background: none; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    cursor: pointer; border-radius: 3px; text-align: left; }
+  .row i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .row b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row:hover { color: var(--ink); background: var(--panel-2); }
+  .row.on { color: var(--signal); font-weight: 700; background: var(--panel-2);
+    box-shadow: inset 0 0 0 1px var(--signal); }
+  .lyr { display: flex; align-items: center; gap: 7px; padding: 2px 0; font-size: 0.72rem;
+    color: var(--ink-2); cursor: pointer; }
+  .lyr input { accent-color: var(--signal); }
+  .hint { margin: 4px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .clear { background: none; border: 1px solid var(--rule); color: var(--signal);
+    border-radius: 3px; font: inherit; font-size: 0.62rem; padding: 3px 8px; cursor: pointer; }
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #05221c; font-weight: 700; }
+  .controls { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.75; }
+  .controls:hover { opacity: 1; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 32vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+    .panel { left: 10px; bottom: 10px; max-width: 186px; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>Every licence plate reader mapped in Texas</h1>
+    <p>16,243 cameras, recorded by volunteers driving past them. Nobody official
+      publishes this. <a href="https://geopen.io/">geopen.io</a></p>
+  </div>
+  <div class="panel">
+    <div class="state" id="state"></div>
+    <h2 id="legtitle">Who operates it</h2>
+    <div id="legend"></div>
+    <p class="hint" id="hint"></p>
+    <div class="controls">
+      <h2>Colour by</h2>
+      <label class="lyr"><input type="radio" name="cb" id="cb-who" checked> Who operates it</label>
+      <label class="lyr"><input type="radio" name="cb" id="cb-make"> Who made it</label>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+];
+let baseKey = "dark", colourBy = "who";
+let picked = { who: null, make: null };
+
+// "Not stated" is the largest category and is deliberately the quietest colour —
+// it is the answer to the question, not a gap to be filled with a loud hue.
+const VIEWS = {
+  who: { field: "who", title: "Who operates it",
+    cats: [
+      ["Not stated", "Not stated", "#4a5a66"],
+      ["Law enforcement", "Law enforcement", "#48e5c2"],
+      ["Vendor named, operator unclear", "Vendor named only", "#8a7fd0"],
+      ["Private business", "Private business", "#ff9f43"],
+      ["City or county government", "City or county", "#5aa9e6"],
+      ["Neighbourhood association", "Neighbourhood assoc.", "#e8558a"],
+      ["School or university", "School or university", "#c2e812"],
+      ["Other named operator", "Other named", "#9aa7b3"],
+    ],
+    hint: "Only 8.7% of cameras say who runs them. The grey is not missing data to be filled in — it is the finding." },
+  make: { field: "make", title: "Who made it",
+    cats: [
+      ["Flock Safety", "Flock Safety", "#48e5c2"],
+      ["Not stated", "Not stated", "#4a5a66"],
+      ["Motorola Solutions", "Motorola Solutions", "#ff9f43"],
+      ["Genetec", "Genetec", "#8a7fd0"],
+      ["Axis Communications", "Axis Communications", "#5aa9e6"],
+      ["Leonardo", "Leonardo", "#e8558a"],
+      ["Neology", "Neology", "#c2e812"],
+      ["Vigilant Solutions", "Vigilant", "#9aa7b3"],
+    ],
+    hint: "One company holds 92% of the mapped cameras in Texas." },
+};
+const OTHER = "#7b8a96";
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-97.6, 31.3], zoom: 5.6, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function colourExpr(mode) {
+  const V = VIEWS[mode];
+  return ["match", ["get", V.field], ...V.cats.flatMap(([k, , c]) => [k, c]), OTHER];
+}
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  if (map.getLayer("cam")) {
+    map.setPaintProperty("cam", "circle-stroke-color", bm.dark ? "#0c0e11" : "#ffffff");
+  }
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+function applyFilter() {
+  const f = ["all"];
+  for (const [k, v] of Object.entries(picked)) if (v) f.push(["==", ["get", k], v]);
+  for (const id of ["cam", "dir"]) {
+    if (map.getLayer(id)) map.setFilter(id, f.length > 1 ? f : null);
+  }
+  if (window.drawLegend) drawLegend();
+  document.querySelectorAll(".row").forEach((r) =>
+    r.classList.toggle("on", picked[VIEWS[colourBy].field] === r.dataset.k));
+  state();
+}
+window.pick = (k) => {
+  const fld = VIEWS[colourBy].field;
+  picked[fld] = picked[fld] === k ? null : k;
+  applyFilter();
+};
+window.clearPick = () => { picked = { who: null, make: null }; applyFilter(); };
+
+let FEATS = [];
+function state() {
+  const on = FEATS.filter((f) => {
+    for (const [k, v] of Object.entries(picked)) if (v && f.properties[k] !== v) return false;
+    return true;
+  });
+  const named = on.filter((f) => f.properties.operator).length;
+  const V = VIEWS[colourBy];
+  const sel = picked[V.field];
+  const lab = sel ? (V.cats.find(([k]) => k === sel) || [, sel])[1] : null;
+  document.getElementById("state").innerHTML =
+    `<b>${num(on.length)}</b> plate readers${lab ? ` — ${lab.toLowerCase()}` : " mapped in Texas"}` +
+    `<span>${named ? `${num(named)} say who runs them` : "none of these say who runs them"}</span>`;
+  document.getElementById("hint").innerHTML = sel
+    ? `<button class="clear" onclick="clearPick()">show all 16,243</button>`
+    : V.hint;
+}
+
+map.on("load", () => {
+  fetch("/data/texas_alpr.geojson").then((r) => r.json()).then((gj) => {
+    FEATS = gj.features;
+    map.addSource("alpr", { type: "geojson", data: gj });
+    map.addLayer({ id: "cam", type: "circle", source: "alpr",
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.6, 9, 3.2, 14, 7],
+        "circle-color": colourExpr("who"),
+        "circle-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.7, 11, 0.9],
+        "circle-stroke-color": "#0c0e11",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 9, 0, 12, 0.7] } });
+    // Which way each camera looks. Meaningless at state scale, so it only
+    // appears once you are close enough for a bearing to mean a street.
+    map.addLayer({ id: "dir", type: "symbol", source: "alpr",
+      minzoom: 14,
+      filter: ["has", "dir"],
+      layout: { "icon-image": "arrow", "icon-rotate": ["get", "dir"],
+        "icon-rotation-alignment": "map", "icon-allow-overlap": true,
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 14, 0.5, 18, 1.1] },
+      paint: { "icon-opacity": 0.9 } });
+    map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+    setBase(BASES[0]);
+
+    // a small triangle, drawn once and reused as the bearing marker
+    const s = 18, c = document.createElement("canvas");
+    c.width = c.height = s;
+    const g = c.getContext("2d");
+    g.beginPath(); g.moveTo(s / 2, 1); g.lineTo(s - 3, s - 3); g.lineTo(3, s - 3); g.closePath();
+    g.fillStyle = "#48e5c2"; g.fill();
+    createImageBitmap(c).then((bmp) => { if (!map.hasImage("arrow")) map.addImage("arrow", bmp); });
+
+    window.drawLegend = () => {
+      const V = VIEWS[colourBy];
+      const n = {};
+      for (const f of FEATS) {
+        let pass = true;
+        for (const [k, v] of Object.entries(picked)) {
+          if (k !== V.field && v && f.properties[k] !== v) pass = false;
+        }
+        if (!pass) continue;
+        const k = f.properties[V.field];
+        n[k] = (n[k] || 0) + 1;
+      }
+      document.getElementById("legtitle").textContent = V.title;
+      document.getElementById("legend").innerHTML = V.cats.filter(([k]) => n[k])
+        .map(([k, lab, col]) => `<button class="row" data-k="${k.replace(/"/g,'&quot;')}"
+          onclick="pick(this.dataset.k)"><i style="background:${col}"></i>
+          <span>${lab}</span><b>${num(n[k])}</b></button>`).join("");
+    };
+    for (const [id, mode] of [["cb-who", "who"], ["cb-make", "make"]]) {
+      document.getElementById(id).addEventListener("change", () => {
+        colourBy = mode;
+        picked = { who: null, make: null };
+        map.setPaintProperty("cam", "circle-color", colourExpr(mode));
+        applyFilter();
+      });
+    }
+    drawLegend(); applyFilter();
+
+    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "280px" });
+    map.on("mousemove", "cam", (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      const p = e.features[0].properties;
+      pop.setLngLat(e.features[0].geometry.coordinates.slice()).setHTML(
+        `<b>${p.make || "make not stated"}</b><br>` +
+        `${p.operator ? `operated by ${p.operator}` : "<span style='color:#6b7d8d'>no operator recorded</span>"}<br>` +
+        `${p.dir != null ? `faces ${Math.round(p.dir)}°`
+          : p.multi ? `<span style="color:#ff9f43">more than one direction — ${p.dir_raw}</span>`
+          : "direction not recorded"}` +
+        `${p.zone ? `<br><span style="color:#6b7d8d">${p.zone}</span>` : ""}` +
+        `<br><a href="https://www.openstreetmap.org/node/${p.id}" target="_blank"
+           rel="noopener" style="color:#48e5c2">OSM node ${p.id} →</a>`
+      ).addTo(map);
+    });
+    map.on("mouseleave", "cam", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  });
+});
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Cameras from ${A("https://www.openstreetmap.org/", "OpenStreetMap")}
+      contributors, surfaced by ${A("https://deflock.me/", "DeFlock")} · ODbL ·
+      ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">What this is, and what it isn't</span>
+  </summary>
+  <div class="notes">
+    <p><b>Nobody official publishes this.</b> There is no state register of
+      licence plate readers. Every point here was put on the map by a person who
+      saw a camera and recorded it — 2,610 different contributors in Texas, and
+      one of them has mapped a sixth of the state single-handed.</p>
+    <p><b>So the count going up means people are looking harder</b>, not
+      necessarily that more cameras exist. This file grew from 14,807 to 16,243
+      in three weeks. Absence of a camera here is not evidence there is no
+      camera.</p>
+    <p><b>Nine in ten do not say who runs them.</b> 1,408 of 16,243 name an
+      operator. Where they do, the mix is not all police: retailers, hospitals,
+      neighbourhood associations and shopping centres appear alongside city
+      departments. Nothing is inferred for the rest, and "not stated" is drawn in
+      grey because it is the answer, not a hole.</p>
+    <p><b>Direction is somebody's observation.</b> 98.3% of cameras record which
+      way they point, which means a person stood there and noted it. 987 record
+      more than one direction — "20;150" is two heads on one pole, "358-43" is an
+      arc. Only single-value bearings are drawn as arrows, and they appear only
+      when you zoom in far enough for a direction to mean a street.</p>
+    <p><b>It lags reality in both directions.</b> Hood County terminated its
+      Flock contract and physically covered its cameras in August 2026; cameras
+      in that area are still on this map because no contributor has been back.
+      New installations take just as long to appear.</p>
+  </div></details>`;
+</script>

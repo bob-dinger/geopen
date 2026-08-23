@@ -1,0 +1,26 @@
+{
+ "cameras": 16243,
+ "operator_named": 1408,
+ "with_bearing": 14967,
+ "multi_headed": 987,
+ "by_who": {
+  "Not stated": 14835,
+  "Law enforcement": 553,
+  "Vendor named, operator unclear": 452,
+  "Private business": 187,
+  "City or county government": 122,
+  "Other named operator": 50,
+  "Neighbourhood association": 37,
+  "School or university": 7
+ },
+ "by_make": {
+  "Flock Safety": 14928,
+  "Not stated": 647,
+  "Motorola Solutions": 269,
+  "Genetec": 143,
+  "Axis Communications": 98,
+  "Leonardo": 94,
+  "Neology, Inc.": 14,
+  "Rekor": 11
+ }
+}
