@@ -1,0 +1,421 @@
+{
+ "total_parcels": 91116,
+ "total_value": 135736160095,
+ "total_acres": 89544,
+ "states": [
+  {
+   "state": "CA",
+   "n": 25095,
+   "value": 26582978190,
+   "acres": 13934
+  },
+  {
+   "state": "AZ",
+   "n": 9809,
+   "value": 3548458091,
+   "acres": 7131
+  },
+  {
+   "state": "FOREIGN",
+   "n": 5387,
+   "value": 3924647915,
+   "acres": 2427
+  },
+  {
+   "state": "GA",
+   "n": 4951,
+   "value": 6927588116,
+   "acres": 3383
+  },
+  {
+   "state": "FL",
+   "n": 4715,
+   "value": 7554324580,
+   "acres": 6231
+  },
+  {
+   "state": "NY",
+   "n": 4706,
+   "value": 12951100247,
+   "acres": 5204
+  },
+  {
+   "state": "IL",
+   "n": 4484,
+   "value": 12414737720,
+   "acres": 4146
+  },
+  {
+   "state": "NV",
+   "n": 3827,
+   "value": 1977850477,
+   "acres": 11284
+  },
+  {
+   "state": "WA",
+   "n": 2668,
+   "value": 2830471578,
+   "acres": 1530
+  },
+  {
+   "state": "CO",
+   "n": 2603,
+   "value": 8399338587,
+   "acres": 3518
+  },
+  {
+   "state": "OK",
+   "n": 1689,
+   "value": 1903563404,
+   "acres": 2633
+  },
+  {
+   "state": "OH",
+   "n": 1511,
+   "value": 2871682296,
+   "acres": 1645
+  },
+  {
+   "state": "NC",
+   "n": 1325,
+   "value": 2703983534,
+   "acres": 2770
+  },
+  {
+   "state": "NJ",
+   "n": 1276,
+   "value": 1745464945,
+   "acres": 934
+  },
+  {
+   "state": "TN",
+   "n": 1224,
+   "value": 3697442423,
+   "acres": 1680
+  },
+  {
+   "state": "MO",
+   "n": 1207,
+   "value": 1745284170,
+   "acres": 1210
+  },
+  {
+   "state": "VA",
+   "n": 1150,
+   "value": 2851498838,
+   "acres": 1074
+  },
+  {
+   "state": "PA",
+   "n": 1046,
+   "value": 2992842869,
+   "acres": 1117
+  },
+  {
+   "state": "UT",
+   "n": 949,
+   "value": 2386323828,
+   "acres": 1023
+  },
+  {
+   "state": "AR",
+   "n": 861,
+   "value": 1951761061,
+   "acres": 2657
+  },
+  {
+   "state": "NE",
+   "n": 835,
+   "value": 5172530065,
+   "acres": 447
+  },
+  {
+   "state": "MA",
+   "n": 799,
+   "value": 5088761661,
+   "acres": 879
+  },
+  {
+   "state": "LA",
+   "n": 731,
+   "value": 480094376,
+   "acres": 1194
+  },
+  {
+   "state": "KS",
+   "n": 716,
+   "value": 1496467442,
+   "acres": 3423
+  },
+  {
+   "state": "MN",
+   "n": 700,
+   "value": 1460246353,
+   "acres": 1239
+  },
+  {
+   "state": "CT",
+   "n": 671,
+   "value": 1477582874,
+   "acres": 652
+  },
+  {
+   "state": "MI",
+   "n": 589,
+   "value": 441269702,
+   "acres": 989
+  },
+  {
+   "state": "MD",
+   "n": 582,
+   "value": 1053159975,
+   "acres": 495
+  },
+  {
+   "state": "OR",
+   "n": 563,
+   "value": 363338964,
+   "acres": 826
+  },
+  {
+   "state": "SC",
+   "n": 378,
+   "value": 487539963,
+   "acres": 319
+  },
+  {
+   "state": "KY",
+   "n": 347,
+   "value": 575322449,
+   "acres": 153
+  },
+  {
+   "state": "AL",
+   "n": 317,
+   "value": 1349343403,
+   "acres": 440
+  },
+  {
+   "state": "WI",
+   "n": 285,
+   "value": 989491933,
+   "acres": 242
+  },
+  {
+   "state": "HI",
+   "n": 278,
+   "value": 129174853,
+   "acres": 68
+  },
+  {
+   "state": "NM",
+   "n": 278,
+   "value": 82925444,
+   "acres": 601
+  },
+  {
+   "state": "DE",
+   "n": 276,
+   "value": 291249519,
+   "acres": 88
+  },
+  {
+   "state": "DC",
+   "n": 257,
+   "value": 196717180,
+   "acres": 3
+  },
+  {
+   "state": "IA",
+   "n": 249,
+   "value": 1143529437,
+   "acres": 319
+  },
+  {
+   "state": "IN",
+   "n": 248,
+   "value": 111427055,
+   "acres": 514
+  },
+  {
+   "state": "ID",
+   "n": 239,
+   "value": 254661418,
+   "acres": 209
+  },
+  {
+   "state": "WY",
+   "n": 232,
+   "value": 59258752,
+   "acres": 98
+  },
+  {
+   "state": "MS",
+   "n": 192,
+   "value": 349265089,
+   "acres": 349
+  },
+  {
+   "state": "RI",
+   "n": 136,
+   "value": 265315117,
+   "acres": 75
+  },
+  {
+   "state": "AK",
+   "n": 96,
+   "value": 24170697,
+   "acres": 70
+  },
+  {
+   "state": "VT",
+   "n": 95,
+   "value": 75695318,
+   "acres": 21
+  },
+  {
+   "state": "SD",
+   "n": 88,
+   "value": 65717803,
+   "acres": 64
+  },
+  {
+   "state": "NH",
+   "n": 84,
+   "value": 84572263,
+   "acres": 17
+  },
+  {
+   "state": "MT",
+   "n": 77,
+   "value": 34350879,
+   "acres": 45
+  },
+  {
+   "state": "AE",
+   "n": 58,
+   "value": 10322217,
+   "acres": 3
+  },
+  {
+   "state": "ND",
+   "n": 47,
+   "value": 85739087,
+   "acres": 52
+  },
+  {
+   "state": "AP",
+   "n": 41,
+   "value": 9884152,
+   "acres": 3
+  },
+  {
+   "state": "PR",
+   "n": 29,
+   "value": 9267791,
+   "acres": 3
+  },
+  {
+   "state": "WV",
+   "n": 27,
+   "value": 5584853,
+   "acres": 9
+  },
+  {
+   "state": "ME",
+   "n": 25,
+   "value": 8887387,
+   "acres": 12
+  },
+  {
+   "state": "ON",
+   "n": 19,
+   "value": 826970,
+   "acres": 53
+  },
+  {
+   "state": "VI",
+   "n": 11,
+   "value": 4058557,
+   "acres": 2
+  },
+  {
+   "state": "RX",
+   "n": 10,
+   "value": 121817,
+   "acres": 14
+  },
+  {
+   "state": "GU",
+   "n": 7,
+   "value": 2169821,
+   "acres": 0
+  },
+  {
+   "state": "AA",
+   "n": 6,
+   "value": 2466237,
+   "acres": 1
+  },
+  {
+   "state": "BE",
+   "n": 3,
+   "value": 837253,
+   "acres": 0
+  },
+  {
+   "state": "TC",
+   "n": 2,
+   "value": 734261,
+   "acres": 0
+  },
+  {
+   "state": "SH",
+   "n": 2,
+   "value": 608979,
+   "acres": 0
+  },
+  {
+   "state": "TE",
+   "n": 2,
+   "value": 3522561,
+   "acres": 2
+  },
+  {
+   "state": "UN",
+   "n": 1,
+   "value": 0,
+   "acres": 0
+  },
+  {
+   "state": "CD",
+   "n": 1,
+   "value": 299808,
+   "acres": 0
+  },
+  {
+   "state": "BR",
+   "n": 1,
+   "value": 24892165,
+   "acres": 17
+  },
+  {
+   "state": "YX",
+   "n": 1,
+   "value": 555000,
+   "acres": 0
+  },
+  {
+   "state": "OW",
+   "n": 1,
+   "value": 328667,
+   "acres": 0
+  },
+  {
+   "state": "SI",
+   "n": 1,
+   "value": 529659,
+   "acres": 0
+  }
+ ]
+}
