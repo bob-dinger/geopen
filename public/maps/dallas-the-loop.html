@@ -104,13 +104,12 @@ const BASES = [
     ref: null, opacity: 1 },
 ];
 let baseKey = "sat", picked = null;
-// Built is solid and bright; everything unbuilt is dashed, because a dashed line
-// is how a reader already understands "not there yet".
+// Colour carries the status; weight carries whether it exists yet.
 const STATUS = [
-  ["EXISTING", "Built and open", "#8fd14f", false],
-  ["PROGRAMMED", "Funded, not built", "#ffc94a", true],
-  ["PROPOSED", "Proposed only", "#ff7a5c", true],
-  ["SIDEWALK/STREET", "On-street gap", "#9aa7b3", true],
+  ["EXISTING", "Built and open", "#8fd14f"],
+  ["PROGRAMMED", "Funded, not built", "#ffc94a"],
+  ["PROPOSED", "Proposed only", "#ff7a5c"],
+  ["SIDEWALK/STREET", "On-street gap", "#9aa7b3"],
 ];
 const num = (v) => (v == null ? "—" : v.toLocaleString());
 
@@ -148,18 +147,11 @@ function setBase(bm) {
 }
 function applyFilter() {
   const f = picked ? ["==", ["get", "status"], picked] : null;
-  for (const id of ["trail-case", "trail", "trail-dash"]) {
-    if (map.getLayer(id)) map.setFilter(id, mergeFilter(id, f));
+  for (const id of ["trail-case", "trail"]) {
+    if (map.getLayer(id)) map.setFilter(id, f);
   }
   document.querySelectorAll(".row").forEach((r) => r.classList.toggle("on", picked === r.dataset.k));
   state();
-}
-// the solid and dashed layers each carry their own base filter
-function mergeFilter(id, f) {
-  const base = id === "trail-dash" ? ["!=", ["get", "status"], "EXISTING"]
-             : id === "trail" ? ["==", ["get", "status"], "EXISTING"] : null;
-  if (!base) return f;
-  return f ? ["all", base, f] : base;
 }
 window.pick = (k) => { picked = picked === k ? null : k; applyFilter(); };
 window.clearPick = () => { picked = null; applyFilter(); };
@@ -175,7 +167,7 @@ function state() {
       `<span>${S.built_miles} of ${S.total_miles} miles, across ${S.segments} segments</span>`;
   document.getElementById("hint").innerHTML = picked
     ? `<button class="clear" onclick="clearPick()">show the whole loop</button>`
-    : "Solid is built. Dashed is not. Click a status to isolate it.";
+    : "Built segments are drawn heavier. Click a status to isolate it.";
 }
 
 map.on("load", () => {
@@ -190,31 +182,34 @@ map.on("load", () => {
     map.addLayer({ id: "trail-case", type: "line", source: "loop",
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": "#10140f",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4.5, 15, 10],
-        "line-opacity": 0.55 } });
+        "line-width": ["interpolate", ["linear"], ["zoom"],
+          10, ["case", ["==", ["get", "status"], "EXISTING"], 5, 3.6],
+          15, ["case", ["==", ["get", "status"], "EXISTING"], 11, 7.5]],
+        "line-opacity": 0.5 } });
+    // One solid line for everything. Built vs unbuilt is carried by weight and
+    // opacity rather than a dash pattern — the colours already say which status
+    // a segment is, and dashes on a trail map read as a footpath convention
+    // rather than as "not yet".
+    const built = ["==", ["get", "status"], "EXISTING"];
     map.addLayer({ id: "trail", type: "line", source: "loop",
-      filter: ["==", ["get", "status"], "EXISTING"],
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": colour,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.4, 15, 6] } });
-    map.addLayer({ id: "trail-dash", type: "line", source: "loop",
-      filter: ["!=", ["get", "status"], "EXISTING"],
-      layout: { "line-cap": "butt", "line-join": "round" },
-      paint: { "line-color": colour, "line-dasharray": [2, 1.6],
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.4, 15, 6] } });
+        "line-width": ["interpolate", ["linear"], ["zoom"],
+          10, ["case", built, 2.8, 1.8], 15, ["case", built, 7, 4.5]],
+        "line-opacity": ["case", built, 1, 0.72] } });
     map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.85 } });
     setBase(BASES[0]);
 
     document.getElementById("legend").innerHTML = STATUS
       .filter(([k]) => s.by_status[k])
       .map(([k, lab, col]) => `<button class="row" data-k="${k}" onclick="pick('${k}')">
-        <i style="background:${col}"></i><span>${lab}</span>
+        <i style="background:${col};height:${k==="EXISTING"?4:2}px"></i><span>${lab}</span>
         <b>${s.by_status[k].miles} mi</b></button>`).join("");
     state();
 
     const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "270px" });
-    for (const id of ["trail", "trail-dash"]) {
-      map.on("mousemove", id, (e) => {
+    {
+      map.on("mousemove", "trail", (e) => {
         map.getCanvas().style.cursor = "pointer";
         const p = e.features[0].properties;
         const lab = (STATUS.find(([k]) => k === p.status) || [, p.status])[1];
@@ -224,7 +219,7 @@ map.on("load", () => {
           `${p.surface ? ` · ${p.surface.toLowerCase()}` : ""}`
         ).addTo(map);
       });
-      map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+      map.on("mouseleave", "trail", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
     }
   });
 });
