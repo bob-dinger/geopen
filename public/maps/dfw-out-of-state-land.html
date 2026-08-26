@@ -64,6 +64,21 @@
   .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
     color: #241205; font-weight: 700; }
 
+  /* the pinned popup: hover previews, click keeps it open so the links inside
+     can actually be reached with the cursor */
+  .pinhint { margin-top: 6px; font-size: 0.58rem; color: var(--ink-3);
+    font-style: italic; }
+  .acts { display: flex; flex-direction: column; gap: 4px; margin-top: 9px;
+    padding-top: 8px; border-top: 1px solid rgba(180,160,120,0.28); }
+  .acts a { font-size: 0.66rem; color: var(--signal); text-decoration: none;
+    padding: 2px 0; }
+  .acts a:hover { text-decoration: underline; }
+  .maplibregl-popup.pinned .maplibregl-popup-content { padding-right: 22px; }
+  .maplibregl-popup.pinned .maplibregl-popup-close-button {
+    font-size: 15px; line-height: 1; padding: 2px 6px; color: var(--ink-3); }
+  .maplibregl-popup.pinned .maplibregl-popup-close-button:hover {
+    background: none; color: var(--ink); }
+
   footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
     line-height: 1.5; }
   footer a { color: var(--ink-2); }
@@ -229,20 +244,71 @@ map.on("load", () => {
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
   setBase(BASES[0]);
 
-  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "300px" });
+  /* Two popups, because a hover tooltip and a set of links cannot be the same
+     object: the moment you move the cursor toward a link, mouseleave fires and
+     the thing you were reaching for disappears. Hovering previews; clicking
+     pins a second popup that stays until dismissed and can be interacted with. */
+  const hover = new maplibregl.Popup({
+    closeButton: false, closeOnClick: false, maxWidth: "300px" });
+  const pinned = new maplibregl.Popup({
+    closeButton: true, closeOnClick: false, maxWidth: "330px", className: "pinned" });
+  let isPinned = false;
+  pinned.on("close", () => { isPinned = false; });
+
+  const esc = (s) => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+  const g = (q) => "https://www.google.com/search?q=" + encodeURIComponent(q);
+
+  // Appraisal districts do not support deep links to a single parcel. DCAD's
+  // AcctDetailRes.aspx returns a byte-identical page for a real account and for
+  // "ZZZZZ", so a link built from an ID would look right and go nowhere; Collin
+  // refuses non-browser requests; Denton has no per-parcel host; and Tarrant's
+  // Prop_ID is a legal-description code, not a TAD account. So these point at
+  // each district's own search page, which does work, rather than at a
+  // fabricated URL that resolves to a blank form.
+  const CAD = {
+    DALLAS:  ["DCAD",       "https://www.dallascad.org/SearchAddr.aspx"],
+    TARRANT: ["Tarrant AD", "https://www.tad.org/property-search/"],
+    COLLIN:  ["Collin CAD", "https://www.collincad.org/propertysearch"],
+    DENTON:  ["Denton CAD", "https://www.dentoncad.com/property-search"],
+  };
+
+  function body(p, withLinks) {
+    const cad = CAD[p.county] || null;
+    const addr = (p.situs || "").split(",")[0].trim();
+    let h =
+      `<b>${esc(p.owner) || "owner not stated"}</b><br>` +
+      `${p.situs ? esc(p.situs) + "<br>" : ""}` +
+      `<span style="color:#837a67">${esc(p.county)} County</span><br>` +
+      `mail goes to <b>${esc(p.mail_city) || "?"}</b>` +
+      `${p.state && p.state !== "FOREIGN" ? ", " + esc(p.state) : ""}<br>` +
+      `${p.value ? usd(p.value) : "value not stated"}` +
+      `${p.acres ? " · " + p.acres.toFixed(2) + " acres" : ""}` +
+      `${p.records > 1 ? `<br><span style="color:#837a67">${p.records} records share this parcel</span>` : ""}`;
+    if (!withLinks) return h + `<div class="pinhint">click to pin and search</div>`;
+    h += `<div class="acts">`;
+    if (p.owner) h += `<a href="${g('"' + p.owner + '"')}" target="_blank" rel="noopener">Search this owner ↗</a>`;
+    if (addr) h += `<a href="${g(addr + " " + (p.county || "") + " County TX")}" target="_blank" rel="noopener">Search this address ↗</a>`;
+    if (cad) h += `<a href="${cad[1]}" target="_blank" rel="noopener">${cad[0]} property search ↗</a>`;
+    h += `</div>`;
+    return h;
+  }
+
   map.on("mousemove", "p-fill", (e) => {
     map.getCanvas().style.cursor = "pointer";
-    const p = e.features[0].properties;
-    pop.setLngLat(e.lngLat).setHTML(
-      `<b>${p.owner || "owner not stated"}</b><br>` +
-      `${p.situs ? p.situs + "<br>" : ""}` +
-      `<span style="color:#837a67">${p.county} County</span><br>` +
-      `mail goes to <b>${p.mail_city || "?"}</b>${p.state && p.state !== "FOREIGN" ? `, ${p.state}` : ""}<br>` +
-      `${p.value ? usd(p.value) : "value not stated"}${p.acres ? ` · ${p.acres.toFixed(2)} acres` : ""}` +
-      `${p.records > 1 ? `<br><span style="color:#837a67">${p.records} records share this parcel</span>` : ""}`
-    ).addTo(map);
+    if (isPinned) return;
+    hover.setLngLat(e.lngLat).setHTML(body(e.features[0].properties, false)).addTo(map);
   });
-  map.on("mouseleave", "p-fill", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  map.on("mouseleave", "p-fill", () => {
+    map.getCanvas().style.cursor = "";
+    if (!isPinned) hover.remove();
+  });
+  map.on("click", "p-fill", (e) => {
+    hover.remove();
+    isPinned = true;
+    pinned.setLngLat(e.lngLat).setHTML(body(e.features[0].properties, true)).addTo(map);
+  });
 
   fetch("/data/dfw_out_of_state_stats.json").then((r) => r.json()).then((s) => {
     STATS = s;
