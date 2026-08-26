@@ -73,6 +73,9 @@
   .acts a { font-size: 0.66rem; color: var(--signal); text-decoration: none;
     padding: 2px 0; }
   .acts a:hover { text-decoration: underline; }
+  .acts .acct { margin-top: 3px; font-size: 0.58rem; color: var(--ink-3); }
+  .acts .acct code { font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.6rem; color: var(--ink-2); user-select: all; }
   .maplibregl-popup.pinned .maplibregl-popup-content { padding-right: 22px; }
   .maplibregl-popup.pinned .maplibregl-popup-close-button {
     font-size: 15px; line-height: 1; padding: 2px 6px; color: var(--ink-3); }
@@ -260,18 +263,22 @@ map.on("load", () => {
     .replace(/"/g, "&quot;");
   const g = (q) => "https://www.google.com/search?q=" + encodeURIComponent(q);
 
-  // Appraisal districts do not support deep links to a single parcel. DCAD's
-  // AcctDetailRes.aspx returns a byte-identical page for a real account and for
-  // "ZZZZZ", so a link built from an ID would look right and go nowhere; Collin
-  // refuses non-browser requests; Denton has no per-parcel host; and Tarrant's
-  // Prop_ID is a legal-description code, not a TAD account. So these point at
-  // each district's own search page, which does work, rather than at a
-  // fabricated URL that resolves to a blank form.
+  /* Appraisal-district links.
+     Dallas deep-links to the parcel. TxGIO's Prop_ID for Dallas is the DCAD
+     account number — 93% of them appear verbatim in DCAD's own appraisal
+     export, same 17-digit zero-padded shape.
+     Every other county gets its district's search page plus the account number
+     displayed for copy-paste, because no per-parcel URL could be confirmed:
+     Collin refuses non-browser requests, Denton has no per-parcel host, and
+     Tarrant's identifier ("34345-28-7R") is a legal-description code rather
+     than a TAD account. Guessing a URL for those would produce a link that
+     looks right and lands on an empty form. */
   const CAD = {
-    DALLAS:  ["DCAD",       "https://www.dallascad.org/SearchAddr.aspx"],
-    TARRANT: ["Tarrant AD", "https://www.tad.org/property-search/"],
-    COLLIN:  ["Collin CAD", "https://www.collincad.org/propertysearch"],
-    DENTON:  ["Denton CAD", "https://www.dentoncad.com/property-search"],
+    DALLAS:  { name: "DCAD",       search: "https://www.dallascad.org/SearchAddr.aspx",
+               detail: (a) => "https://www.dallascad.org/AcctDetail.aspx?ID=" + encodeURIComponent(a) },
+    TARRANT: { name: "Tarrant AD", search: "https://www.tad.org/property-search/" },
+    COLLIN:  { name: "Collin CAD", search: "https://www.collincad.org/propertysearch" },
+    DENTON:  { name: "Denton CAD", search: "https://www.dentoncad.com/property-search" },
   };
 
   function body(p, withLinks) {
@@ -290,7 +297,17 @@ map.on("load", () => {
     h += `<div class="acts">`;
     if (p.owner) h += `<a href="${g('"' + p.owner + '"')}" target="_blank" rel="noopener">Search this owner ↗</a>`;
     if (addr) h += `<a href="${g(addr + " " + (p.county || "") + " County TX")}" target="_blank" rel="noopener">Search this address ↗</a>`;
-    if (cad) h += `<a href="${cad[1]}" target="_blank" rel="noopener">${cad[0]} property search ↗</a>`;
+    if (cad && cad.detail && p.acct) {
+      h += `<a href="${esc(cad.detail(p.acct))}" target="_blank" rel="noopener">${cad.name} record for this parcel ↗</a>`;
+    } else if (cad) {
+      h += `<a href="${cad.search}" target="_blank" rel="noopener">${cad.name} property search ↗</a>`;
+    }
+    // the account number is shown either way: it is what you paste into a
+    // district search that cannot be linked to directly
+    if (p.acct) {
+      h += `<div class="acct">account <code>${esc(p.acct)}</code>` +
+           `${p.accounts > 1 ? ` <span style="color:#837a67">(1 of ${p.accounts} on this parcel)</span>` : ""}</div>`;
+    }
     h += `</div>`;
     return h;
   }

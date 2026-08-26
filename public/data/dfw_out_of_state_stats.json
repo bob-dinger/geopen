@@ -10,11 +10,6 @@
    "out_of_state": 32458,
    "share": 4.71
   },
-  "DALLAS": {
-   "parcels": 694156,
-   "out_of_state": 22493,
-   "share": 3.24
-  },
   "DENTON": {
    "parcels": 352416,
    "out_of_state": 13708,
@@ -24,6 +19,11 @@
    "parcels": 387103,
    "out_of_state": 15043,
    "share": 3.89
+  },
+  "DALLAS": {
+   "parcels": 694156,
+   "out_of_state": 22493,
+   "share": 3.24
   }
  },
  "states": [
@@ -278,16 +278,6 @@
    "top_owner_n": 315
   },
   {
-   "state": "MD",
-   "n": 601,
-   "owners": 497,
-   "families": 487,
-   "top10_share": 8.8,
-   "top10_share_families": 8.8,
-   "top_owner": "510 DFH I",
-   "top_owner_n": 12
-  },
-  {
    "state": "MI",
    "n": 601,
    "owners": 453,
@@ -296,6 +286,16 @@
    "top10_share_families": 16.5,
    "top_owner": "PKG 10A RECAP LLC",
    "top_owner_n": 35
+  },
+  {
+   "state": "MD",
+   "n": 601,
+   "owners": 497,
+   "families": 487,
+   "top10_share": 8.8,
+   "top10_share_families": 8.8,
+   "top_owner": "510 DFH I",
+   "top_owner_n": 12
   },
   {
    "state": "OR",
@@ -414,7 +414,7 @@
    "families": 167,
    "top10_share": 22.0,
    "top10_share_families": 22.4,
-   "top_owner": "NEWPAD BUILDING",
+   "top_owner": "WINCO FOODS",
    "top_owner_n": 8
   },
   {
@@ -564,7 +564,7 @@
    "families": 24,
    "top10_share": 41.7,
    "top10_share_families": 41.7,
-   "top_owner": "WEE ANTHEA",
+   "top_owner": "MCKINNEY HEALTHCARE INVESTMENTS",
    "top_owner_n": 1
   },
   {
@@ -584,7 +584,7 @@
    "families": 7,
    "top10_share": 100.0,
    "top10_share_families": 100.0,
-   "top_owner": "GARCES NORA",
+   "top_owner": "GONZALES PAUL SHEILA",
    "top_owner_n": 1
   },
   {
