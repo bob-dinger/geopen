@@ -286,7 +286,16 @@ map.on("load", () => {
                detail: (a) => "https://www.dentoncad.com/property-detail/" + encodeURIComponent(a) },
     COLLIN:  { name: "Collin CAD", search: "https://www.collincad.org/propertysearch",
                detail: (a) => "https://esearch.collincad.org/Property/View/" + encodeURIComponent(a) },
-    TARRANT: { name: "Tarrant AD", search: "https://www.tad.org/property-search/" },
+    /* Tarrant has no usable parcel identifier, so instead of the appraisal
+       district it gets the County Clerk's real-property index — deeds rather
+       than valuations, which for a map about who owns what is arguably the
+       better record. It is a party index, so it is searched by owner name; the
+       parcel identifier would not resolve there. */
+    TARRANT: { name: "Tarrant AD", search: "https://www.tad.org/property-search/",
+               deeds: (owner) =>
+                 "https://tarrant.tx.publicsearch.us/results?department=RP"
+                 + "&recordedDateRange=19000101%2C20991231&searchType=quickSearch"
+                 + "&searchValue=" + encodeURIComponent(owner) },
   };
 
   function body(p, withLinks) {
@@ -308,6 +317,9 @@ map.on("load", () => {
     if (cad && cad.detail && p.acct) {
       h += `<a href="${esc(cad.detail(p.acct))}" target="_blank" rel="noopener">${cad.name} record for this parcel ↗</a>`;
     } else if (cad) {
+      if (cad.deeds && p.owner) {
+        h += `<a href="${esc(cad.deeds(p.owner))}" target="_blank" rel="noopener">County Clerk deed records for this owner ↗</a>`;
+      }
       h += `<a href="${cad.search}" target="_blank" rel="noopener">${cad.name} property search ↗</a>`;
     }
     // the account number is shown either way: it is what you paste into a
