@@ -1,421 +1,606 @@
 {
- "total_parcels": 91116,
- "total_value": 135736160095,
- "total_acres": 89544,
+ "total_parcels_all": 2123520,
+ "classifiable": 2057281,
+ "unknown": 66239,
+ "out_of_state": 83320,
+ "share_of_classifiable": 4.05,
+ "by_county": {
+  "TARRANT": {
+   "parcels": 689845,
+   "out_of_state": 32458,
+   "share": 4.71
+  },
+  "DALLAS": {
+   "parcels": 694156,
+   "out_of_state": 22493,
+   "share": 3.24
+  },
+  "DENTON": {
+   "parcels": 352416,
+   "out_of_state": 13708,
+   "share": 3.89
+  },
+  "COLLIN": {
+   "parcels": 387103,
+   "out_of_state": 15043,
+   "share": 3.89
+  }
+ },
  "states": [
   {
    "state": "CA",
-   "n": 25095,
-   "value": 26582978190,
-   "acres": 13934
+   "n": 25020,
+   "owners": 13984,
+   "families": 13396,
+   "top10_share": 9.5,
+   "top10_share_families": 15.5,
+   "top_owner": "SFR JV",
+   "top_owner_n": 958
   },
   {
    "state": "AZ",
-   "n": 9809,
-   "value": 3548458091,
-   "acres": 7131
-  },
-  {
-   "state": "FOREIGN",
-   "n": 5387,
-   "value": 3924647915,
-   "acres": 2427
+   "n": 9749,
+   "owners": 1285,
+   "families": 1135,
+   "top10_share": 43.3,
+   "top10_share_families": 55.6,
+   "top_owner": "PROGRESS RESIDENTIAL",
+   "top_owner_n": 2145
   },
   {
    "state": "GA",
-   "n": 4951,
-   "value": 6927588116,
-   "acres": 3383
-  },
-  {
-   "state": "FL",
-   "n": 4715,
-   "value": 7554324580,
-   "acres": 6231
+   "n": 5115,
+   "owners": 1380,
+   "families": 1314,
+   "top10_share": 42.2,
+   "top10_share_families": 55.3,
+   "top_owner": "FKH SFR",
+   "top_owner_n": 1431
   },
   {
    "state": "NY",
-   "n": 4706,
-   "value": 12951100247,
-   "acres": 5204
+   "n": 4689,
+   "owners": 1804,
+   "families": 1733,
+   "top10_share": 33.2,
+   "top10_share_families": 35.3,
+   "top_owner": "KLLB",
+   "top_owner_n": 442
+  },
+  {
+   "state": "FL",
+   "n": 4672,
+   "owners": 2284,
+   "families": 2234,
+   "top10_share": 28.1,
+   "top10_share_families": 31.6,
+   "top_owner": "MILLROSE PROPERTIES TEXAS",
+   "top_owner_n": 389
   },
   {
    "state": "IL",
-   "n": 4484,
-   "value": 12414737720,
-   "acres": 4146
-  },
-  {
-   "state": "NV",
-   "n": 3827,
-   "value": 1977850477,
-   "acres": 11284
-  },
-  {
-   "state": "WA",
-   "n": 2668,
-   "value": 2830471578,
-   "acres": 1530
+   "n": 4559,
+   "owners": 1732,
+   "families": 1603,
+   "top10_share": 19.1,
+   "top10_share_families": 31.5,
+   "top_owner": "HPA TEXAS SUB",
+   "top_owner_n": 448
   },
   {
    "state": "CO",
-   "n": 2603,
-   "value": 8399338587,
-   "acres": 3518
+   "n": 2656,
+   "owners": 1457,
+   "families": 1391,
+   "top10_share": 25.6,
+   "top10_share_families": 26.4,
+   "top_owner": "YES HICKORY CREEK",
+   "top_owner_n": 363
+  },
+  {
+   "state": "WA",
+   "n": 2427,
+   "owners": 1412,
+   "families": 1362,
+   "top10_share": 29.6,
+   "top10_share_families": 30.2,
+   "top_owner": "FR CARMEL VILLAS",
+   "top_owner_n": 263
   },
   {
    "state": "OK",
-   "n": 1689,
-   "value": 1903563404,
-   "acres": 2633
+   "n": 1645,
+   "owners": 1155,
+   "families": 1136,
+   "top10_share": 14.0,
+   "top10_share_families": 14.2,
+   "top_owner": "QT SOUTH",
+   "top_owner_n": 68
   },
   {
    "state": "OH",
-   "n": 1511,
-   "value": 2871682296,
-   "acres": 1645
+   "n": 1564,
+   "owners": 676,
+   "families": 638,
+   "top10_share": 37.0,
+   "top10_share_families": 39.2,
+   "top_owner": "M I HOMES OF DFW",
+   "top_owner_n": 251
   },
   {
    "state": "NC",
-   "n": 1325,
-   "value": 2703983534,
-   "acres": 2770
+   "n": 1396,
+   "owners": 796,
+   "families": 755,
+   "top10_share": 23.4,
+   "top10_share_families": 25.3,
+   "top_owner": "MNF III W1",
+   "top_owner_n": 73
+  },
+  {
+   "state": "NV",
+   "n": 1362,
+   "owners": 964,
+   "families": 899,
+   "top10_share": 12.5,
+   "top10_share_families": 12.8,
+   "top_owner": "161 TOWNHOMES",
+   "top_owner_n": 46
   },
   {
    "state": "NJ",
-   "n": 1276,
-   "value": 1745464945,
-   "acres": 934
+   "n": 1273,
+   "owners": 971,
+   "families": 943,
+   "top10_share": 10.2,
+   "top10_share_families": 10.4,
+   "top_owner": "TOWNHOMES AT PM",
+   "top_owner_n": 39
   },
   {
    "state": "TN",
-   "n": 1224,
-   "value": 3697442423,
-   "acres": 1680
-  },
-  {
-   "state": "MO",
-   "n": 1207,
-   "value": 1745284170,
-   "acres": 1210
+   "n": 1230,
+   "owners": 681,
+   "families": 655,
+   "top10_share": 25.9,
+   "top10_share_families": 26.0,
+   "top_owner": "HOLLINGSHEAD MATERIALS",
+   "top_owner_n": 68
   },
   {
    "state": "VA",
-   "n": 1150,
-   "value": 2851498838,
-   "acres": 1074
+   "n": 1181,
+   "owners": 914,
+   "families": 889,
+   "top10_share": 10.8,
+   "top10_share_families": 11.3,
+   "top_owner": "CUBESMART",
+   "top_owner_n": 27
+  },
+  {
+   "state": "MO",
+   "n": 1130,
+   "owners": 609,
+   "families": 580,
+   "top10_share": 31.7,
+   "top10_share_families": 32.7,
+   "top_owner": "SOUTHWESTERN BELL",
+   "top_owner_n": 132
   },
   {
    "state": "PA",
-   "n": 1046,
-   "value": 2992842869,
-   "acres": 1117
+   "n": 1028,
+   "owners": 596,
+   "families": 567,
+   "top10_share": 26.4,
+   "top10_share_families": 28.3,
+   "top_owner": "TOLL SOUTHWEST",
+   "top_owner_n": 165
   },
   {
    "state": "UT",
-   "n": 949,
-   "value": 2386323828,
-   "acres": 1023
+   "n": 941,
+   "owners": 511,
+   "families": 481,
+   "top10_share": 31.7,
+   "top10_share_families": 34.5,
+   "top_owner": "PC LUXAR",
+   "top_owner_n": 128
   },
   {
    "state": "AR",
-   "n": 861,
-   "value": 1951761061,
-   "acres": 2657
+   "n": 866,
+   "owners": 585,
+   "families": 555,
+   "top10_share": 18.7,
+   "top10_share_families": 21.4,
+   "top_owner": "WAL MART REAL ESTATE BUSINESS",
+   "top_owner_n": 56
   },
   {
    "state": "NE",
-   "n": 835,
-   "value": 5172530065,
-   "acres": 447
+   "n": 832,
+   "owners": 149,
+   "families": 144,
+   "top10_share": 77.2,
+   "top10_share_families": 78.6,
+   "top_owner": "UNION PACIFIC RR",
+   "top_owner_n": 344
   },
   {
    "state": "MA",
-   "n": 799,
-   "value": 5088761661,
-   "acres": 879
+   "n": 823,
+   "owners": 619,
+   "families": 603,
+   "top10_share": 10.3,
+   "top10_share_families": 11.5,
+   "top_owner": "FMR TEXAS",
+   "top_owner_n": 24
   },
   {
    "state": "LA",
-   "n": 731,
-   "value": 480094376,
-   "acres": 1194
-  },
-  {
-   "state": "KS",
-   "n": 716,
-   "value": 1496467442,
-   "acres": 3423
+   "n": 727,
+   "owners": 526,
+   "families": 518,
+   "top10_share": 13.3,
+   "top10_share_families": 13.3,
+   "top_owner": "PTCC",
+   "top_owner_n": 26
   },
   {
    "state": "MN",
-   "n": 700,
-   "value": 1460246353,
-   "acres": 1239
+   "n": 683,
+   "owners": 362,
+   "families": 356,
+   "top10_share": 35.6,
+   "top10_share_families": 36.0,
+   "top_owner": "VPTM FIELDS LB",
+   "top_owner_n": 81
+  },
+  {
+   "state": "KS",
+   "n": 663,
+   "owners": 415,
+   "families": 397,
+   "top10_share": 18.7,
+   "top10_share_families": 20.5,
+   "top_owner": "KANSAS CITY SOUTHERN RAILWAY",
+   "top_owner_n": 38
   },
   {
    "state": "CT",
-   "n": 671,
-   "value": 1477582874,
-   "acres": 652
-  },
-  {
-   "state": "MI",
-   "n": 589,
-   "value": 441269702,
-   "acres": 989
+   "n": 661,
+   "owners": 256,
+   "families": 234,
+   "top10_share": 55.1,
+   "top10_share_families": 61.1,
+   "top_owner": "STAR",
+   "top_owner_n": 315
   },
   {
    "state": "MD",
-   "n": 582,
-   "value": 1053159975,
-   "acres": 495
+   "n": 601,
+   "owners": 497,
+   "families": 487,
+   "top10_share": 8.8,
+   "top10_share_families": 8.8,
+   "top_owner": "510 DFH I",
+   "top_owner_n": 12
+  },
+  {
+   "state": "MI",
+   "n": 601,
+   "owners": 453,
+   "families": 442,
+   "top10_share": 15.8,
+   "top10_share_families": 16.5,
+   "top_owner": "PKG 10A RECAP LLC",
+   "top_owner_n": 35
   },
   {
    "state": "OR",
-   "n": 563,
-   "value": 363338964,
-   "acres": 826
-  },
-  {
-   "state": "SC",
-   "n": 378,
-   "value": 487539963,
-   "acres": 319
-  },
-  {
-   "state": "KY",
-   "n": 347,
-   "value": 575322449,
-   "acres": 153
-  },
-  {
-   "state": "AL",
-   "n": 317,
-   "value": 1349343403,
-   "acres": 440
-  },
-  {
-   "state": "WI",
-   "n": 285,
-   "value": 989491933,
-   "acres": 242
-  },
-  {
-   "state": "HI",
-   "n": 278,
-   "value": 129174853,
-   "acres": 68
-  },
-  {
-   "state": "NM",
-   "n": 278,
-   "value": 82925444,
-   "acres": 601
-  },
-  {
-   "state": "DE",
-   "n": 276,
-   "value": 291249519,
-   "acres": 88
+   "n": 567,
+   "owners": 401,
+   "families": 389,
+   "top10_share": 15.5,
+   "top10_share_families": 16.8,
+   "top_owner": "STICKWIN ESTATES",
+   "top_owner_n": 16
   },
   {
    "state": "DC",
-   "n": 257,
-   "value": 196717180,
-   "acres": 3
+   "n": 460,
+   "owners": 83,
+   "families": 83,
+   "top10_share": 83.5,
+   "top10_share_families": 83.5,
+   "top_owner": "HOME RENT",
+   "top_owner_n": 213
   },
   {
-   "state": "IA",
-   "n": 249,
-   "value": 1143529437,
-   "acres": 319
+   "state": "SC",
+   "n": 381,
+   "owners": 199,
+   "families": 196,
+   "top10_share": 38.1,
+   "top10_share_families": 38.3,
+   "top_owner": "BISMUTH",
+   "top_owner_n": 46
   },
   {
    "state": "IN",
-   "n": 248,
-   "value": 111427055,
-   "acres": 514
+   "n": 374,
+   "owners": 198,
+   "families": 196,
+   "top10_share": 32.4,
+   "top10_share_families": 34.0,
+   "top_owner": "NEW RESIDENTIAL",
+   "top_owner_n": 36
+  },
+  {
+   "state": "AL",
+   "n": 339,
+   "owners": 276,
+   "families": 274,
+   "top10_share": 15.9,
+   "top10_share_families": 16.2,
+   "top_owner": "COMPASS BANK",
+   "top_owner_n": 17
+  },
+  {
+   "state": "KY",
+   "n": 338,
+   "owners": 218,
+   "families": 200,
+   "top10_share": 27.2,
+   "top10_share_families": 30.5,
+   "top_owner": "ALISSA TOWNHOMES",
+   "top_owner_n": 28
+  },
+  {
+   "state": "NM",
+   "n": 300,
+   "owners": 239,
+   "families": 236,
+   "top10_share": 18.7,
+   "top10_share_families": 20.3,
+   "top_owner": "TEXAS NEW MEXICO POWER",
+   "top_owner_n": 23
+  },
+  {
+   "state": "WI",
+   "n": 283,
+   "owners": 215,
+   "families": 208,
+   "top10_share": 18.0,
+   "top10_share_families": 19.8,
+   "top_owner": "EXPERT ENGINEERING SOLUTIONS",
+   "top_owner_n": 10
+  },
+  {
+   "state": "HI",
+   "n": 279,
+   "owners": 232,
+   "families": 230,
+   "top10_share": 16.8,
+   "top10_share_families": 17.2,
+   "top_owner": "DAVIS WILLIAM J",
+   "top_owner_n": 13
+  },
+  {
+   "state": "FOREIGN",
+   "n": 276,
+   "owners": 163,
+   "families": 163,
+   "top10_share": 35.9,
+   "top10_share_families": 35.9,
+   "top_owner": "TFCC COBURN",
+   "top_owner_n": 41
+  },
+  {
+   "state": "DE",
+   "n": 271,
+   "owners": 98,
+   "families": 98,
+   "top10_share": 57.9,
+   "top10_share_families": 57.9,
+   "top_owner": "JOBIN",
+   "top_owner_n": 46
   },
   {
    "state": "ID",
-   "n": 239,
-   "value": 254661418,
-   "acres": 209
+   "n": 250,
+   "owners": 169,
+   "families": 167,
+   "top10_share": 22.0,
+   "top10_share_families": 22.4,
+   "top_owner": "NEWPAD BUILDING",
+   "top_owner_n": 8
+  },
+  {
+   "state": "IA",
+   "n": 243,
+   "owners": 192,
+   "families": 188,
+   "top10_share": 15.6,
+   "top10_share_families": 16.5,
+   "top_owner": "CSHV",
+   "top_owner_n": 10
   },
   {
    "state": "WY",
-   "n": 232,
-   "value": 59258752,
-   "acres": 98
+   "n": 231,
+   "owners": 193,
+   "families": 187,
+   "top10_share": 16.5,
+   "top10_share_families": 16.5,
+   "top_owner": "JANCB",
+   "top_owner_n": 5
   },
   {
    "state": "MS",
    "n": 192,
-   "value": 349265089,
-   "acres": 349
+   "owners": 139,
+   "families": 137,
+   "top10_share": 29.2,
+   "top10_share_families": 29.7,
+   "top_owner": "EASTGROUP PROPERTIES",
+   "top_owner_n": 20
   },
   {
    "state": "RI",
-   "n": 136,
-   "value": 265315117,
-   "acres": 75
+   "n": 127,
+   "owners": 100,
+   "families": 98,
+   "top10_share": 29.1,
+   "top10_share_families": 29.1,
+   "top_owner": "CVS CORPORATION",
+   "top_owner_n": 14
   },
   {
    "state": "AK",
-   "n": 96,
-   "value": 24170697,
-   "acres": 70
+   "n": 98,
+   "owners": 67,
+   "families": 58,
+   "top10_share": 41.8,
+   "top10_share_families": 51.0,
+   "top_owner": "BRUSHWING",
+   "top_owner_n": 15
   },
   {
    "state": "VT",
    "n": 95,
-   "value": 75695318,
-   "acres": 21
+   "owners": 19,
+   "families": 18,
+   "top10_share": 90.5,
+   "top10_share_families": 91.6,
+   "top_owner": "ROCKBROOK VILLAS BOR",
+   "top_owner_n": 74
   },
   {
    "state": "SD",
-   "n": 88,
-   "value": 65717803,
-   "acres": 64
+   "n": 89,
+   "owners": 67,
+   "families": 65,
+   "top10_share": 36.0,
+   "top10_share_families": 37.1,
+   "top_owner": "NEW VISION",
+   "top_owner_n": 7
   },
   {
    "state": "NH",
-   "n": 84,
-   "value": 84572263,
-   "acres": 17
+   "n": 83,
+   "owners": 57,
+   "families": 56,
+   "top10_share": 43.4,
+   "top10_share_families": 44.6,
+   "top_owner": "ALAUSKEN ENTERPRISES",
+   "top_owner_n": 10
   },
   {
    "state": "MT",
-   "n": 77,
-   "value": 34350879,
-   "acres": 45
+   "n": 76,
+   "owners": 67,
+   "families": 66,
+   "top10_share": 25.0,
+   "top10_share_families": 26.3,
+   "top_owner": "CHUNG HONG QIU",
+   "top_owner_n": 5
   },
   {
    "state": "AE",
-   "n": 58,
-   "value": 10322217,
-   "acres": 3
+   "n": 59,
+   "owners": 53,
+   "families": 53,
+   "top10_share": 27.1,
+   "top10_share_families": 27.1,
+   "top_owner": "MERGUPE DELILAH",
+   "top_owner_n": 4
   },
   {
    "state": "ND",
-   "n": 47,
-   "value": 85739087,
-   "acres": 52
+   "n": 49,
+   "owners": 40,
+   "families": 37,
+   "top10_share": 38.8,
+   "top10_share_families": 44.9,
+   "top_owner": "PROFFUTT",
+   "top_owner_n": 6
   },
   {
    "state": "AP",
    "n": 41,
-   "value": 9884152,
-   "acres": 3
+   "owners": 39,
+   "families": 39,
+   "top10_share": 29.3,
+   "top10_share_families": 29.3,
+   "top_owner": "BASS MICHAEL W",
+   "top_owner_n": 3
+  },
+  {
+   "state": "WV",
+   "n": 30,
+   "owners": 26,
+   "families": 25,
+   "top10_share": 46.7,
+   "top10_share_families": 50.0,
+   "top_owner": "MRC GLOBAL US",
+   "top_owner_n": 3
   },
   {
    "state": "PR",
    "n": 29,
-   "value": 9267791,
-   "acres": 3
-  },
-  {
-   "state": "WV",
-   "n": 27,
-   "value": 5584853,
-   "acres": 9
+   "owners": 27,
+   "families": 27,
+   "top10_share": 41.4,
+   "top10_share_families": 41.4,
+   "top_owner": "HOUSDEN JERRY LAMONT",
+   "top_owner_n": 3
   },
   {
    "state": "ME",
-   "n": 25,
-   "value": 8887387,
-   "acres": 12
-  },
-  {
-   "state": "ON",
-   "n": 19,
-   "value": 826970,
-   "acres": 53
+   "n": 24,
+   "owners": 24,
+   "families": 24,
+   "top10_share": 41.7,
+   "top10_share_families": 41.7,
+   "top_owner": "WEE ANTHEA",
+   "top_owner_n": 1
   },
   {
    "state": "VI",
    "n": 11,
-   "value": 4058557,
-   "acres": 2
-  },
-  {
-   "state": "RX",
-   "n": 10,
-   "value": 121817,
-   "acres": 14
+   "owners": 7,
+   "families": 7,
+   "top10_share": 100.0,
+   "top10_share_families": 100.0,
+   "top_owner": "HOME SFR",
+   "top_owner_n": 5
   },
   {
    "state": "GU",
    "n": 7,
-   "value": 2169821,
-   "acres": 0
+   "owners": 7,
+   "families": 7,
+   "top10_share": 100.0,
+   "top10_share_families": 100.0,
+   "top_owner": "GARCES NORA",
+   "top_owner_n": 1
   },
   {
    "state": "AA",
    "n": 6,
-   "value": 2466237,
-   "acres": 1
-  },
-  {
-   "state": "BE",
-   "n": 3,
-   "value": 837253,
-   "acres": 0
-  },
-  {
-   "state": "TC",
-   "n": 2,
-   "value": 734261,
-   "acres": 0
-  },
-  {
-   "state": "SH",
-   "n": 2,
-   "value": 608979,
-   "acres": 0
-  },
-  {
-   "state": "TE",
-   "n": 2,
-   "value": 3522561,
-   "acres": 2
-  },
-  {
-   "state": "UN",
-   "n": 1,
-   "value": 0,
-   "acres": 0
-  },
-  {
-   "state": "CD",
-   "n": 1,
-   "value": 299808,
-   "acres": 0
-  },
-  {
-   "state": "BR",
-   "n": 1,
-   "value": 24892165,
-   "acres": 17
-  },
-  {
-   "state": "YX",
-   "n": 1,
-   "value": 555000,
-   "acres": 0
-  },
-  {
-   "state": "OW",
-   "n": 1,
-   "value": 328667,
-   "acres": 0
-  },
-  {
-   "state": "SI",
-   "n": 1,
-   "value": 529659,
-   "acres": 0
+   "owners": 6,
+   "families": 6,
+   "top10_share": 100.0,
+   "top10_share_families": 100.0,
+   "top_owner": "VILCA ANGELICA VIRGINIA LINARES",
+   "top_owner_n": 1
   }
- ]
+ ],
+ "caveats": {
+  "tarrant_value_coverage": "0.2% \u2014 no dollar total is meaningful",
+  "dallas_acre_coverage": "0.1% \u2014 no acreage total is meaningful",
+  "unknown": "parcels with no mailing city; excluded from the share"
+ }
 }

@@ -202,13 +202,20 @@ function draw() {
   if (!STATS) return;
   const rows = STATS.states;
   const sel = picked ? rows.find((r) => r.state === picked) : null;
-  const n = sel ? sel.n : STATS.total_parcels;
-  const v = sel ? sel.value : STATS.total_value;
-  const a = sel ? sel.acres : STATS.total_acres;
+  const n = sel ? sel.n : STATS.out_of_state;
   const lab = sel ? (GROUPS.find(([k]) => k === picked) || [, picked])[1] : "outside Texas";
+  // A dollar total and an acreage total used to sit here. Both were
+  // unpublishable: a market value appears on 0.2% of Tarrant's parcels and
+  // acreage on 0.1% of Dallas's, so either figure silently omitted a whole
+  // county. Ownership concentration can be measured on every parcel, and it is
+  // the actual finding — California holds the most land through the most owners,
+  // Arizona holds a third as much through a tenth as many.
+  const detail = sel
+    ? `<b>${num(sel.owners)}</b> owners · top 10 hold <b>${sel.top10_share}%</b>`
+    : `${STATS.share_of_classifiable}% of the ${num(STATS.classifiable)} parcels `
+      + `whose owner could be traced`;
   document.getElementById("state").innerHTML =
-    `<b>${num(n)}</b> parcels owned from ${sel ? "" : ""}${lab}` +
-    `<span><b>${usd(v)}</b> · ${num(a)} acres</span>`;
+    `<b>${num(n)}</b> parcels owned from ${lab}<span>${detail}</span>`;
   document.getElementById("hint").innerHTML = picked
     ? `<button class="clear" onclick="clearPick()">show every state</button>`
     : "Click a state to show only its parcels. Everything here is land whose tax bill leaves Texas.";
