@@ -264,21 +264,29 @@ map.on("load", () => {
   const g = (q) => "https://www.google.com/search?q=" + encodeURIComponent(q);
 
   /* Appraisal-district links.
-     Dallas deep-links to the parcel. TxGIO's Prop_ID for Dallas is the DCAD
-     account number — 93% of them appear verbatim in DCAD's own appraisal
-     export, same 17-digit zero-padded shape.
-     Every other county gets its district's search page plus the account number
-     displayed for copy-paste, because no per-parcel URL could be confirmed:
-     Collin refuses non-browser requests, Denton has no per-parcel host, and
-     Tarrant's identifier ("34345-28-7R") is a legal-description code rather
-     than a TAD account. Guessing a URL for those would produce a link that
-     looks right and lands on an empty form. */
+     TxGIO's Prop_ID turns out to BE the appraisal district's own property
+     identifier in three of the four counties, so those parcels link straight to
+     their record. Confirmed by looking up known-good district URLs in this data
+     and finding the same parcel: Denton 982392 is 6105 E McKinney St, Collin
+     1354055 is 1102 Howell St, and 93% of Dallas Prop_IDs appear verbatim in
+     DCAD's own appraisal export.
+
+     Tarrant is the exception. Its identifier looks like "34345-28-7R" — a legal
+     description, not a TAD account number — so it gets the search page and the
+     identifier displayed, rather than a URL that would look right and resolve to
+     nothing.
+
+     None of these can be checked from a script: all three districts answer
+     automated requests with an error page or a 403 while serving real browsers
+     normally. They are verified by having been opened in one. */
   const CAD = {
     DALLAS:  { name: "DCAD",       search: "https://www.dallascad.org/SearchAddr.aspx",
                detail: (a) => "https://www.dallascad.org/AcctDetail.aspx?ID=" + encodeURIComponent(a) },
+    DENTON:  { name: "Denton CAD", search: "https://www.dentoncad.com/property-search",
+               detail: (a) => "https://www.dentoncad.com/property-detail/" + encodeURIComponent(a) },
+    COLLIN:  { name: "Collin CAD", search: "https://www.collincad.org/propertysearch",
+               detail: (a) => "https://esearch.collincad.org/Property/View/" + encodeURIComponent(a) },
     TARRANT: { name: "Tarrant AD", search: "https://www.tad.org/property-search/" },
-    COLLIN:  { name: "Collin CAD", search: "https://www.collincad.org/propertysearch" },
-    DENTON:  { name: "Denton CAD", search: "https://www.dentoncad.com/property-search" },
   };
 
   function body(p, withLinks) {
