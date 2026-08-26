@@ -279,23 +279,32 @@ map.on("load", () => {
      None of these can be checked from a script: all three districts answer
      automated requests with an error page or a 403 while serving real browsers
      normally. They are verified by having been opened in one. */
+  /* All four County Clerks run the same records platform, so every parcel can
+     reach its deed index regardless of whether the appraisal district can be
+     linked to. Deeds are a party index — searched by owner, not by parcel —
+     which for this map is the more useful record anyway: a valuation says what
+     a parcel is worth, a deed says who bought it, from whom, and when. */
+  const deeds = (county) => (owner) =>
+    `https://${county.toLowerCase()}.tx.publicsearch.us/results?department=RP`
+    + "&recordedDateRange=19000101%2C20991231&searchType=quickSearch"
+    + "&searchValue=" + encodeURIComponent(owner);
+
   const CAD = {
     DALLAS:  { name: "DCAD",       search: "https://www.dallascad.org/SearchAddr.aspx",
-               detail: (a) => "https://www.dallascad.org/AcctDetail.aspx?ID=" + encodeURIComponent(a) },
+               detail: (a) => "https://www.dallascad.org/AcctDetail.aspx?ID=" + encodeURIComponent(a),
+               deeds: deeds("dallas") },
     DENTON:  { name: "Denton CAD", search: "https://www.dentoncad.com/property-search",
-               detail: (a) => "https://www.dentoncad.com/property-detail/" + encodeURIComponent(a) },
+               detail: (a) => "https://www.dentoncad.com/property-detail/" + encodeURIComponent(a),
+               deeds: deeds("denton") },
     COLLIN:  { name: "Collin CAD", search: "https://www.collincad.org/propertysearch",
-               detail: (a) => "https://esearch.collincad.org/Property/View/" + encodeURIComponent(a) },
-    /* Tarrant has no usable parcel identifier, so instead of the appraisal
-       district it gets the County Clerk's real-property index — deeds rather
-       than valuations, which for a map about who owns what is arguably the
-       better record. It is a party index, so it is searched by owner name; the
-       parcel identifier would not resolve there. */
+               detail: (a) => "https://esearch.collincad.org/Property/View/" + encodeURIComponent(a),
+               deeds: deeds("collin") },
+    /* Tarrant gets no appraisal link: the only identifier the state file carries
+       for it is a legal description ("10638-A-16"), and GEO_ID — which holds an
+       account-shaped value in Collin and Denton — is blank for Tarrant entirely.
+       TAD's portal wants an account number that is not in this data. */
     TARRANT: { name: "Tarrant AD", search: "https://www.tad.org/property-search/",
-               deeds: (owner) =>
-                 "https://tarrant.tx.publicsearch.us/results?department=RP"
-                 + "&recordedDateRange=19000101%2C20991231&searchType=quickSearch"
-                 + "&searchValue=" + encodeURIComponent(owner) },
+               deeds: deeds("tarrant") },
   };
 
   function body(p, withLinks) {
@@ -317,10 +326,10 @@ map.on("load", () => {
     if (cad && cad.detail && p.acct) {
       h += `<a href="${esc(cad.detail(p.acct))}" target="_blank" rel="noopener">${cad.name} record for this parcel ↗</a>`;
     } else if (cad) {
-      if (cad.deeds && p.owner) {
-        h += `<a href="${esc(cad.deeds(p.owner))}" target="_blank" rel="noopener">County Clerk deed records for this owner ↗</a>`;
-      }
       h += `<a href="${cad.search}" target="_blank" rel="noopener">${cad.name} property search ↗</a>`;
+    }
+    if (cad && cad.deeds && p.owner) {
+      h += `<a href="${esc(cad.deeds(p.owner))}" target="_blank" rel="noopener">County Clerk deeds for this owner ↗</a>`;
     }
     // the account number is shown either way: it is what you paste into a
     // district search that cannot be linked to directly
