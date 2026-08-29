@@ -147,6 +147,8 @@ const BUCKETS = [
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const mnum = (ym) => (+ym.slice(0, 4)) * 12 + (+ym.slice(5, 7)) - 1;
 const short = (ym) => MONTHS[+ym.slice(5, 7) - 1] + " ’" + ym.slice(2, 4);
+const brief = (v) => v >= 1e6 ? "$" + (v / 1e6).toFixed(2) + "m"
+                              : "$" + Math.round(v / 1000) + "k";
 const usd = (v) => "$" + Math.round(v).toLocaleString();
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
   (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -205,9 +207,9 @@ map.on("load", () => {
      light through its middle, and a white halo would bloom over small ZIPs. */
   map.addLayer({ id: "z-label", type: "symbol", source: "zips",
     layout: { "text-field": ["get", "plabel"],
-      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 11, 13],
+      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 9.5, 11, 12.5],
       "text-font": ["Noto Sans Medium"], "text-padding": 1,
-      "text-allow-overlap": false },
+      "text-line-height": 1.05, "text-allow-overlap": false },
     paint: { "text-color": "#10151c", "text-halo-color": "rgba(255,255,255,0.75)",
       "text-halo-width": 1.2 } });
   setBase(BASES[0]);
@@ -232,7 +234,9 @@ map.on("load", () => {
     for (const f of fc.features) {
       const p = f.properties;
       p.pk = mnum(p.peak_month);
-      p.plabel = short(p.peak_month);
+      // month on top, current value under it: the timing is the finding, the
+      // price is the context that makes a reader place the ZIP without knowing it
+      p.plabel = short(p.peak_month) + "\n" + brief(p.value);
       let b = 0;
       while (b < BUCKETS.length - 1 && p.pk > mnum(BUCKETS[b].until)) b++;
       counts[b]++;
