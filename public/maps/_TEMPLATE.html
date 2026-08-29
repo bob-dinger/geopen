@@ -1,0 +1,263 @@
+<!doctype html>
+<!--
+  geopen map template — copy this, do not edit it in place.
+
+  THE RULE: one map, one URL, one question, one preview card. If a second
+  question turns up, it gets a second page. Layer toggles are how a focused map
+  becomes a dashboard nobody shares.
+
+  AFTER BUILDING, ALWAYS:
+    python3 themap_claude/make_map_cards.py <name>
+    sips -Z 1200 <name>-card.png --out <name>-card.png
+  and check og:description says what the article says. A map shipped once with
+  pre-correction figures in its card and would have contradicted the piece
+  linking to it.
+
+  WHAT THIS TEMPLATE ALREADY GUARDS AGAINST — all of these have bitten:
+
+  1. `tiles: [null]` in a raster source fails style validation and silently
+     drops EVERY layer. The page looks fine and renders nothing. The ref source
+     is seeded from a basemap that HAS a ref, never from the current one.
+  2. Hover-only popups leave mobile readers with a dead map. Phones have no
+     mousemove. This binds click for everyone and hover only as an enhancement.
+  3. Array properties come back from a GeoJSON source as JSON *strings*, so
+     `props.tags.join()` throws on every interaction. Parse before using.
+  4. `queryRenderedFeatures` throws if a layer id does not exist yet.
+  5. A `step` expression's stops must strictly ascend or MapLibre rejects the
+     whole style — same silent-blank-map failure as (1).
+  6. Text layers need `glyphs` on the style or labels never appear.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TITLE — what this map answers</title>
+<meta name="description" content="One sentence. The finding, with its number.">
+<link rel="canonical" href="https://geopen.io/maps/NAME.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="TITLE — what this map answers">
+<meta property="og:description" content="The single most surprising true sentence. Check this against the article.">
+<meta property="og:url" content="https://geopen.io/maps/NAME.html">
+<meta property="og:image" content="https://geopen.io/maps/NAME-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/NAME-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0b0d11; --panel: #151a21; --panel-2: #1f2731;
+    --rule: rgba(205,220,240,0.15);
+    --ink: #eef3f8; --ink-2: #a7b5c6; --ink-3: #74828f;
+    --signal: #ffb54d;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  /* DESKTOP: a panel floating over the map.
+     MOBILE: the same markup becomes a sheet pinned to the bottom, collapsed to
+     its header until tapped. Same DOM, no duplication, no JS branching. */
+  .panel { position: absolute; z-index: 6;
+    left: var(--pad); top: var(--pad); width: 320px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(12,16,21,0.94); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.25;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .panel p b { color: var(--ink); }
+  .grab { display: none; }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .keys { display: flex; flex-direction: column; gap: 3px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .key i { width: 20px; height: 11px; border-radius: 2px; flex: none; }
+  .key .n { margin-left: auto; color: var(--ink-3); }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad);
+    display: flex; background: rgba(12,16,21,0.93); border: 1px solid var(--rule);
+    border-radius: 8px; overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 290px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(12,16,21,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #151a21; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #151a21 !important;
+    border-bottom-color: #151a21 !important; }
+  .pop .big { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    /* the panel becomes a bottom sheet; tapping the header expands it */
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0;
+      max-height: 62%; padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 74px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    /* the source note would cover the sheet; it moves inside it on small screens */
+    .src { display: none; }
+    .src-inline { display: block !important; }
+    #bases { right: var(--pad); top: var(--pad); }
+    #bases button { padding: 10px 14px; }   /* 44px tap target */
+    .maplibregl-ctrl-bottom-right { bottom: 78px; }
+  }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3);
+    line-height: 1.5; margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>TITLE — what this map answers</h1>
+  <p>One or two sentences. Lead with the finding and its number, not with what
+    the dataset is.</p>
+
+  <div class="lab">Legend</div>
+  <div class="keys" id="keys"></div>
+
+  <div class="src-inline">
+    SOURCE, date range. Any caveat that changes how a number should be read.
+    <a href="https://geopen.io/">geopen.io</a>
+  </div>
+</section>
+
+<div class="src">
+  SOURCE, date range. Any caveat that changes how a number should be read.
+  <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark";
+
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+const usd = (v) => "$" + Math.round(v).toLocaleString();
+/* A GeoJSON source hands arrays back as JSON strings. Reading one directly
+   throws on every interaction and only shows up when something is clicked. */
+const arr = (v) => Array.isArray(v) ? v
+  : (typeof v === "string" && v.startsWith("[") ? JSON.parse(v) : []);
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+// the bottom sheet, mobile only — harmless on desktop where it is never collapsed
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button, input")) return;
+  panel.classList.toggle("open");
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    // required, or any symbol layer silently renders no text
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+              tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref. A null here fails style validation
+      // and silently drops every layer on the map.
+      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+             tiles: [BASES.find((b) => b.ref).ref] },
+      data: { type: "geojson", data: "/data/NAME.geojson" },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.95, 32.85], zoom: 8.4, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;      // make_map_cards.py waits on this to know when to shoot
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+function popupHTML(p) {
+  return `<div class="pop"><b>${esc(p.name)}</b><br>` +
+         `<span class="big">${num(p.value)}</span><br>` +
+         `<span class="sub">context line</span></div>`;
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "d-fill", type: "fill", source: "data",
+    paint: { "fill-color": "#4d8fd6", "fill-opacity": 0.8 } });
+  map.addLayer({ id: "d-line", type: "line", source: "data",
+    paint: { "line-color": "rgba(255,255,255,0.25)", "line-width": 0.5 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.7 } });
+  setBase(BASES[0]);
+
+  /* Click works everywhere; hover is an enhancement for pointer devices only.
+     Binding a popup to mousemove alone leaves a phone with a dead map, which is
+     where most readers arrive from a newsletter. */
+  const pop = new maplibregl.Popup({ closeButton: true, closeOnClick: true,
+    maxWidth: "270px" });
+  map.on("click", "d-fill", (e) => {
+    pop.setLngLat(e.lngLat).setHTML(popupHTML(e.features[0].properties)).addTo(map);
+  });
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    map.on("mousemove", "d-fill", (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      pop.setLngLat(e.lngLat).setHTML(popupHTML(e.features[0].properties)).addTo(map);
+    });
+    map.on("mouseleave", "d-fill", () => {
+      map.getCanvas().style.cursor = ""; pop.remove();
+    });
+  }
+
+  // legend — build from the data so the counts cannot drift from the map
+  document.getElementById("keys").innerHTML = [
+    ["#4d8fd6", "category", ""],
+  ].map(([c, label, n]) =>
+    `<div class="key"><i style="background:${c}"></i><span>${label}</span>` +
+    `<span class="n nums">${n}</span></div>`).join("");
+});
+</script>

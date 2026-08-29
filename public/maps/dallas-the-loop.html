@@ -172,6 +172,23 @@ function state() {
     : "Built segments are drawn heavier. Click a status to isolate it.";
 }
 
+
+/* Phones have no mousemove, so a hover-only popup leaves a tap doing nothing.
+   Rather than duplicating each handler, map.on is wrapped once: every
+   ("mousemove", layer, fn) registration also registers the identical fn on
+   "click". Desktop keeps hover; touch gets the same popup on tap, and
+   MapLibre's default closeOnClick dismisses it. */
+(function () {
+  const _on = map.on.bind(map);
+  map.on = function (type, layer, fn) {
+    _on(type, layer, fn);
+    if (type === "mousemove" && typeof layer === "string" && typeof fn === "function") {
+      _on("click", layer, fn);
+    }
+    return map;
+  };
+})();
+
 map.on("load", () => {
   Promise.all([
     fetch("/data/dallas_the_loop.geojson").then((r) => r.json()),
