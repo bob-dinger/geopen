@@ -134,6 +134,20 @@ const RAMP = ["#f2f9f2", "#cfe9d2", "#a2d5ac", "#71bd87", "#469a68", "#2b754e", 
 const STOPS = [110000, 180000, 260000, 360000, 500000, 720000];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
+/* A fixed handful of reference points rather than labels everywhere.
+   Anchors that stay put are more useful than labelling whichever ZIP is
+   currently highest: you can watch these same nine numbers move as it plays,
+   which is not possible if the labels jump around. Chosen to span both the
+   metro and the value range -- South Dallas at the bottom, Preston Hollow at
+   the top, Princeton for the exurb that fell hardest. */
+const ANCHORS = {
+  "75210": "S Dallas", "75230": "Preston Hollow", "76105": "E Fort Worth",
+  "75093": "W Plano", "75034": "Frisco", "76010": "Arlington",
+  "75407": "Princeton", "76201": "Denton", "75165": "Waxahachie",
+};
+const short = (v) => v >= 1e6 ? "$" + (v / 1e6).toFixed(2) + "m"
+                              : "$" + Math.round(v / 1000) + "k";
+
 const usd = (v) => "$" + Math.round(v).toLocaleString();
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
   (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -188,6 +202,11 @@ function frame(n) {
     const s = TL.zips[f.properties.zip];
     const v = s ? s[i] : null;
     f.properties.v = v === null ? -1 : v;   // -1 renders as "no estimate"
+    // the label is built here rather than in a style expression so the money
+    // formatting is the same everywhere and can round to k / m
+    f.properties.label = (ANCHORS[f.properties.zip] && v !== null)
+      ? ANCHORS[f.properties.zip] + "\n" + short(v) : "";
+    f.properties.vlabel = v === null ? "" : short(v);
     if (v !== null) vals.push(v);
   }
   map.getSource("zips").setData(FC);
@@ -231,6 +250,23 @@ map.on("load", () => {
     paint: { "line-color": "rgba(255,255,255,0.22)", "line-width": 0.4 } });
   map.addLayer({ id: "ref", type: "raster", source: "ref",
     paint: { "raster-opacity": 0.7 } });
+
+  // every ZIP gets a value, but only once zoomed in far enough that they fit
+  map.addLayer({ id: "z-all-labels", type: "symbol", source: "zips", minzoom: 9.6,
+    layout: { "text-field": ["get", "vlabel"], "text-size": 10.5,
+      "text-font": ["Noto Sans Regular"], "text-allow-overlap": false },
+    paint: { "text-color": "#ffffff", "text-halo-color": "rgba(8,12,10,0.85)",
+      "text-halo-width": 1.3 } });
+
+  // the nine anchors, always on
+  map.addLayer({ id: "z-anchors", type: "symbol", source: "zips",
+    // NOT ["has","label"] — every feature carries the key, most just hold ""
+    filter: ["!=", ["get", "label"], ""],
+    layout: { "text-field": ["get", "label"], "text-size": 11.5,
+      "text-font": ["Noto Sans Regular"], "text-line-height": 1.15,
+      "text-allow-overlap": true, "text-ignore-placement": true },
+    paint: { "text-color": "#ffffff", "text-halo-color": "rgba(8,12,10,0.9)",
+      "text-halo-width": 1.6 } });
   setBase(BASES[0]);
 
   const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "240px" });
