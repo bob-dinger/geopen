@@ -1,0 +1,261 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When each DFW ZIP code peaked</title>
+<meta name="description" content="Half of Dallas–Fort Worth peaked in 2022. The other half kept climbing to 2024 and beyond. The line between them is money.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-when-home-values-peaked.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="When each DFW ZIP code peaked">
+<meta property="og:description" content="132 ZIPs peaked in 2022 and fell 8.8%. 116 kept climbing into 2024–26 and fell 4.3%. The split is by price.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-when-home-values-peaked.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* The variable here is time, so the ramp runs cool-to-warm: early peaks read
+     cold and finished, late peaks read hot and still going. The label is the
+     point of the map, so it gets weight and a hard halo rather than being a
+     polite annotation. */
+  :root {
+    --ground: #0a0c11; --panel: #141922; --panel-2: #1f2632;
+    --rule: rgba(200,215,240,0.15);
+    --ink: #eff3f9; --ink-2: #a6b4c8; --ink-3: #72808f;
+    --signal: #ffb54d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .card { position: absolute; left: 16px; top: 16px; z-index: 6; width: 318px;
+    background: rgba(12,16,22,0.94); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 15px 17px; backdrop-filter: blur(9px); max-height: calc(100% - 32px);
+    overflow-y: auto; }
+  .card h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.25; letter-spacing: -0.015em;
+    text-wrap: balance; }
+  .card p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .card p b { color: var(--ink); }
+
+  .split { display: flex; gap: 9px; margin: 12px 0 4px; }
+  .half { flex: 1; background: var(--panel-2); border-radius: 6px; padding: 9px 10px;
+    border-left: 3px solid var(--c); }
+  .half .yr { font-size: 11px; color: var(--ink-3); }
+  .half .n { font-size: 19px; font-weight: 600; line-height: 1.15; }
+  .half .d { font-size: 10.5px; color: var(--ink-2); margin-top: 2px; }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .keys { display: flex; flex-direction: column; gap: 2px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 11.5px;
+    color: var(--ink-2); }
+  .key i { width: 22px; height: 11px; border-radius: 2px; flex: none; }
+  .key .n { margin-left: auto; color: var(--ink-3); }
+
+  #bases { position: absolute; right: 16px; top: 16px; z-index: 6; display: flex;
+    background: rgba(12,16,22,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(9px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 11px; padding: 7px 11px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .note { position: absolute; right: 16px; bottom: 16px; z-index: 6; max-width: 290px;
+    font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(12,16,22,0.9); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 9px 12px; }
+  .note a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #141922; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 8px; padding: 11px 13px; font-size: 12px;
+    line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #141922 !important;
+    border-bottom-color: #141922 !important; }
+  .pop .big { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 820px) { .card { width: auto; right: 16px; } .note { display: none; } }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div id="bases"></div>
+
+  <div class="card">
+    <h1>When each DFW ZIP code peaked</h1>
+    <p>Every ZIP in Dallas–Fort Worth, labelled with the month its typical home
+      value hit its all-time high.</p>
+    <p>The metro split in two. Half topped out in <b>2022</b> and has been falling
+      since. Half kept climbing into <b>2024 and later</b>.</p>
+
+    <div class="split">
+      <div class="half" style="--c:#4d8fd6">
+        <div class="yr">peaked 2022–23</div>
+        <div class="n nums" id="n-early">—</div>
+        <div class="d" id="d-early">&nbsp;</div>
+      </div>
+      <div class="half" style="--c:#ff8a3d">
+        <div class="yr">peaked 2024–26</div>
+        <div class="n nums" id="n-late">—</div>
+        <div class="d" id="d-late">&nbsp;</div>
+      </div>
+    </div>
+    <p style="margin-top:10px">The line between them is money. The ZIPs that
+      peaked early are the cheaper ones, and they fell twice as far.</p>
+
+    <div class="lab">Peak</div>
+    <div class="keys" id="keys"></div>
+  </div>
+
+  <div class="note">
+    Zillow Home Value Index, January 2000 – June 2026. Each ZIP is measured
+    against <b>its own</b> history, not a metro average. ZHVI is a modelled
+    estimate, not sale prices — Texas is a non-disclosure state.
+    <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.45 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark";
+
+/* Time, cool to warm. Peak is encoded as months since Jan 2000 so a single
+   step expression can order it; the buckets are the ones the data actually
+   clusters into rather than even intervals. */
+const BUCKETS = [
+  { until: "2021-12", c: "#2f5e96", label: "2021 or earlier" },
+  { until: "2022-06", c: "#4d8fd6", label: "first half of 2022" },
+  { until: "2022-12", c: "#7fb8e6", label: "second half of 2022" },
+  { until: "2023-12", c: "#c9d6c0", label: "2023" },
+  { until: "2024-12", c: "#ffc46b", label: "2024" },
+  { until: "2025-12", c: "#ff8a3d", label: "2025" },
+  { until: "2099-12", c: "#e8452f", label: "2026 — still at its peak" },
+];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const mnum = (ym) => (+ym.slice(0, 4)) * 12 + (+ym.slice(5, 7)) - 1;
+const short = (ym) => MONTHS[+ym.slice(5, 7) - 1] + " ’" + ym.slice(2, 4);
+const usd = (v) => "$" + Math.round(v).toLocaleString();
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      zips: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.95, 32.85], zoom: 8.4, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+function colour() {
+  const out = ["step", ["get", "pk"], BUCKETS[0].c];
+  for (let i = 1; i < BUCKETS.length; i++) {
+    out.push(mnum(BUCKETS[i - 1].until) + 1, BUCKETS[i].c);
+  }
+  return out;
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "z-fill", type: "fill", source: "zips",
+    paint: { "fill-color": colour(), "fill-opacity": 0.88 } });
+  map.addLayer({ id: "z-line", type: "line", source: "zips",
+    paint: { "line-color": "rgba(10,12,17,0.55)", "line-width": 0.7 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.6 } });
+
+  /* The label is the map. Dark text on these fills beats white — the ramp runs
+     light through its middle, and a white halo would bloom over small ZIPs. */
+  map.addLayer({ id: "z-label", type: "symbol", source: "zips",
+    layout: { "text-field": ["get", "plabel"],
+      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 11, 13],
+      "text-font": ["Noto Sans Medium"], "text-padding": 1,
+      "text-allow-overlap": false },
+    paint: { "text-color": "#10151c", "text-halo-color": "rgba(255,255,255,0.75)",
+      "text-halo-width": 1.2 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "260px" });
+  map.on("mousemove", "z-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${esc(p.zip)}</b> <span class="sub">${esc(p.city)}</span><br>` +
+      `peaked <span class="big">${esc(p.peak_month)}</span><br>` +
+      `<span class="sub">at ${usd(p.peak)} · now ${usd(p.value)}</span><br>` +
+      `${p.from_peak > -0.05 ? "at its high today"
+        : `<b>${p.from_peak.toFixed(1)}%</b> below since`}</div>`).addTo(map);
+  });
+  map.on("mouseleave", "z-fill", () => {
+    map.getCanvas().style.cursor = ""; pop.remove();
+  });
+
+  fetch("/data/dfw_zip_peak.geojson").then((r) => r.json()).then((fc) => {
+    const counts = new Array(BUCKETS.length).fill(0);
+    for (const f of fc.features) {
+      const p = f.properties;
+      p.pk = mnum(p.peak_month);
+      p.plabel = short(p.peak_month);
+      let b = 0;
+      while (b < BUCKETS.length - 1 && p.pk > mnum(BUCKETS[b].until)) b++;
+      counts[b]++;
+    }
+    map.getSource("zips").setData(fc);
+
+    document.getElementById("keys").innerHTML = BUCKETS.map((b, i) =>
+      `<div class="key"><i style="background:${b.c}"></i><span>${b.label}</span>` +
+      `<span class="n nums">${counts[i]}</span></div>`).join("");
+
+    const P = fc.features.map((f) => f.properties);
+    const early = P.filter((p) => p.peak_month < "2024-01");
+    const late = P.filter((p) => p.peak_month >= "2024-01");
+    const med = (a, k) => {
+      const s = a.map((x) => x[k]).sort((x, y) => x - y);
+      return s[Math.floor(s.length / 2)];
+    };
+    document.getElementById("n-early").textContent = early.length + " ZIPs";
+    document.getElementById("d-early").textContent =
+      `median ${usd(med(early, "value"))} · down ${Math.abs(med(early, "from_peak")).toFixed(1)}%`;
+    document.getElementById("n-late").textContent = late.length + " ZIPs";
+    document.getElementById("d-late").textContent =
+      `median ${usd(med(late, "value"))} · down ${Math.abs(med(late, "from_peak")).toFixed(1)}%`;
+  });
+});
+</script>
