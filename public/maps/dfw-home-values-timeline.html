@@ -1,0 +1,259 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twenty-six years of DFW home values, month by month</title>
+<meta name="description" content="Every Dallas–Fort Worth ZIP code from January 2000 to June 2026. Press play and watch the map turn over.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-home-values-timeline.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Twenty-six years of DFW home values, month by month">
+<meta property="og:description" content="318 months of Zillow's home value index across 250 DFW ZIP codes.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-home-values-timeline.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0b0d12; --panel: #141821; --panel-2: #1e2431;
+    --rule: rgba(200,215,240,0.14);
+    --ink: #eef2f8; --ink-2: #a8b6c9; --ink-3: #74839a;
+    --signal: #6ee7c8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .card { position: absolute; left: 16px; top: 16px; z-index: 6; width: 300px;
+    background: rgba(14,18,26,0.94); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 15px 17px; backdrop-filter: blur(9px); }
+  .card h1 { margin: 0 0 8px; font-size: 17px; line-height: 1.26; letter-spacing: -0.015em;
+    text-wrap: balance; }
+  .card p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+
+  /* the clock: the largest thing on the page, because it is what changes */
+  .when { margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .when .m { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .when .med { margin-top: 5px; font-size: 12px; color: var(--ink-2); }
+  .when .med b { color: var(--signal); }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 13px 0 6px; }
+  .scale { display: flex; height: 9px; border-radius: 2px; overflow: hidden; }
+  .scale i { flex: 1; }
+  .ends { display: flex; justify-content: space-between; font-size: 10px;
+    color: var(--ink-3); margin-top: 4px; }
+
+  .bar { position: absolute; left: 16px; right: 16px; bottom: 16px; z-index: 6;
+    display: flex; align-items: center; gap: 13px;
+    background: rgba(14,18,26,0.94); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 11px 15px; backdrop-filter: blur(9px); }
+  .play { flex: none; width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink);
+    font-size: 15px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; }
+  .play:hover { border-color: var(--signal); color: var(--signal); }
+  input[type=range] { flex: 1; accent-color: var(--signal); height: 4px; cursor: pointer; }
+  .tick { flex: none; font-size: 11.5px; color: var(--ink-3); min-width: 62px;
+    text-align: right; }
+
+  #bases { position: absolute; right: 16px; top: 16px; z-index: 6; display: flex;
+    background: rgba(14,18,26,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(9px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 11px; padding: 7px 11px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .note { position: absolute; right: 16px; bottom: 74px; z-index: 6; max-width: 270px;
+    font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(14,18,26,0.9); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 9px 12px; }
+  .note a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #141821; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; font-size: 12px; }
+  .maplibregl-popup-tip { border-top-color: #141821 !important;
+    border-bottom-color: #141821 !important; }
+  .pop .big { color: var(--signal); font-size: 16px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 780px) { .card { width: auto; right: 16px; } .note { display: none; } }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div id="bases"></div>
+
+  <div class="card">
+    <h1>Twenty-six years of DFW home values</h1>
+    <p>Every ZIP code in Dallas–Fort Worth, every month since January 2000.</p>
+    <div class="when">
+      <div class="m mono nums" id="month">2000-01</div>
+      <div class="med" id="median">median ZIP <b>—</b></div>
+    </div>
+    <div class="lab">Typical home value</div>
+    <div class="scale" id="scale"></div>
+    <div class="ends"><span>$60k</span><span>$900k+</span></div>
+  </div>
+
+  <div class="note">
+    Zillow Home Value Index. A <b>modelled estimate</b>, not sale prices — Texas
+    is a non-disclosure state. The colour scale is fixed across all 318 months, so
+    the map getting darker is real growth, not a rescale.
+    <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+  </div>
+
+  <div class="bar">
+    <button class="play" id="play" aria-label="Play">▶</button>
+    <input type="range" id="slider" min="0" max="317" value="0" step="1" aria-label="Month">
+    <span class="tick mono nums" id="tick">Jan 2000</span>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark";
+
+/* A fixed scale for all 318 months. Rescaling per frame would make every year
+   look the same and hide the only thing the animation exists to show. */
+const RAMP = ["#f1f7fb", "#c9e3ef", "#96cbe0", "#63aecd", "#3d8cb5", "#2a6795", "#1d4470"];
+const STOPS = [110000, 180000, 260000, 360000, 500000, 720000];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const usd = (v) => "$" + Math.round(v).toLocaleString();
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pretty = (ym) => MONTHS[+ym.slice(5, 7) - 1] + " " + ym.slice(0, 4);
+
+document.getElementById("scale").innerHTML =
+  RAMP.map((c) => `<i style="background:${c}"></i>`).join("");
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      zips: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.95, 32.85], zoom: 8.3, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+let FC = null, TL = null, i = 0, timer = null;
+
+/* Repaint by rewriting one property rather than swapping the whole source.
+   setData on 250 polygons every 90ms re-parses the geometry each frame and
+   stutters; mutating `v` and re-setting the same object does not. */
+function frame(n) {
+  if (!FC || !TL) return;
+  i = Math.max(0, Math.min(TL.dates.length - 1, n));
+  const vals = [];
+  for (const f of FC.features) {
+    const s = TL.zips[f.properties.zip];
+    const v = s ? s[i] : null;
+    f.properties.v = v === null ? -1 : v;   // -1 renders as "no estimate"
+    if (v !== null) vals.push(v);
+  }
+  map.getSource("zips").setData(FC);
+  const ym = TL.dates[i];
+  document.getElementById("month").textContent = ym;
+  document.getElementById("tick").textContent = pretty(ym);
+  document.getElementById("slider").value = i;
+  vals.sort((a, b) => a - b);
+  document.getElementById("median").innerHTML = vals.length
+    ? `median ZIP <b>${usd(vals[Math.floor(vals.length / 2)])}</b> · ${vals.length} ZIPs`
+    : "median ZIP <b>—</b>";
+}
+
+function colour() {
+  return ["case", ["<", ["get", "v"], 0], "rgba(120,130,150,0.18)",
+    ["step", ["get", "v"],
+      RAMP[0], STOPS[0], RAMP[1], STOPS[1], RAMP[2], STOPS[2], RAMP[3],
+      STOPS[3], RAMP[4], STOPS[4], RAMP[5], STOPS[5], RAMP[6]]];
+}
+
+function play() {
+  const b = document.getElementById("play");
+  if (timer) { clearInterval(timer); timer = null; b.textContent = "▶"; return; }
+  if (i >= TL.dates.length - 1) i = 0;
+  b.textContent = "❚❚";
+  timer = setInterval(() => {
+    if (i >= TL.dates.length - 1) { clearInterval(timer); timer = null; b.textContent = "▶"; return; }
+    frame(i + 1);
+  }, 85);
+}
+document.getElementById("play").addEventListener("click", play);
+document.getElementById("slider").addEventListener("input", (e) => {
+  if (timer) { clearInterval(timer); timer = null; document.getElementById("play").textContent = "▶"; }
+  frame(+e.target.value);
+});
+
+map.on("load", () => {
+  map.addLayer({ id: "z-fill", type: "fill", source: "zips",
+    paint: { "fill-color": colour(), "fill-opacity": 0.85 } });
+  map.addLayer({ id: "z-line", type: "line", source: "zips",
+    paint: { "line-color": "rgba(255,255,255,0.22)", "line-width": 0.4 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.7 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "240px" });
+  map.on("mousemove", "z-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${esc(p.zip)}</b> <span class="sub">${esc(p.city)}</span><br>` +
+      (p.v >= 0 ? `<span class="big">${usd(p.v)}</span>`
+                : `<span class="sub">no estimate this month</span>`) +
+      `<br><span class="sub">${pretty(TL.dates[i])}</span></div>`).addTo(map);
+  });
+  map.on("mouseleave", "z-fill", () => {
+    map.getCanvas().style.cursor = ""; pop.remove();
+  });
+
+  Promise.all([
+    fetch("/data/dfw_zip_peak.geojson").then((r) => r.json()),
+    fetch("/data/dfw_zip_timeline.json").then((r) => r.json()),
+  ]).then(([fc, tl]) => {
+    FC = fc; TL = tl;
+    document.getElementById("slider").max = tl.dates.length - 1;
+    frame(0);
+  });
+});
+</script>

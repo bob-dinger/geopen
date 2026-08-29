@@ -1,0 +1,233 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How far DFW home values have fallen from their peak</title>
+<meta name="description" content="247 of 250 DFW ZIP codes sit below their own all-time high. The exurban edge is down a fifth to a quarter; the core barely moved.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-home-values-peak.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="How far DFW home values have fallen from their peak">
+<meta property="og:description" content="Half the metro peaked in July and August 2022. Princeton is down 24.6%. Inner Dallas barely moved.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-home-values-peak.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* One hue, light to dark, because this measures a single quantity: how far
+     below its own high a ZIP sits. The handful still at their peak get their
+     own colour rather than a lighter step, since "not fallen" is a different
+     state from "fallen a little". */
+  :root {
+    --ground: #0e0b0d; --panel: #191317; --panel-2: #241b21;
+    --rule: rgba(235,205,215,0.14);
+    --ink: #f6eef2; --ink-2: #bda9b3; --ink-3: #8b7a84;
+    --signal: #ff8fa3;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .card { position: absolute; left: 16px; top: 16px; z-index: 6; width: 320px;
+    background: rgba(18,13,16,0.94); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 15px 17px; backdrop-filter: blur(9px); max-height: calc(100% - 32px);
+    overflow-y: auto; }
+  .card h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.25; letter-spacing: -0.015em;
+    text-wrap: balance; }
+  .card p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .card p b { color: var(--ink); }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 13px 0 6px; }
+  .scale { display: flex; height: 9px; border-radius: 2px; overflow: hidden; }
+  .scale i { flex: 1; }
+  .ends { display: flex; justify-content: space-between; font-size: 10px;
+    color: var(--ink-3); margin-top: 4px; }
+  .rows { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
+  .row { display: flex; align-items: baseline; gap: 8px; font-size: 11.5px;
+    padding: 3px 5px; border-radius: 3px; cursor: pointer; border: 0;
+    background: none; color: var(--ink-2); font-family: inherit; text-align: left; }
+  .row:hover { background: var(--panel-2); color: var(--ink); }
+  .row .z { color: var(--ink-3); min-width: 40px; }
+  .row .n { margin-left: auto; color: var(--signal); }
+
+  #bases { position: absolute; right: 16px; top: 16px; z-index: 6; display: flex;
+    background: rgba(18,13,16,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(9px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 11px; padding: 7px 11px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .note { position: absolute; left: 16px; bottom: 14px; z-index: 6; max-width: 320px;
+    font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(18,13,16,0.9); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 9px 12px; }
+  .note a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #191317; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 8px; padding: 11px 13px;
+    font-size: 12px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #191317 !important;
+    border-bottom-color: #191317 !important; }
+  .pop b { font-size: 13px; }
+  .pop .big { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 780px) { .card { width: auto; right: 16px; } .note { display: none; } }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div id="bases"></div>
+
+  <div class="card">
+    <h1>How far DFW home values have fallen from their peak</h1>
+    <p><b>247 of 250</b> ZIP codes in Dallas–Fort Worth sit below their own all-time
+      high. Half the metro peaked in <b>July and August 2022</b>.</p>
+    <p>The pattern is a ring. The exurban edge — Princeton, Anna, Lavon, Aubrey —
+      is down a fifth to a quarter. The urban core barely moved.</p>
+
+    <div class="lab">Below its own peak</div>
+    <div class="scale" id="scale"></div>
+    <div class="ends"><span>at peak</span><span>−25%</span></div>
+
+    <div class="lab">Furthest below peak</div>
+    <div class="rows" id="worst"></div>
+  </div>
+
+  <div class="note">
+    Zillow Home Value Index, January 2000 – June 2026. ZHVI is a <b>modelled
+    estimate</b>, not a record of sales — Texas is a non-disclosure state, so
+    actual sale prices are not public here.
+    <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark";
+
+// single hue, light -> dark, for depth of decline
+const RAMP = ["#ffe3ea", "#ffc2d1", "#ff9db4", "#f77394", "#e04a74", "#b82a55"];
+const AT_PEAK = "#4bb3a5";   // a different state, not a lighter step
+const STOPS = [-1, -5, -10, -15, -20];   // percent below peak
+
+const usd = (v) => "$" + Math.round(v).toLocaleString();
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+document.getElementById("scale").innerHTML =
+  RAMP.map((c) => `<i style="background:${c}"></i>`).join("");
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref — a null here fails style validation
+      // and silently drops every layer on the map
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      zips: { type: "geojson", data: "/data/dfw_zip_peak.geojson" },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.95, 32.85], zoom: 8.3, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+function fillColour() {
+  // step() needs its input at the top level, so from_peak is read once here
+  return ["step", ["get", "from_peak"],
+    RAMP[5], STOPS[4], RAMP[4], STOPS[3], RAMP[3],
+    STOPS[2], RAMP[2], STOPS[1], RAMP[1], STOPS[0], AT_PEAK];
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "z-fill", type: "fill", source: "zips",
+    paint: { "fill-color": fillColour(), "fill-opacity": 0.82 } });
+  map.addLayer({ id: "z-line", type: "line", source: "zips",
+    paint: { "line-color": "rgba(255,255,255,0.28)", "line-width": 0.5 } });
+  map.addLayer({ id: "z-hi", type: "line", source: "zips",
+    filter: ["==", ["get", "zip"], ""],
+    paint: { "line-color": "#fff", "line-width": 2 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.75 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "270px" });
+  map.on("mousemove", "z-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const p = e.features[0].properties;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${esc(p.zip)}</b> <span class="sub">${esc(p.city)}` +
+      `${p.county ? " · " + esc(p.county) + " Co." : ""}</span><br>` +
+      `<span class="big">${p.from_peak > -0.05 ? "at its peak" : p.from_peak.toFixed(1) + "%"}</span>` +
+      `${p.from_peak > -0.05 ? "" : " below peak"}<br>` +
+      `<span class="sub">peaked ${esc(p.peak_month)} at ${usd(p.peak)}</span><br>` +
+      `now <b>${usd(p.value)}</b>` +
+      (p.multiple ? `<br><span class="sub">${p.multiple}× its January 2000 value</span>` : "") +
+      (p.p_to_r ? `<br><span class="sub">${p.p_to_r} years of rent to buy</span>` : "") +
+      `</div>`
+    ).addTo(map);
+    map.setFilter("z-hi", ["==", ["get", "zip"], p.zip]);
+  });
+  map.on("mouseleave", "z-fill", () => {
+    map.getCanvas().style.cursor = "";
+    pop.remove();
+    map.setFilter("z-hi", ["==", ["get", "zip"], ""]);
+  });
+
+  fetch("/data/dfw_zip_peak.geojson").then((r) => r.json()).then((fc) => {
+    const worst = fc.features.map((f) => f.properties)
+      .sort((a, b) => a.from_peak - b.from_peak).slice(0, 8);
+    document.getElementById("worst").innerHTML = worst.map((p) =>
+      `<button class="row mono" data-zip="${p.zip}">` +
+      `<span class="z">${p.zip}</span><span>${esc(p.city)}</span>` +
+      `<span class="n nums">${p.from_peak.toFixed(1)}%</span></button>`).join("");
+    document.getElementById("worst").addEventListener("click", (e) => {
+      const b = e.target.closest(".row"); if (!b) return;
+      const f = fc.features.find((x) => x.properties.zip === b.dataset.zip);
+      if (!f) return;
+      const cs = f.geometry.coordinates.flat(Infinity);
+      const xs = cs.filter((_, i) => i % 2 === 0), ys = cs.filter((_, i) => i % 2 === 1);
+      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+        { padding: 90, duration: 700 });
+      map.setFilter("z-hi", ["==", ["get", "zip"], b.dataset.zip]);
+    });
+  });
+});
+</script>
