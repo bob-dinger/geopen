@@ -1,0 +1,235 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Every active wildfire in Texas</title>
+<meta name="description" content="Current wildfire incidents in Texas from the federal interagency feed, sized by acres and labelled with containment.">
+<link rel="canonical" href="https://geopen.io/maps/texas-active-fires.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Every active wildfire in Texas">
+<meta property="og:description" content="Eleven active incidents. One of them is 95% of the acreage.">
+<meta property="og:url" content="https://geopen.io/maps/texas-active-fires.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-active-fires-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/texas-active-fires-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #100c0a; --panel: #1b1512; --panel-2: #261e19;
+    --rule: rgba(245,225,205,0.16);
+    --ink: #f7efe8; --ink-2: #bcaa9c; --ink-3: #8a7a6d;
+    --signal: #ffb020;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .panel { position: absolute; z-index: 6; left: var(--pad); top: var(--pad); width: 318px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(16,12,10,0.94); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.24;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .panel p b { color: var(--ink); }
+  .grab { display: none; }
+  .big { font-size: 27px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--signal); }
+  .big small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2);
+    letter-spacing: 0; margin-top: 3px; }
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .keys { display: flex; flex-direction: column; gap: 3px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .key i { width: 20px; height: 11px; border-radius: 2px; flex: none; }
+  .key .n { margin-left: auto; color: var(--ink-3); }
+  .rows { display: flex; flex-direction: column; gap: 1px; }
+  .row { display: flex; align-items: baseline; gap: 8px; font-size: 12px;
+    padding: 4px 5px; border-radius: 4px; cursor: pointer; border: 0; width: 100%;
+    background: none; color: var(--ink-2); font-family: inherit; text-align: left; }
+  .row:hover { background: var(--panel-2); color: var(--ink); }
+  .row b { margin-left: auto; color: var(--signal); font-variant-numeric: tabular-nums; }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad); display: flex;
+    background: rgba(16,12,10,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 300px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(16,12,10,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #1b1512; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #1b1512 !important;
+    border-bottom-color: #1b1512 !important; }
+  .pop .b { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0; max-height: 62%;
+      padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 78px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    .src { display: none; }
+    .src-inline { display: block; }
+    #bases button { padding: 10px 14px; }
+    .maplibregl-ctrl-bottom-right { bottom: 82px; }
+  }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>Every active wildfire in Texas</h1>
+  <div class="big nums" id="head">—<small id="headsub">loading</small></div>
+  <p style="margin-top:11px">Every active wildfire incident Texas has reported to the federal interagency system. Sized by acres burned.</p>
+  <div id="extra"></div>
+  <div class="src-inline">Incidents: <b>NIFC WFIGS Incident Locations (Current)</b>. Includes prescribed burns, which are marked RX and are deliberate. <a href="https://geopen.io/">geopen.io</a></div>
+</section>
+
+<div class="src">Incidents: <b>NIFC WFIGS Incident Locations (Current)</b>. Includes prescribed burns, which are marked RX and are deliberate. <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "topo", label: "Terrain", url: `${E}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1 },
+];
+let baseKey = "dark";
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+const j = (u) => fetch(u).then((r) => r.json());
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button")) return;
+  panel.classList.toggle("open");
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref: a null fails style validation and
+      // silently drops every layer on the map
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      d: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-99.0, 31.3], zoom: 5.6, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+/* Click first, hover only where a pointer exists. A popup bound to mousemove
+   alone leaves a phone with a dead map, and a newsletter link opens on a phone. */
+function bindPopup(layer, html) {
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "270px" });
+  const show = (e) => pop.setLngLat(e.lngLat).setHTML(html(e.features[0].properties)).addTo(map);
+  map.on("click", layer, show);
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    map.on("mousemove", layer, (e) => { map.getCanvas().style.cursor = "pointer"; show(e); });
+    map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  }
+}
+
+const FIRES = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query";
+map.on("load", async () => {
+  map.addLayer({ id: "f-dot", type: "circle", source: "d",
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["sqrt", ["max", ["get", "acres"], 1]],
+        1, 4, 30, 9, 300, 26],
+      "circle-color": ["case", ["get", "rx"], "#7aa6c2", "#ffb020"],
+      "circle-opacity": 0.82,
+      "circle-stroke-color": "#100c0a", "circle-stroke-width": 1.1 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+  setBase(BASES[0]);
+  bindPopup("f-dot", (p) =>
+    `<div class="pop"><b>${esc(p.name)}</b><br><span class="b">${num(p.acres)} acres</span>` +
+    `<br><span class="sub">${p.county ? esc(p.county) + " County · " : ""}` +
+    `${p.contained == null ? "containment not reported" : p.contained + "% contained"}` +
+    `${p.rx ? "<br>prescribed burn — deliberate" : ""}</span></div>`);
+
+  const r = await j(`${FIRES}?where=${encodeURIComponent("POOState='US-TX'")}` +
+    "&outFields=IncidentName,IncidentSize,PercentContained,POOCounty,IncidentTypeCategory" +
+    "&f=geojson&outSR=4326");
+  const fs = (r.features || []).filter((f) => f.geometry).map((f) => {
+    const a = f.properties || {};
+    const nm = a.IncidentName || "Unnamed";
+    f.properties = { name: nm, acres: a.IncidentSize || 0,
+      contained: a.PercentContained, county: a.POOCounty,
+      // RX-prefixed names are planned burns, not emergencies
+      rx: /^RX\b/i.test(nm) };
+    return f;
+  }).sort((a, b) => b.properties.acres - a.properties.acres);
+  map.getSource("d").setData({ type: "FeatureCollection", features: fs });
+
+  const wild = fs.filter((f) => !f.properties.rx);
+  const total = wild.reduce((n, f) => n + f.properties.acres, 0);
+  document.getElementById("head").innerHTML =
+    `${wild.length}<small>active wildfires, ${num(total)} acres between them</small>`;
+  document.getElementById("extra").innerHTML =
+    `<div class="lab">Legend</div><div class="keys">` +
+    `<div class="key"><i style="background:#ffb020"></i><span>wildfire</span>` +
+    `<span class="n nums">${wild.length}</span></div>` +
+    `<div class="key"><i style="background:#7aa6c2"></i><span>prescribed burn</span>` +
+    `<span class="n nums">${fs.length - wild.length}</span></div></div>` +
+    `<div class="lab">Largest</div><div class="rows">` +
+    wild.slice(0, 6).map((f) =>
+      `<div class="row"><span>${esc(f.properties.name)}</span>` +
+      `<b>${num(f.properties.acres)} ac</b></div>`).join("") + `</div>`;
+});
+
+</script>

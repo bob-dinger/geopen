@@ -1,0 +1,233 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Texas is burning right now</title>
+<meta name="description" content="Every mapped wildfire perimeter in Texas, straight from the federal interagency feed. The Ross Fire in Palo Pinto County is 88,000 acres.">
+<link rel="canonical" href="https://geopen.io/maps/texas-wildfire-perimeters.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Where Texas is burning right now">
+<meta property="og:description" content="The Ross Fire has burned 88,000 acres west of Fort Worth — 95% of everything alight in Texas.">
+<meta property="og:url" content="https://geopen.io/maps/texas-wildfire-perimeters.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-wildfire-perimeters-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/texas-wildfire-perimeters-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #100c0a; --panel: #1b1512; --panel-2: #261e19;
+    --rule: rgba(245,225,205,0.16);
+    --ink: #f7efe8; --ink-2: #bcaa9c; --ink-3: #8a7a6d;
+    --signal: #ff5a36;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .panel { position: absolute; z-index: 6; left: var(--pad); top: var(--pad); width: 318px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(16,12,10,0.94); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.24;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .panel p b { color: var(--ink); }
+  .grab { display: none; }
+  .big { font-size: 27px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--signal); }
+  .big small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2);
+    letter-spacing: 0; margin-top: 3px; }
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .keys { display: flex; flex-direction: column; gap: 3px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .key i { width: 20px; height: 11px; border-radius: 2px; flex: none; }
+  .key .n { margin-left: auto; color: var(--ink-3); }
+  .rows { display: flex; flex-direction: column; gap: 1px; }
+  .row { display: flex; align-items: baseline; gap: 8px; font-size: 12px;
+    padding: 4px 5px; border-radius: 4px; cursor: pointer; border: 0; width: 100%;
+    background: none; color: var(--ink-2); font-family: inherit; text-align: left; }
+  .row:hover { background: var(--panel-2); color: var(--ink); }
+  .row b { margin-left: auto; color: var(--signal); font-variant-numeric: tabular-nums; }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad); display: flex;
+    background: rgba(16,12,10,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 300px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(16,12,10,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #1b1512; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #1b1512 !important;
+    border-bottom-color: #1b1512 !important; }
+  .pop .b { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0; max-height: 62%;
+      padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 78px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    .src { display: none; }
+    .src-inline { display: block; }
+    #bases button { padding: 10px 14px; }
+    .maplibregl-ctrl-bottom-right { bottom: 82px; }
+  }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>Where Texas is burning right now</h1>
+  <div class="big nums" id="head">—<small id="headsub">loading</small></div>
+  <p style="margin-top:11px">Every wildfire in Texas big enough to have had its edge flown or satellite-traced. A point tells you where a fire is; a perimeter tells you how much ground it is on.</p>
+  <div id="extra"></div>
+  <div class="src-inline">Perimeters: <b>NIFC WFIGS Interagency Perimeters (Current)</b>, refreshed continuously. Only fires that have been mapped appear here — a new fire can be burning for a day before it has a polygon. <a href="https://geopen.io/">geopen.io</a></div>
+</section>
+
+<div class="src">Perimeters: <b>NIFC WFIGS Interagency Perimeters (Current)</b>, refreshed continuously. Only fires that have been mapped appear here — a new fire can be burning for a day before it has a polygon. <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "topo", label: "Terrain", url: `${E}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1 },
+];
+let baseKey = "dark";
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+const j = (u) => fetch(u).then((r) => r.json());
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button")) return;
+  panel.classList.toggle("open");
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref: a null fails style validation and
+      // silently drops every layer on the map
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      d: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-98.3, 32.6], zoom: 6.4, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+/* Click first, hover only where a pointer exists. A popup bound to mousemove
+   alone leaves a phone with a dead map, and a newsletter link opens on a phone. */
+function bindPopup(layer, html) {
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "270px" });
+  const show = (e) => pop.setLngLat(e.lngLat).setHTML(html(e.features[0].properties)).addTo(map);
+  map.on("click", layer, show);
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    map.on("mousemove", layer, (e) => { map.getCanvas().style.cursor = "pointer"; show(e); });
+    map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  }
+}
+
+const PERIM = "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query";
+map.on("load", async () => {
+  map.addLayer({ id: "p-fill", type: "fill", source: "d",
+    paint: { "fill-color": "#ff5a36", "fill-opacity": 0.55 } });
+  map.addLayer({ id: "p-line", type: "line", source: "d",
+    paint: { "line-color": "#ffd0c0", "line-width": 1.4 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+  setBase(BASES[0]);
+  bindPopup("p-fill", (p) =>
+    `<div class="pop"><b>${esc(p.name)} Fire</b><br><span class="b">${num(p.acres)} acres</span>` +
+    `<br><span class="sub">${p.contained == null ? "containment not reported"
+      : p.contained + "% contained"}</span></div>`);
+
+  /* Perimeters use poly_/attr_ prefixes; the incidents service does not. Sending
+     one service the other's field names returns zero features and no error,
+     which looks exactly like "nothing is burning". */
+  const r = await j(`${PERIM}?where=${encodeURIComponent("attr_POOState='US-TX'")}` +
+    "&outFields=poly_IncidentName,attr_IncidentName,poly_GISAcres,attr_PercentContained" +
+    "&f=geojson&outSR=4326");
+  const fs = (r.features || []).map((f) => {
+    const a = f.properties || {};
+    f.properties = { name: a.poly_IncidentName || a.attr_IncidentName || "Unnamed",
+      acres: a.poly_GISAcres || 0, contained: a.attr_PercentContained };
+    return f;
+  }).sort((a, b) => b.properties.acres - a.properties.acres);
+  map.getSource("d").setData({ type: "FeatureCollection", features: fs });
+
+  const total = fs.reduce((n, f) => n + f.properties.acres, 0);
+  document.getElementById("head").innerHTML =
+    `${num(total)}<small>acres inside a mapped perimeter, across ${fs.length} fire${fs.length === 1 ? "" : "s"}</small>`;
+  document.getElementById("extra").innerHTML =
+    `<div class="lab">Largest</div><div class="rows">` +
+    fs.slice(0, 6).map((f, i) =>
+      `<button class="row" data-i="${i}"><span>${esc(f.properties.name)}</span>` +
+      `<b>${num(f.properties.acres)} ac</b></button>`).join("") + `</div>`;
+  document.getElementById("extra").addEventListener("click", (e) => {
+    const b = e.target.closest(".row"); if (!b) return;
+    const f = fs[+b.dataset.i];
+    const cs = f.geometry.coordinates.flat(Infinity);
+    const xs = cs.filter((_, i) => i % 2 === 0), ys = cs.filter((_, i) => i % 2 === 1);
+    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+      { padding: 70, duration: 800 });
+  });
+});
+
+</script>
