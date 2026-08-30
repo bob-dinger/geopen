@@ -1,0 +1,366 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What Fort Worth is building</title>
+<meta name="description" content="Every building permit Fort Worth has filed since January 2024 — 57,276 of them, $42.5 billion of declared work. Filter by type, status and value.">
+<link rel="canonical" href="https://geopen.io/maps/fort-worth-permits.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="What Fort Worth is building">
+<meta property="og:description" content="57,276 building permits since 2024, $42.5 billion of work — including $4.15bn of data centres.">
+<meta property="og:url" content="https://geopen.io/maps/fort-worth-permits.html">
+<meta property="og:image" content="https://geopen.io/maps/fort-worth-permits-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/fort-worth-permits-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Construction: a cool ground so the permits read as heat, warm for
+     commercial and cool for residential — the distinction a reader wants
+     first is what kind of thing is being built. */
+  :root {
+    --ground: #0b0e13; --panel: #151b24; --panel-2: #1f2833;
+    --rule: rgba(200,218,240,0.15);
+    --ink: #eef3f9; --ink-2: #a6b5c8; --ink-3: #72808f;
+    --signal: #ffb020; --res: #4fb0e0;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .panel { position: absolute; z-index: 6; left: var(--pad); top: var(--pad); width: 330px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(11,14,19,0.95); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 6px; font-size: 18px; line-height: 1.24;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .grab { display: none; }
+  .big { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--signal); }
+  .big small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2);
+    letter-spacing: 0; margin-top: 3px; }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink-2);
+    font: inherit; font-size: 11.5px; padding: 5px 9px; border-radius: 99px;
+    cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #241a05; font-weight: 700; }
+  .chip.res[aria-pressed="true"] { background: var(--res); border-color: var(--res);
+    color: #04202c; }
+  .slider { display: flex; align-items: center; gap: 10px; }
+  .slider input { flex: 1; accent-color: var(--signal); }
+  .slider span { font-size: 11.5px; color: var(--ink-2); min-width: 62px; text-align: right; }
+  .find { width: 100%; background: var(--panel-2); border: 1px solid var(--rule);
+    border-radius: 6px; color: var(--ink); font: inherit; font-size: 12.5px;
+    padding: 8px 10px; }
+  .find:focus { outline: 2px solid var(--signal); outline-offset: 1px; }
+  .rows { display: flex; flex-direction: column; gap: 1px; }
+  .row { display: flex; align-items: baseline; gap: 8px; font-size: 11.5px;
+    padding: 4px 5px; border-radius: 4px; border: 0; width: 100%; cursor: pointer;
+    background: none; color: var(--ink-2); font-family: inherit; text-align: left; }
+  .row:hover { background: var(--panel-2); color: var(--ink); }
+  .row b { margin-left: auto; color: var(--signal); font-variant-numeric: tabular-nums; }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad); display: flex;
+    background: rgba(11,14,19,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 300px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(11,14,19,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #151b24; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.45; max-width: 280px; }
+  .maplibregl-popup-tip { border-top-color: #151b24 !important;
+    border-bottom-color: #151b24 !important; }
+  .pop .v { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+  .pop .d { margin-top: 5px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0; max-height: 66%;
+      padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 76px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    .src { display: none; }
+    .src-inline { display: block; }
+    #bases button { padding: 10px 14px; }
+    .maplibregl-ctrl-bottom-right { bottom: 84px; }
+  }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>What Fort Worth is building</h1>
+  <div class="big nums" id="head">—<small id="headsub">loading permits</small></div>
+
+  <div class="lab">What kind</div>
+  <div class="chips" id="kinds"></div>
+
+  <div class="lab">Status</div>
+  <div class="chips" id="stats"></div>
+
+  <div class="lab">Declared value at least</div>
+  <div class="slider">
+    <input type="range" id="minval" min="0" max="7" step="1" value="0" aria-label="Minimum value">
+    <span class="nums" id="minlab">any</span>
+  </div>
+
+  <div class="lab">Search the description or owner</div>
+  <input class="find" id="find" type="search" placeholder="data center, hospital, Walmart…">
+
+  <div class="lab">Biggest in view</div>
+  <div class="rows" id="top"></div>
+
+  <div class="src-inline">
+    City of Fort Worth development permits, filed since 1 January 2024.
+    Trade permits — electrical, plumbing, mechanical, backflow — are excluded;
+    they are 69% of all permits and are service work, not projects.
+    <a href="https://geopen.io/">geopen.io</a>
+  </div>
+</section>
+
+<div class="src">
+  City of Fort Worth development permits, filed since 1 January 2024. Trade
+  permits (electrical, plumbing, mechanical, backflow) are excluded — 69% of
+  volume, and service work rather than projects. Declared value is what the
+  applicant stated, not final cost.
+  <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/fort_worth_permits.pmtiles";
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark";
+
+const KINDS = [
+  ["Commercial Building Permit", "Commercial", false],
+  ["Residential Building Permit", "Residential", true],
+  ["Commercial Accessory Structure", "Comm. accessory", false],
+  ["Residential Accessory Struct", "Res. accessory", true],
+  ["Design Review", "Design review", false],
+  ["Commercial Grading Permit", "Grading", false],
+  ["Urban Forestry", "Urban forestry", false],
+];
+const STATUSES = ["Issued", "Finaled", "Plan Review", "Expired"];
+const STEPS = [0, 50e3, 100e3, 250e3, 1e6, 5e6, 25e6, 100e6];
+
+let onKinds = new Set(KINDS.map((k) => k[0]));
+let onStats = new Set();     // empty = all
+let minVal = 0, term = "";
+
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = (v) => v == null ? "value not stated"
+  : v >= 1e6 ? "$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 1) + "m"
+  : "$" + Math.round(v).toLocaleString();
+const when = (s) => s ? new Date(s * 1000).toLocaleDateString("en-US",
+  { month: "short", year: "numeric" }) : "—";
+
+document.getElementById("kinds").innerHTML = KINDS.map(([k, label, res]) =>
+  `<button class="chip${res ? " res" : ""}" data-k="${esc(k)}" aria-pressed="true">${label}</button>`).join("");
+document.getElementById("stats").innerHTML = STATUSES.map((s) =>
+  `<button class="chip" data-s="${s}" aria-pressed="false">${s}</button>`).join("");
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref — a null fails style validation and
+      // silently drops every layer on the map
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      p: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-97.33, 32.76], zoom: 10.2, attributionControl: { compact: true },
+});
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button, input")) return;
+  panel.classList.toggle("open");
+});
+
+/* One filter expression, rebuilt whenever a control moves. Search runs over the
+   description and the owner because those are the two fields a person actually
+   looks for — "data center", "Walmart", a builder's name. */
+function filterExpr() {
+  const f = ["all", ["in", ["get", "type"], ["literal", [...onKinds]]]];
+  if (onStats.size) f.push(["in", ["get", "status"], ["literal", [...onStats]]]);
+  if (minVal > 0) f.push([">=", ["coalesce", ["get", "value"], -1], minVal]);
+  if (term) {
+    f.push(["any",
+      [">=", ["index-of", term, ["downcase", ["coalesce", ["get", "desc"], ""]]], 0],
+      [">=", ["index-of", term, ["downcase", ["coalesce", ["get", "owner"], ""]]], 0]]);
+  }
+  return f;
+}
+
+function apply() {
+  if (!map.getLayer("dots")) return;
+  const f = filterExpr();
+  map.setFilter("dots", f);
+  map.setFilter("halo", f);
+  refresh();
+}
+
+function refresh() {
+  if (!map.getLayer("dots")) return;
+  let fs = [];
+  try { fs = map.queryRenderedFeatures({ layers: ["dots"] }); } catch (e) { return; }
+  // one permit can appear in several tiles at a tile boundary
+  const seen = new Set(), rows = [];
+  let total = 0;
+  for (const x of fs) {
+    const p = x.properties;
+    if (seen.has(p.no)) continue;
+    seen.add(p.no);
+    rows.push(p);
+    total += p.value || 0;
+  }
+  document.getElementById("head").innerHTML =
+    `${rows.length.toLocaleString()}<small>permits in view · ${money(total)} declared</small>`;
+  rows.sort((a, b) => (b.value || 0) - (a.value || 0));
+  document.getElementById("top").innerHTML = rows.slice(0, 6).map((p) =>
+    `<button class="row" data-no="${esc(p.no)}">` +
+    `<span>${esc((p.desc || p.addr || p.no || "").slice(0, 34))}</span>` +
+    `<b>${money(p.value)}</b></button>`).join("") ||
+    `<div style="font-size:11.5px;color:var(--ink-3)">nothing matches</div>`;
+}
+
+document.getElementById("kinds").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const on = b.getAttribute("aria-pressed") === "true";
+  b.setAttribute("aria-pressed", String(!on));
+  on ? onKinds.delete(b.dataset.k) : onKinds.add(b.dataset.k);
+  apply();
+});
+document.getElementById("stats").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const on = b.getAttribute("aria-pressed") === "true";
+  b.setAttribute("aria-pressed", String(!on));
+  on ? onStats.delete(b.dataset.s) : onStats.add(b.dataset.s);
+  apply();
+});
+document.getElementById("minval").addEventListener("input", (e) => {
+  minVal = STEPS[+e.target.value];
+  document.getElementById("minlab").textContent = minVal ? money(minVal) : "any";
+  apply();
+});
+let t = null;
+document.getElementById("find").addEventListener("input", (e) => {
+  clearTimeout(t);
+  t = setTimeout(() => { term = e.target.value.trim().toLowerCase(); apply(); }, 220);
+});
+document.getElementById("top").addEventListener("click", (e) => {
+  const b = e.target.closest(".row"); if (!b) return;
+  const hit = map.queryRenderedFeatures({ layers: ["dots"] })
+    .find((x) => x.properties.no === b.dataset.no);
+  if (hit) map.flyTo({ center: hit.geometry.coordinates, zoom: 16, duration: 800 });
+});
+
+map.on("load", () => {
+  map.addLayer({ id: "halo", type: "circle", source: "p", "source-layer": "permits",
+    filter: [">=", ["coalesce", ["get", "value"], 0], 25e6],
+    paint: { "circle-radius": 16, "circle-color": "#ffb020", "circle-opacity": 0.16,
+      "circle-blur": 0.6 } });
+  map.addLayer({ id: "dots", type: "circle", source: "p", "source-layer": "permits",
+    paint: {
+      // area scales with the square root of value so a $500m job is not a blob
+      "circle-radius": ["interpolate", ["linear"],
+        ["sqrt", ["max", ["coalesce", ["get", "value"], 1], 1]],
+        100, 2.4, 1000, 4, 10000, 9, 22000, 20],
+      "circle-color": ["match", ["get", "type"],
+        "Residential Building Permit", "#4fb0e0",
+        "Residential Accessory Struct", "#7fc7ea",
+        "#ffb020"],
+      "circle-opacity": 0.78,
+      "circle-stroke-color": "#0b0e13", "circle-stroke-width": 0.5 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
+  const show = (e) => {
+    const p = e.features[0].properties;
+    pop.setLngLat(e.features[0].geometry.coordinates).setHTML(
+      `<div class="pop"><span class="v">${money(p.value)}</span><br>` +
+      `<b>${esc(p.type)}</b>${p.sub ? " · " + esc(p.sub) : ""}<br>` +
+      `<span class="sub">${esc(p.addr) || "address not stated"}</span>` +
+      (p.desc ? `<div class="d">${esc(p.desc)}</div>` : "") +
+      `<div class="sub" style="margin-top:5px">filed ${when(p.filed)} · ${esc(p.status)}` +
+      (p.owner ? `<br>${esc(p.owner)}` : "") +
+      (p.sqft ? ` · ${(+p.sqft).toLocaleString()} sq ft` : "") +
+      (p.units ? ` · ${p.units} units` : "") +
+      `<br>permit ${esc(p.no)}</div></div>`).addTo(map);
+  };
+  map.on("click", "dots", show);
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    map.on("mousemove", "dots", (e) => { map.getCanvas().style.cursor = "pointer"; show(e); });
+    map.on("mouseleave", "dots", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  }
+  map.on("idle", refresh);
+});
+</script>
