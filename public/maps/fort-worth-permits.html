@@ -161,14 +161,14 @@
 const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/fort_worth_permits.pmtiles";
 const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
 const BASES = [
-  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
   { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
     ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
   { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
     ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
 ];
-let baseKey = "dark";
+let baseKey = "sat";
 
 const KINDS = [
   ["Commercial Building Permit", "Commercial", false],
@@ -325,20 +325,20 @@ document.getElementById("top").addEventListener("click", (e) => {
 map.on("load", () => {
   map.addLayer({ id: "halo", type: "circle", source: "p", "source-layer": "permits",
     filter: [">=", ["coalesce", ["get", "value"], 0], 25e6],
-    paint: { "circle-radius": 16, "circle-color": "#ffb020", "circle-opacity": 0.16,
+    paint: { "circle-radius": 26, "circle-color": "#ffb020", "circle-opacity": 0.2,
       "circle-blur": 0.6 } });
   map.addLayer({ id: "dots", type: "circle", source: "p", "source-layer": "permits",
     paint: {
       // area scales with the square root of value so a $500m job is not a blob
       "circle-radius": ["interpolate", ["linear"],
         ["sqrt", ["max", ["coalesce", ["get", "value"], 1], 1]],
-        100, 2.4, 1000, 4, 10000, 9, 22000, 20],
+        100, 4.5, 1000, 7, 10000, 15, 22000, 32],
       "circle-color": ["match", ["get", "type"],
         "Residential Building Permit", "#4fb0e0",
         "Residential Accessory Struct", "#7fc7ea",
         "#ffb020"],
-      "circle-opacity": 0.78,
-      "circle-stroke-color": "#0b0e13", "circle-stroke-width": 0.5 } });
+      "circle-opacity": 0.85,
+      "circle-stroke-color": "rgba(8,11,16,0.9)", "circle-stroke-width": 1 } });
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
   setBase(BASES[0]);
 
