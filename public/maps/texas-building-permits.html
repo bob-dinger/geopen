@@ -120,6 +120,7 @@
   <div class="keys">
     <div class="key"><i style="background:var(--house)"></i><span>mostly detached houses</span></div>
     <div class="key"><i style="background:#9bb37a"></i><span>a mix of both</span></div>
+    <div class="key"><i style="background:#d98f4f"></i><span>2–4 unit — the missing middle</span></div>
     <div class="key"><i style="background:var(--apt)"></i><span>mostly apartments</span></div>
   </div>
 
@@ -127,6 +128,7 @@
   <div class="chips" id="modes">
     <button class="chip" data-m="all" aria-pressed="true">All housing</button>
     <button class="chip" data-m="u1" aria-pressed="false">Houses only</button>
+    <button class="chip" data-m="u2" aria-pressed="false">2–4 unit</button>
     <button class="chip" data-m="u5" aria-pressed="false">Apartments only</button>
   </div>
 
@@ -143,7 +145,9 @@
 <div class="src">
   US Census <b>Building Permits Survey</b>, place level, year to December 2025.
   Collected from the permit offices themselves, which is why it covers Dallas —
-  a city whose own published permit data stops in 2019. Authorised units are not
+  a city whose own published permit data stops in 2019. All four structure
+  classes are included. About 15% of Texas single-family units are imputed by
+  Census for jurisdictions that did not file. Authorised units are not
   necessarily built. 2021 is absent: the Census file server rejected the request.
   <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
 </div>
@@ -224,7 +228,8 @@ function apply() {
   const field = mode === "all" ? "total" : mode;
   map.setPaintProperty("dots", "circle-radius", sizeFor(field));
   map.setPaintProperty("dots", "circle-color",
-    mode === "u1" ? "#ffa62b" : mode === "u5" ? "#3fbfb0" : colourAll);
+    mode === "u1" ? "#ffa62b" : mode === "u2" ? "#d98f4f"
+      : mode === "u5" ? "#3fbfb0" : colourAll);
   map.setFilter("dots", [">", ["get", field], 0]);
   list(field);
 }
@@ -272,14 +277,20 @@ map.on("load", () => {
     const share = p.total ? Math.round(p.u5 / p.total * 100) : 0;
     const rows = Object.keys(s).sort().map((y) =>
       `<tr><td class="y">${y}</td><td>${num(s[y][0])} houses</td>` +
-      `<td>${num(s[y][1])} apt</td></tr>`).join("");
+      `<td>${num(s[y][1])} mid</td><td>${num(s[y][2])} apt</td></tr>`).join("");
     pop.setLngLat(e.features[0].geometry.coordinates).setHTML(
       `<div class="pop"><b>${esc(p.name)}</b><br>` +
       `<span class="n">${num(p.total)}</span> <span class="sub">units authorised in 2025</span>` +
       `<div class="bar"><span style="flex:${p.u1};background:var(--house)"></span>` +
+      `<span style="flex:${p.u2};background:#d98f4f"></span>` +
       `<span style="flex:${p.u5};background:var(--apt)"></span></div>` +
-      `<span class="sub">${num(p.u1)} houses · ${num(p.u5)} in buildings of 5+ ` +
-      `(${share}% apartments)</span>` +
+      `<span class="sub">${num(p.u1)} houses · ${num(p.u2)} in 2–4 unit · ` +
+      `${num(p.u5)} in buildings of 5+ (${share}% apartments)</span>` +
+      // a city that filed six of twelve months is not comparable to one that
+      // filed all twelve, and nothing else on the page would reveal it
+      (p.months && p.months < 12
+        ? `<div class="sub" style="color:#e0a13a;margin-top:5px">` +
+          `reported only ${p.months} of 12 months — this total is partial</div>` : "") +
       (rows ? `<table>${rows}</table>` : "") +
       `</div>`).addTo(map);
   };
