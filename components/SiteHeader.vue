@@ -7,6 +7,7 @@
       </NuxtLink>
       <nav class="mono">
         <NuxtLink to="/">Browse</NuxtLink>
+        <NuxtLink to="/maps">Maps</NuxtLink>
         <NuxtLink to="/sources">Sources</NuxtLink>
         <NuxtLink to="/licence">Licence</NuxtLink>
       </nav>

@@ -34,6 +34,24 @@ export default defineCachedEventHandler(
     // Static pages first — they matter more than any single dataset.
     urls.push(`  <url><loc>${SITE}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`)
     urls.push(`  <url><loc>${SITE}/licence</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>`)
+    urls.push(`  <url><loc>${SITE}/sources</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>`)
+    urls.push(`  <url><loc>${SITE}/maps</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>`)
+
+    /* The map pages are static HTML in public/, so nothing else knows they
+       exist: until this was added, 26 maps were absent from the sitemap, unlinked
+       from the site and invisible to search. They are read from disk rather than
+       hard-coded so a new map appears here the moment it is deployed. */
+    try {
+      const { readdir } = await import('node:fs/promises')
+      const files = await readdir('public/maps')
+      for (const f of files.sort()) {
+        if (!f.endsWith('.html') || f.startsWith('_')) continue
+        urls.push(`  <url><loc>${SITE}/maps/${f}</loc>`
+          + `<changefreq>monthly</changefreq><priority>0.8</priority></url>`)
+      }
+    } catch {
+      // a missing directory should not take the whole sitemap down
+    }
 
     for (const r of rows) {
       const slug = slugify(r.title)
