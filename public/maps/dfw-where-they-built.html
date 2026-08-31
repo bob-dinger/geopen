@@ -1,0 +1,273 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Dallas–Fort Worth actually built</title>
+<meta name="description" content="394,685 homes added across DFW between 2015 and 2023, by ZIP code. The places that built the most are the places where prices fell the most.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-where-they-built.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Where Dallas–Fort Worth actually built">
+<meta property="og:description" content="Celina, Melissa and Prosper roughly tripled their housing stock in eight years. All three peaked within a month of each other.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-where-they-built.html">
+<meta property="og:image" content="https://geopen.io/maps/dfw-where-they-built-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dfw-where-they-built-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* One hue, light to dark, for a single quantity: how much bigger a ZIP's
+     housing stock got. Growth is the subject; the peak date is context in the
+     popup rather than a second encoding fighting the first. */
+  :root {
+    --ground: #090c0a; --panel: #121814; --panel-2: #1b241d;
+    --rule: rgba(210,235,215,0.15);
+    --ink: #eef6f0; --ink-2: #a5bcaa; --ink-3: #718a77;
+    --signal: #5ddb92;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  .panel { position: absolute; z-index: 6; left: var(--pad); top: var(--pad); width: 328px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(9,12,10,0.95); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 7px; font-size: 18px; line-height: 1.24;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .panel p b { color: var(--ink); }
+  .grab { display: none; }
+  .big { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--signal); }
+  .big small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2);
+    letter-spacing: 0; margin-top: 3px; }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .scale { display: flex; height: 9px; border-radius: 2px; overflow: hidden; }
+  .scale i { flex: 1; }
+  .ends { display: flex; justify-content: space-between; font-size: 10px;
+    color: var(--ink-3); margin-top: 4px; }
+  .rows { display: flex; flex-direction: column; gap: 1px; }
+  .row { display: flex; align-items: baseline; gap: 8px; font-size: 11.5px;
+    padding: 4px 5px; border-radius: 4px; border: 0; width: 100%; cursor: pointer;
+    background: none; color: var(--ink-2); font-family: inherit; text-align: left; }
+  .row:hover { background: var(--panel-2); color: var(--ink); }
+  .row .z { color: var(--ink-3); min-width: 38px; }
+  .row b { margin-left: auto; color: var(--signal); font-variant-numeric: tabular-nums; }
+
+  .finding { margin-top: 13px; padding: 10px 12px; background: var(--panel-2);
+    border-radius: 8px; border-left: 3px solid var(--signal); }
+  .finding p { margin: 0; font-size: 12px; line-height: 1.5; }
+  .finding b { color: var(--signal); }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad); display: flex;
+    background: rgba(9,12,10,0.93); border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer; font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 300px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(9,12,10,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #121814; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 12px 14px;
+    font-size: 12.5px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #121814 !important;
+    border-bottom-color: #121814 !important; }
+  .pop .n { color: var(--signal); font-size: 19px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+  .pop .warn { color: #e8c46a; font-size: 11px; margin-top: 5px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0; max-height: 64%;
+      padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 76px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    .src { display: none; }
+    .src-inline { display: block; }
+    #bases button { padding: 10px 14px; }
+    .maplibregl-ctrl-bottom-right { bottom: 82px; }
+  }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>Where Dallas–Fort Worth actually built</h1>
+  <div class="big nums" id="head">394,685<small>homes added between 2015 and 2023</small></div>
+  <p style="margin-top:11px">How much each ZIP code's housing stock grew. The
+    edge of the metro did not grow — it multiplied.</p>
+
+  <div class="lab">Housing stock growth, 2015–2023</div>
+  <div class="scale" id="scale"></div>
+  <div class="ends"><span>flat</span><span>+100% or more</span></div>
+
+  <div class="lab">Grew the most</div>
+  <div class="rows" id="top"></div>
+
+  <div class="finding">
+    <p><b>The places that built the most are the places where prices fell the
+      most.</b> The 53 ZIPs that grew 30% or more are down a median
+      <b>10.1%</b> from their own peak. The 70 that grew under 5% are down
+      <b>6.3%</b>.</p>
+  </div>
+
+  <div class="src-inline">
+    Census ACS 5-year, table B25001 (total housing units), 2015 and 2023.
+    <a href="https://geopen.io/maps/dfw-when-home-values-peaked.html">See when each ZIP peaked →</a>
+  </div>
+</section>
+
+<div class="src">
+  Census ACS 5-year, table B25001, 2015 and 2023. Both are <b>estimates with
+  margins of error</b>; a ZIP whose change falls inside its margin is marked in
+  the popup. Companion map:
+  <a href="https://geopen.io/maps/dfw-when-home-values-peaked.html">when each ZIP peaked</a>.
+  <a href="https://geopen.io/" target="_blank" rel="noopener">geopen.io</a>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+];
+let baseKey = "dark", FC = null;
+
+const RAMP = ["#0f2418", "#1c4a30", "#2a7548", "#39a361", "#4fc97c", "#8ee8ab"];
+const STOPS = [5, 15, 30, 60, 100];       // percent growth
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pk = (ym) => ym ? MONTHS[+ym.slice(5, 7) - 1] + " " + ym.slice(0, 4) : "—";
+
+document.getElementById("scale").innerHTML = RAMP.map((c) =>
+  `<i style="background:${c}"></i>`).join("");
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref — a null fails style validation and
+      // silently drops every layer
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b) => b.ref).ref] },
+      z: { type: "geojson", data: "/data/dfw_zip_building.geojson" },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.95, 32.9], zoom: 8.3, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button")) return;
+  panel.classList.toggle("open");
+});
+
+map.on("load", () => {
+  map.addLayer({ id: "fill", type: "fill", source: "z",
+    paint: { "fill-color": ["step", ["get", "growth"],
+      RAMP[0], STOPS[0], RAMP[1], STOPS[1], RAMP[2],
+      STOPS[2], RAMP[3], STOPS[3], RAMP[4], STOPS[4], RAMP[5]],
+      "fill-opacity": 0.84 } });
+  map.addLayer({ id: "line", type: "line", source: "z",
+    paint: { "line-color": "rgba(255,255,255,0.22)", "line-width": 0.5 } });
+  map.addLayer({ id: "hi", type: "line", source: "z",
+    filter: ["==", ["get", "zip"], ""],
+    paint: { "line-color": "#fff", "line-width": 2 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "270px" });
+  const show = (e) => {
+    const p = e.features[0].properties;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${esc(p.zip)}</b> <span class="sub">${esc(p.city)}</span><br>` +
+      `<span class="n">${p.growth > 0 ? "+" : ""}${p.growth}%</span> ` +
+      `<span class="sub">housing stock, 2015–2023</span><br>` +
+      `<span class="sub">${num(p.u2015)} → ${num(p.u2023)} homes ` +
+      `(${p.added > 0 ? "+" : ""}${num(p.added)})</span><br>` +
+      `<span class="sub">peaked ${pk(p.peak_month)} · ${p.from_peak}% since</span>` +
+      // an ACS change smaller than its own margin of error is not a measurement
+      (p.certain === false || p.certain === "false"
+        ? `<div class="warn">change is within the margin of error (±${num(p.moe)})</div>` : "") +
+      `</div>`).addTo(map);
+    map.setFilter("hi", ["==", ["get", "zip"], p.zip]);
+  };
+  map.on("click", "fill", show);
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    map.on("mousemove", "fill", (e) => { map.getCanvas().style.cursor = "pointer"; show(e); });
+    map.on("mouseleave", "fill", () => {
+      map.getCanvas().style.cursor = ""; pop.remove();
+      map.setFilter("hi", ["==", ["get", "zip"], ""]);
+    });
+  }
+
+  fetch("/data/dfw_zip_building.geojson").then((r) => r.json()).then((fc) => {
+    FC = fc;
+    const top = fc.features.map((f) => f.properties)
+      .sort((a, b) => b.growth - a.growth).slice(0, 8);
+    document.getElementById("top").innerHTML = top.map((p) =>
+      `<button class="row" data-z="${p.zip}"><span class="z">${p.zip}</span>` +
+      `<span>${esc(p.city)}</span><b>+${Math.round(p.growth)}%</b></button>`).join("");
+    document.getElementById("top").addEventListener("click", (e) => {
+      const b = e.target.closest(".row"); if (!b) return;
+      const f = fc.features.find((x) => x.properties.zip === b.dataset.z);
+      if (!f) return;
+      const cs = f.geometry.coordinates.flat(Infinity);
+      const xs = cs.filter((_, i) => i % 2 === 0), ys = cs.filter((_, i) => i % 2 === 1);
+      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+        { padding: 80, duration: 700 });
+      map.setFilter("hi", ["==", ["get", "zip"], b.dataset.z]);
+    });
+  });
+});
+</script>
