@@ -1,13 +1,13 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The 111 places where Dallas–Fort Worth actually grew</title>
-<meta name="description" content="Of 941 census tracts across the DFW region, 111 grew their housing stock by 30% or more between 2015 and 2023. Together they added 111,803 homes.">
+<title>The 111 tracts where Dallas–Fort Worth added its housing</title>
+<meta name="description" content="Of 941 census tracts across the DFW region, 111 added 30% or more to their housing unit count between 2015 and 2023 — 111,803 units between them.">
 <link rel="canonical" href="https://geopen.io/maps/dfw-boom-tracts.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
-<meta property="og:title" content="The 111 places where Dallas–Fort Worth actually grew">
-<meta property="og:description" content="941 tracts. 111 of them account for 111,803 new homes. One went from 684 houses to 3,527.">
+<meta property="og:title" content="The 111 tracts where Dallas–Fort Worth added its housing">
+<meta property="og:description" content="941 tracts. 111 of them account for 111,803 new housing units. One went from 684 units to 3,527.">
 <meta property="og:url" content="https://geopen.io/maps/dfw-boom-tracts.html">
 <meta property="og:image" content="https://geopen.io/maps/dfw-boom-tracts-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -110,17 +110,20 @@
 
 <section class="panel" id="panel">
   <div class="grab" aria-hidden="true"></div>
-  <h1>The 111 places where Dallas–Fort Worth actually grew</h1>
-  <div class="big nums" id="head">111,803<small>homes added in 111 census tracts, 2015–2023</small></div>
+  <h1>The 111 tracts where Dallas–Fort Worth added its housing</h1>
+  <div class="big nums" id="head">111,803<small>housing units added across 111 census tracts, 2015–2023</small></div>
   <p style="margin-top:11px">The DFW region has <b>941</b> census tracts. These
-    are the <b>111</b> that grew their housing stock by 30% or more. Everything
-    else is left off the map.</p>
+    are the <b>111</b> where the number of housing units rose by 30% or more.
+    Everything else is left off the map.</p>
+  <p style="font-size:11.5px;color:var(--ink-3)">This counts <b>housing units</b>
+    — houses, flats, mobile homes, occupied or empty. It is not population. A
+    tract can add hundreds of units and lose residents.</p>
 
-  <div class="lab">Growth in housing stock</div>
+  <div class="lab">Increase in housing units</div>
   <div class="scale" id="scale"></div>
   <div class="ends"><span>+30%</span><span>+400% or more</span></div>
 
-  <div class="lab">Grew the most</div>
+  <div class="lab">Largest increase</div>
   <div class="rows" id="top"></div>
 
   <div class="lab">Where they are</div>
@@ -134,7 +137,9 @@
 
 <div class="src">
   Census ACS 5-year, table B25001 (housing units), 2015 and 2023, by tract.
-  Every tract shown grew 30%+ <b>and</b> by more than its own margin of error.
+  This measures <b>housing units, not people</b> — B25001 counts dwellings,
+  occupied or vacant. Every tract shown rose 30%+ <b>and</b> by more than its
+  own margin of error.
   The other 830 are omitted deliberately: below about 30% growth, ACS cannot tell
   a real change from statistical noise — only 9% of tracts under 10% growth clear
   their own margin.
@@ -231,8 +236,8 @@ map.on("load", () => {
       `<div class="pop"><b>${esc(p.county)} County</b> ` +
       `<span class="sub">tract ${esc(p.tract)}</span><br>` +
       `<span class="n">+${Math.round(p.growth)}%</span><br>` +
-      `<span class="sub">${num(p.u2015)} → ${num(p.u2023)} homes ` +
-      `(+${num(p.added)})</span></div>`).addTo(map);
+      `<span class="sub">${num(p.u2015)} → ${num(p.u2023)} housing units ` +
+      `(+${num(p.added)} units)</span></div>`).addTo(map);
     map.setFilter("hi", ["==", ["get", "tract"], p.tract]);
   };
   map.on("click", "fill", show);

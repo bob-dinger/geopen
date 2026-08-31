@@ -114,15 +114,15 @@
 <section class="panel" id="panel">
   <div class="grab" aria-hidden="true"></div>
   <h1>Where Dallas–Fort Worth actually built</h1>
-  <div class="big nums" id="head">394,685<small>homes added between 2015 and 2023</small></div>
-  <p style="margin-top:11px">How much each ZIP code's housing stock grew. The
-    edge of the metro did not grow — it multiplied.</p>
+  <div class="big nums" id="head">394,685<small>housing units added between 2015 and 2023</small></div>
+  <p style="margin-top:11px">How much each ZIP code's count of housing units
+    rose. This is <b>units, not people</b> — dwellings, occupied or empty.</p>
 
-  <div class="lab">Housing stock growth, 2015–2023</div>
+  <div class="lab">Change in housing units, 2015–2023</div>
   <div class="scale" id="scale"></div>
   <div class="ends"><span>flat</span><span>+100% or more</span></div>
 
-  <div class="lab">Grew the most</div>
+  <div class="lab">Largest increase</div>
   <div class="rows" id="top"></div>
 
   <div class="finding">
@@ -246,9 +246,9 @@ map.on("load", () => {
     pop.setLngLat(e.lngLat).setHTML(
       `<div class="pop"><b>${esc(p.zip)}</b> <span class="sub">${esc(p.city)}</span><br>` +
       `<span class="n">${p.growth > 0 ? "+" : ""}${p.growth}%</span> ` +
-      `<span class="sub">housing stock, 2015–2023</span><br>` +
-      `<span class="sub">${num(p.u2015)} → ${num(p.u2023)} homes ` +
-      `(${p.added > 0 ? "+" : ""}${num(p.added)})</span><br>` +
+      `<span class="sub">housing units, 2015–2023</span><br>` +
+      `<span class="sub">${num(p.u2015)} → ${num(p.u2023)} housing units ` +
+      `(${p.added > 0 ? "+" : ""}${num(p.added)} units)</span><br>` +
       `<span class="sub">peaked ${pk(p.peak_month)} · ${p.from_peak}% since</span>` +
       // an ACS change smaller than its own margin of error is not a measurement
       (p.certain === false || p.certain === "false"
