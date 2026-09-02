@@ -1,13 +1,13 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Where the $1 car insurance fee went</title>
-<meta name="description" content="All 149 Texas MVCPA grants for 2026, $51.2 million from a $1 fee on every auto insurance policy. 39 of them name cameras or plate readers.">
+<title>Every Texas police grant your car insurance paid for</title>
+<meta name="description" content="All 149 Texas MVCPA grants for 2026 — $51.2 million raised by a $5 fee on every insured vehicle. 39 name cameras or plate readers, and 38 of those sit in the catalytic converter programme.">
 <link rel="canonical" href="https://geopen.io/maps/texas-mvcpa-grants.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
-<meta property="og:title" content="Where the $1 car insurance fee went">
-<meta property="og:description" content="$51.2m in state motor-vehicle-crime grants, mapped. 39 grants name cameras or plate readers; 16 name Flock outright.">
+<meta property="og:title" content="Every Texas police grant your car insurance paid for">
+<meta property="og:description" content="$51.2m in state motor-vehicle-crime grants, mapped. 38 of the 39 that name cameras sit in the fund the law reserves for catalytic converter theft.">
 <meta property="og:url" content="https://geopen.io/maps/texas-mvcpa-grants.html">
 <meta property="og:image" content="https://geopen.io/maps/texas-mvcpa-grants-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -110,9 +110,9 @@
 <div class="wrap">
   <div id="map"></div>
   <div class="titlecard">
-    <h1>Where the $1 car insurance fee went</h1>
-    <p>Every 2026 grant from the Motor Vehicle Crime Prevention Authority, the
-      agency that funds Texas police from a fee on your auto policy.
+    <h1>Every Texas police grant your car insurance paid for</h1>
+    <p>All 149 awards made in 2026 by the Motor Vehicle Crime Prevention
+      Authority, funded by $5 per insured vehicle per year.
       <a href="https://geopen.io/">geopen.io</a></p>
   </div>
   <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
@@ -305,7 +305,9 @@ map.on("load", () => {
       pop.setLngLat(e.features[0].geometry.coordinates.slice()).setHTML(
         `<b>${money(p.award)}</b> — ${p.grantee}<br>` +
         `<span style="color:#9daebe">${p.program}</span><br>` +
-        `<span style="color:#6b7d8d">grant ${p.grant_no}</span>`
+        `<span style="color:#6b7d8d">${p.stream === "catalytic"
+          ? "catalytic converter programme" : "auto theft task force"}` +
+        ` · grant ${p.grant_no}</span>`
       ).addTo(map);
     });
     map.on("mouseleave", "g", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
@@ -323,17 +325,28 @@ document.getElementById("foot").innerHTML = `<details><summary>
       awards — as a PDF, once a year, with no spreadsheet and no API. This map is
       that PDF, parsed. All 149 grants total $51,152,613, which is the figure the
       document itself prints at the bottom.</p>
-    <p><b>Where the money comes from.</b> SB 224, passed unanimously by the 2023
-      Legislature, added <b>$1 to every Texas auto insurance policy</b> to fight
-      catalytic converter theft. The Motor Vehicle Crime Prevention Authority, a
-      TxDMV agency whose board is mostly appointed by the governor, spends it.
-      In August 2026 the governor ordered state agencies to stop funding Flock
-      cameras, and Dallas said it would switch off 321 of its 684.</p>
+    <p><b>Where the money comes from.</b> Insurers pay the authority a fee for
+      every vehicle they cover. SB 224, passed unanimously in 2023, raised it
+      from <b>$4 to $5 per insured vehicle per year</b> — and reserved that extra
+      dollar, in the statute, "to be used only for coordinated regulatory and law
+      enforcement activities intended to detect and prevent catalytic converter
+      theft."</p>
+    <p><b>The law never mentions cameras.</b> Not once. Searched end to end, the
+      enrolled bill contains no "camera", no "licence plate reader", no
+      "surveillance", no "technology". It says "catalytic converter" 62 times.
+      The legislature restricted what the money was <i>for</i>; it said nothing
+      about what to buy, and agencies bought cameras.</p>
+    <p><b>Which is where the cameras are.</b> Grants numbered with a trailing C
+      are the catalytic converter programme — 117 awards worth $21.1m, against
+      $30.0m for the older auto theft task forces. <b>38 of the 39 grants that
+      name a camera sit in the converter programme</b>, as do 15 of the 16 that
+      name Flock.</p>
     <p><b>The camera count is a floor.</b> 39 grants name cameras, licence plate
       readers or ALPR in the programme title, and 16 name Flock outright. That is
       what the <i>title</i> says — a grant called "Auto Theft Task Force" may buy
       cameras too and would not be counted here. Read 39 as the minimum, never
-      the total.</p>
+      the total. In August 2026 the governor ordered state agencies to stop
+      funding Flock cameras, and Dallas said it would switch off 321 of its 684.</p>
     <p><b>One fiscal year only.</b> This is FY2026. The Texas Tribune, which
       reported the fee-to-camera link in August 2026, counted at least $30m and
       3,200 cameras across several years.</p>
