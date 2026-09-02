@@ -1,0 +1,424 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fort Worth permits, live</title>
+<meta name="description" content="Every Fort Worth building permit that changed status in the last week, queried live from the city as you load the page. Search any permit number or address and see where it is in the process.">
+<link rel="canonical" href="https://geopen.io/maps/fort-worth-permit-tracker.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Fort Worth permits, live">
+<meta property="og:description" content="Fort Worth publishes its permit workflow as a live service. Search a permit and watch it move from Plan Review to Issued — no phone call.">
+<meta property="og:url" content="https://geopen.io/maps/fort-worth-permit-tracker.html">
+<meta property="og:image" content="https://geopen.io/maps/fort-worth-permit-tracker-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/fort-worth-permit-tracker-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Same palette as the other Texas maps. */
+  :root {
+    --ground: #0c0e11; --panel: #14181d; --panel-2: #1d232a;
+    --rule: rgba(200,220,240,0.14);
+    --ink: #e9eff5; --ink-2: #9daebe; --ink-3: #6b7d8d;
+    --signal: #48e5c2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 350px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; text-wrap: balance; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+  .live { display: inline-flex; align-items: center; gap: 5px; color: var(--signal);
+    font-weight: 700; }
+  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--signal);
+    animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.25 } }
+
+  .search { margin-top: 9px; display: flex; gap: 5px; }
+  .search input { flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 3px; font: inherit; font-size: 0.72rem;
+    padding: 6px 8px; }
+  .search input::placeholder { color: var(--ink-3); }
+  .search button { background: var(--signal); border: 0; color: #05221c; font: inherit;
+    font-size: 0.7rem; font-weight: 700; padding: 6px 11px; border-radius: 3px; cursor: pointer; }
+  .found { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--rule);
+    font-size: 0.72rem; line-height: 1.5; display: none; }
+  .found.on { display: block; }
+  .found b { color: var(--signal); }
+  .track { display: flex; gap: 3px; margin: 7px 0 5px; }
+  .track div { flex: 1; height: 4px; border-radius: 2px; background: var(--panel-2); }
+  .track div.done { background: var(--signal); }
+  .track div.here { background: #ff9f43; }
+  .tracklab { display: flex; justify-content: space-between; font-size: 0.5rem;
+    color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px 11px;
+    max-width: 248px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+  .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; margin-bottom: 7px; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; }
+  h2 { margin: 10px 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  h2:first-child { margin-top: 0; }
+  .row { display: flex; align-items: center; gap: 6px; padding: 3px 5px; width: 100%;
+    border: 0; background: none; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    cursor: pointer; border-radius: 3px; text-align: left; }
+  .row i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .row b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row:hover { color: var(--ink); background: var(--panel-2); }
+  .row.on { color: var(--signal); font-weight: 700; background: var(--panel-2);
+    box-shadow: inset 0 0 0 1px var(--signal); }
+  .hint { margin: 4px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .win { display: flex; gap: 4px; }
+  .win button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .win button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #05221c; font-weight: 700; }
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #05221c; font-weight: 700; }
+  .controls { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.75; }
+  .controls:hover { opacity: 1; }
+
+  #paneltoggle { display: none; position: absolute; left: 10px; bottom: 10px; z-index: 7;
+    align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink-2); font: inherit; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; }
+  #paneltoggle .caret { color: var(--signal); font-weight: 700; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 32vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5;
+    max-width: 300px; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+    .panel { left: 10px; bottom: 56px; max-width: 200px; max-height: calc(100% - 78px); }
+    .panel.collapsed { display: none; }
+    #paneltoggle { display: inline-flex; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>Fort Worth permits, live</h1>
+    <p><span class="live"><i></i>LIVE</span> — this page queries the city's permit
+      service when you load it. Nothing here is a saved copy.
+      <a href="https://geopen.io/">geopen.io</a></p>
+    <div class="search">
+      <input id="q" type="search" placeholder="permit number or address" autocomplete="off">
+      <button id="go" type="button">Track</button>
+    </div>
+    <div class="found" id="found"></div>
+  </div>
+  <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
+    <span class="caret">▾</span><span id="pt-label">Hide legend</span>
+  </button>
+  <div class="panel" id="panel">
+    <div class="state" id="state">Loading from the city…</div>
+    <h2>Where it is in the process</h2>
+    <div id="legend"></div>
+    <p class="hint" id="hint"></p>
+    <div class="controls">
+      <h2>Status changed in the last</h2>
+      <div class="win" id="win"></div>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const SVC = "https://mapit.fortworthtexas.gov/ags/rest/services/CIVIC/Permits/MapServer/0/query";
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+];
+
+/* Accela's 22 status values collapse into the five stages an applicant actually
+   cares about. The order matters — it is the progress bar in the lookup card. */
+const STAGES = [
+  ["intake",   "Submitted",        "#5aa9e6", ["Incomplete Submittal", "Pending", "Accepted"]],
+  ["review",   "In review",        "#ff9f43", ["Plan Review", "In Review", "Pending HCLC Review",
+                                               "Awaiting Client Reply", "Hold", "Pending Fees"]],
+  ["decision", "Decided",          "#8a7fd0", ["Approved", "Approved w/Conditions", "Denied",
+                                               "Administrative Approval", "Partial Approval", "Appeal"]],
+  ["issued",   "Issued",           "#48e5c2", ["Issued"]],
+  ["closed",   "Closed or expired","#5f7080", ["Finaled", "Expired", "Void", "Withdrawn",
+                                               "Closed", "Opt-Out"]],
+];
+const STAGE_OF = {};
+STAGES.forEach(([k, , , sts], i) => sts.forEach((s) => { STAGE_OF[s.toLowerCase()] = { k, i }; }));
+const stageOf = (s) => STAGE_OF[String(s || "").toLowerCase()] || { k: "intake", i: 0 };
+const COL = Object.fromEntries(STAGES.map(([k, , c]) => [k, c]));
+
+let baseKey = "dark", days = 7, picked = null, FEATS = [];
+const num = (v) => Number(v || 0).toLocaleString();
+const dstr = (ms) => ms ? new Date(ms).toISOString().slice(0, 10) : "—";
+const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
+  ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+document.getElementById("win").innerHTML = [1, 3, 7, 14].map((d) =>
+  `<button type="button" data-d="${d}" aria-pressed="${d===days}">${d}d</button>`).join("");
+document.getElementById("win").addEventListener("click", (e) => {
+  const d = e.target.dataset && e.target.dataset.d;
+  if (d) { days = +d; document.querySelectorAll("#win button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(+x.dataset.d === days))); load(); }
+});
+
+(function () {
+  const btn = document.getElementById("paneltoggle"), panel = document.getElementById("panel");
+  const label = document.getElementById("pt-label");
+  btn.addEventListener("click", () => {
+    const open = !panel.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide legend" : "Legend";
+    btn.querySelector(".caret").textContent = open ? "▾" : "▴";
+  });
+})();
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-97.33, 32.755], zoom: 10.2, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  if (map.getLayer("p")) map.setPaintProperty("p", "circle-stroke-color", bm.dark ? "#0c0e11" : "#ffffff");
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+const FIELDS = "Permit_No,Permit_Type,Permit_SubType,B1_WORK_DESC,Address,Owner_Full_Name," +
+               "File_Date,Current_Status,Status_Date";
+
+/* The service caps a response at 1,000 rows, so anything wider than a day or
+   two needs paging. resultOffset is only reliable with an orderBy, hence the
+   explicit sort. */
+async function fetchAll(where, cap = 6000) {
+  const out = [];
+  for (let off = 0; off < cap; off += 1000) {
+    const u = new URL(SVC);
+    u.search = new URLSearchParams({
+      where, outFields: FIELDS, returnGeometry: "true", outSR: "4326",
+      orderByFields: "Status_Date DESC", resultOffset: off, resultRecordCount: 1000, f: "json",
+    });
+    const r = await fetch(u).then((x) => x.json());
+    const f = r.features || [];
+    out.push(...f);
+    if (f.length < 1000) break;
+  }
+  return out;
+}
+
+const toGeo = (rows) => ({ type: "FeatureCollection", features: rows
+  .filter((f) => f.geometry && f.geometry.x)
+  .map((f) => ({ type: "Feature",
+    geometry: { type: "Point", coordinates: [f.geometry.x, f.geometry.y] },
+    properties: { ...f.attributes, stage: stageOf(f.attributes.Current_Status).k } })) });
+
+function draw(gj) {
+  FEATS = gj.features;
+  if (map.getSource("p")) { map.getSource("p").setData(gj); }
+  else {
+    map.addSource("p", { type: "geojson", data: gj });
+    map.addLayer({ id: "p", type: "circle", source: "p",
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 3, 13, 6, 16, 11],
+        "circle-color": ["match", ["get", "stage"],
+          ...STAGES.flatMap(([k, , c]) => [k, c]), "#5f7080"],
+        "circle-opacity": 0.8,
+        "circle-stroke-color": "#0c0e11",
+        "circle-stroke-width": 0.7 } });
+    if (!map.getLayer("ref")) {
+      map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+    }
+    setBase(BASES.find((b) => b.id === baseKey));
+    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "320px" });
+    map.on("mousemove", "p", (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      const p = e.features[0].properties;
+      pop.setLngLat(e.features[0].geometry.coordinates.slice()).setHTML(card(p)).addTo(map);
+    });
+    map.on("mouseleave", "p", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  }
+  applyFilter();
+}
+function card(p) {
+  return `<b>${esc(p.Current_Status)}</b> — ${esc(p.Permit_No)}<br>` +
+    `<span style="color:#9daebe">${esc(p.Address)}</span><br>` +
+    `<span style="color:#9daebe">${esc(p.Permit_Type)}${p.Permit_SubType && p.Permit_SubType !== "NA" ? " · " + esc(p.Permit_SubType) : ""}</span><br>` +
+    (p.B1_WORK_DESC ? `<span style="color:#6b7d8d">${esc(String(p.B1_WORK_DESC).slice(0, 120))}</span><br>` : "") +
+    `<span style="color:#6b7d8d">filed ${dstr(p.File_Date)} · status changed ${dstr(p.Status_Date)}</span>`;
+}
+function applyFilter() {
+  if (map.getLayer("p")) {
+    map.setFilter("p", picked ? ["==", ["get", "stage"], picked] : null);
+  }
+  document.querySelectorAll(".row").forEach((r) => r.classList.toggle("on", picked === r.dataset.k));
+  const n = {};
+  for (const f of FEATS) n[f.properties.stage] = (n[f.properties.stage] || 0) + 1;
+  document.getElementById("legend").innerHTML = STAGES.map(([k, lab, c]) =>
+    `<button class="row" data-k="${k}" onclick="pick('${k}')"><i style="background:${c}"></i>
+      <span>${lab}</span><b>${num(n[k] || 0)}</b></button>`).join("");
+  document.querySelectorAll(".row").forEach((r) => r.classList.toggle("on", picked === r.dataset.k));
+  const shown = picked ? (n[picked] || 0) : FEATS.length;
+  document.getElementById("state").innerHTML =
+    `<b>${num(shown)}</b> permits<span>changed status in the last ${days} day${days > 1 ? "s" : ""}` +
+    `, as of ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC</span>`;
+  document.getElementById("hint").textContent = picked
+    ? "Tap the same row again to show every stage."
+    : "Orange is waiting on somebody — the city, or the applicant.";
+}
+window.pick = (k) => { picked = picked === k ? null : k; applyFilter(); };
+
+async function load() {
+  document.getElementById("state").textContent = "Querying the city…";
+  // Status_Date is capped at today because a handful of rows carry dates up to
+  // nine months in the future, which would otherwise read as "changed today".
+  const where = `Status_Date >= CURRENT_DATE - ${days} AND Status_Date <= CURRENT_DATE`;
+  try {
+    draw(toGeo(await fetchAll(where)));
+  } catch (err) {
+    document.getElementById("state").innerHTML =
+      `<b>Could not reach the city</b><span>The permit service did not answer. ` +
+      `It is theirs, not ours, and it is occasionally down.</span>`;
+  }
+}
+
+/* Look up one permit and show where it sits in the workflow. Matches a permit
+   number first, then falls back to an address search. */
+async function track() {
+  const q = document.getElementById("q").value.trim();
+  const box = document.getElementById("found");
+  if (!q) { box.classList.remove("on"); return; }
+  box.classList.add("on");
+  box.innerHTML = "Searching…";
+  const esq = q.replace(/'/g, "''").toUpperCase();
+  const where = `UPPER(Permit_No) LIKE '%${esq}%' OR UPPER(Address) LIKE '%${esq}%'`;
+  try {
+    const u = new URL(SVC);
+    u.search = new URLSearchParams({ where, outFields: FIELDS, returnGeometry: "true",
+      outSR: "4326", orderByFields: "Status_Date DESC", resultRecordCount: 25, f: "json" });
+    const r = await fetch(u).then((x) => x.json());
+    const rows = r.features || [];
+    if (!rows.length) { box.innerHTML = `Nothing matches “${esc(q)}”.`; return; }
+    const f = rows[0], p = f.attributes, st = stageOf(p.Current_Status);
+    box.innerHTML =
+      `<b>${esc(p.Permit_No)}</b> — ${esc(p.Current_Status)}` +
+      `<div class="track">${STAGES.map((s, i) =>
+        `<div class="${i < st.i ? "done" : i === st.i ? "here" : ""}"></div>`).join("")}</div>` +
+      `<div class="tracklab"><span>submitted</span><span>issued</span><span>closed</span></div>` +
+      `<div style="margin-top:6px;color:#9daebe">${esc(p.Address)}<br>` +
+      `${esc(p.Permit_Type)} · filed ${dstr(p.File_Date)}<br>` +
+      `last moved ${dstr(p.Status_Date)}</div>` +
+      (rows.length > 1 ? `<div style="margin-top:5px;color:#6b7d8d">${rows.length - 1} other
+        permit${rows.length > 2 ? "s" : ""} match — showing the most recently changed.</div>` : "");
+    if (f.geometry && f.geometry.x) {
+      map.flyTo({ center: [f.geometry.x, f.geometry.y], zoom: 16 });
+      new maplibregl.Popup({ closeButton: true, maxWidth: "320px" })
+        .setLngLat([f.geometry.x, f.geometry.y]).setHTML(card(p)).addTo(map);
+    }
+  } catch (err) {
+    box.innerHTML = "The city's service did not answer. Try again in a moment.";
+  }
+}
+document.getElementById("go").addEventListener("click", track);
+document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") track(); });
+
+map.on("load", load);
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Live from the ${A("https://mapit.fortworthtexas.gov/ags/rest/services/CIVIC/Permits/MapServer/0", "City of Fort Worth permit service")}
+      · public record · ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">Why this page can exist, and why Dallas has no equivalent</span>
+  </summary>
+  <div class="notes">
+    <p><b>This is not a copy.</b> Every point was fetched from Fort Worth's own
+      server when you opened this page. Reload it in an hour and it will be
+      different. There is no database here and no nightly job — the city
+      publishes a queryable service and this is just a window onto it.</p>
+    <p><b>Fort Worth publishes the workflow, not just the outcome.</b> Each permit
+      carries a status and the date it last moved, across 22 values that map to
+      the five stages above. That is enough to follow a project from submission
+      to final inspection without ringing anybody, and enough to ask harder
+      questions — how long plan review really takes, which queues are backing
+      up, whether your permit is slow or the whole month is.</p>
+    <p><b>"In review" is the honest one.</b> It includes <i>Awaiting Client
+      Reply</i>, which means the city is waiting on the applicant rather than the
+      other way round. Any measure of city speed that ignores that is unfair to
+      the city.</p>
+    <p><b>Dallas runs the same software.</b> Dallas, Fort Worth and Austin all
+      use Accela. Fort Worth exposes it as an open service; Dallas's public
+      permit dataset stops in 2020 and its live records sit behind a login. Same
+      vendor, same product, opposite answer.</p>
+    <p><b>Caveats.</b> A small number of records carry a status date up to nine
+      months in the future, so this page ignores anything dated after today.
+      Points are the city's own geocodes and some sit at a block centroid rather
+      than a building. If the service is down, this page is blank — that is the
+      cost of not keeping a copy.</p>
+  </div></details>`;
+</script>
