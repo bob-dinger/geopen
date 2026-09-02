@@ -1,0 +1,415 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What's dug up in Dallas right now</title>
+<meta name="description" content="Every open right-of-way permit in Dallas, queried live from the city. Where the street is torn up, who is digging, what they are fixing, and when they said they would finish.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-street-work.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="What's dug up in Dallas right now">
+<meta property="og:description" content="Live from the city: every open permit to dig up a Dallas street. Gas, water, sewer, paving — who is digging and when they said they would be done.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-street-work.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-street-work-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-street-work-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0c0e11; --panel: #14181d; --panel-2: #1d232a;
+    --rule: rgba(200,220,240,0.14);
+    --ink: #e9eff5; --ink-2: #9daebe; --ink-3: #6b7d8d;
+    --signal: #48e5c2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 348px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; text-wrap: balance; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+  .live { display: inline-flex; align-items: center; gap: 5px; color: var(--signal);
+    font-weight: 700; }
+  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--signal);
+    animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.25 } }
+  .search { margin-top: 9px; display: flex; gap: 5px; }
+  .search input { flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 3px; font: inherit; font-size: 0.72rem;
+    padding: 6px 8px; }
+  .search input::placeholder { color: var(--ink-3); }
+  .search button { background: var(--signal); border: 0; color: #05221c; font: inherit;
+    font-size: 0.7rem; font-weight: 700; padding: 6px 11px; border-radius: 3px; cursor: pointer; }
+  .found { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--rule);
+    font-size: 0.72rem; line-height: 1.5; display: none; }
+  .found.on { display: block; }
+  .found b { color: var(--signal); }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px 11px;
+    max-width: 250px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+  .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; margin-bottom: 7px; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; }
+  h2 { margin: 10px 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  h2:first-child { margin-top: 0; }
+  .row { display: flex; align-items: center; gap: 6px; padding: 3px 5px; width: 100%;
+    border: 0; background: none; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    cursor: pointer; border-radius: 3px; text-align: left; }
+  .row i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .row b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row:hover { color: var(--ink); background: var(--panel-2); }
+  .row.on { color: var(--signal); font-weight: 700; background: var(--panel-2);
+    box-shadow: inset 0 0 0 1px var(--signal); }
+  .hint { margin: 4px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .win, .bases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .win button { flex: 1; }
+  .bases button { flex: 1 1 44%; }
+  .win button, .bases button { background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .win button[aria-pressed="true"], .bases button[aria-pressed="true"] {
+    background: var(--signal); border-color: var(--signal); color: #05221c; font-weight: 700; }
+  .chk { display: flex; align-items: center; gap: 7px; padding: 3px 0; font-size: 0.7rem;
+    color: var(--ink-2); cursor: pointer; }
+  .chk input { accent-color: #ff5f56; }
+  .controls { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.75; }
+  .controls:hover { opacity: 1; }
+
+  #paneltoggle { display: none; position: absolute; left: 10px; bottom: 10px; z-index: 7;
+    align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink-2); font: inherit; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  #paneltoggle .caret { color: var(--signal); font-weight: 700; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 32vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5;
+    max-width: 300px; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+    .panel { left: 10px; bottom: 56px; max-width: 200px; max-height: calc(100% - 78px); }
+    .panel.collapsed { display: none; }
+    #paneltoggle { display: inline-flex; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>What's dug up in Dallas right now</h1>
+    <p><span class="live"><i></i>LIVE</span> — every open permit to dig up a
+      street, queried from the city as this page loads.
+      <a href="https://geopen.io/">geopen.io</a></p>
+    <div class="search">
+      <input id="q" type="search" placeholder="your street name" autocomplete="off">
+      <button id="go" type="button">Find</button>
+    </div>
+    <div class="found" id="found"></div>
+  </div>
+  <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
+    <span class="caret">▾</span><span id="pt-label">Hide legend</span>
+  </button>
+  <div class="panel" id="panel">
+    <div class="state" id="state">Loading from the city…</div>
+    <h2>What they're digging for</h2>
+    <div id="legend"></div>
+    <p class="hint" id="hint"></p>
+    <div class="controls">
+      <label class="chk"><input type="checkbox" id="emo"> Emergency repairs only</label>
+      <h2>Work that began in the last</h2>
+      <div class="win" id="win"></div>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const SVC = "https://gis.dallascityhall.com/arcgis/rest/services/Pbw_public/ROWMSPermits/MapServer/0/query";
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+];
+// Ordered by how often they appear, so the legend reads as the real ranking.
+const KINDS = [
+  ["Gas", "#ff9f43"], ["Wastewater", "#8a7fd0"], ["Drive Approach", "#9aa7b3"],
+  ["Water", "#5aa9e6"], ["Electric", "#c2e812"], ["Street Paving", "#48e5c2"],
+  ["Sidewalk", "#e8558a"], ["Other", "#5f7080"],
+];
+const COL = Object.fromEntries(KINDS);
+let baseKey = "dark", days = 90, picked = null, emergency = false, FEATS = [];
+
+const num = (v) => Number(v || 0).toLocaleString();
+const dstr = (ms) => ms ? new Date(ms).toISOString().slice(0, 10) : "—";
+const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
+  ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+const kindOf = (v) => COL[v] ? v : "Other";
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+document.getElementById("win").innerHTML = [30, 90, 365, 0].map((d) =>
+  `<button type="button" data-d="${d}" aria-pressed="${d===days}">${d ? d + "d" : "all"}</button>`).join("");
+document.getElementById("win").addEventListener("click", (e) => {
+  const d = e.target.dataset && e.target.dataset.d;
+  if (d !== undefined && d !== null && e.target.tagName === "BUTTON") {
+    days = +d;
+    document.querySelectorAll("#win button").forEach((x) =>
+      x.setAttribute("aria-pressed", String(+x.dataset.d === days)));
+    load();
+  }
+});
+document.getElementById("emo").addEventListener("change", (e) => {
+  emergency = e.target.checked; load();
+});
+
+(function () {
+  const btn = document.getElementById("paneltoggle"), panel = document.getElementById("panel");
+  const label = document.getElementById("pt-label");
+  btn.addEventListener("click", () => {
+    const open = !panel.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide legend" : "Legend";
+    btn.querySelector(".caret").textContent = open ? "▾" : "▴";
+  });
+})();
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.79, 32.79], zoom: 10.1, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  if (map.getLayer("w")) map.setPaintProperty("w", "circle-stroke-color", bm.dark ? "#0c0e11" : "#ffffff");
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+const FIELDS = "EXTERNALFILENUM,STATUSDESCRIPTION,ROWREASONFORJOB,ROWIMPROVEMENTREPAIR," +
+  "ROWISEMERGENCYREPAIR,ROWREQUESTEDSTARTDATE,ROWESTIMATEDCOMPLETIONDATE,WORKDESCRIPTION," +
+  "LOCATIONNAMES,ALLCONTRACTORSNAME,APPLICANTCOMPANYNAMESTORED,COUNCIL_DISTRICTS";
+
+/* "Open" means the city's own start and completion dates straddle today. Note
+   that only 17 permits in the whole file carry a future start date, so this can
+   only ever show work already under way — see the notes. */
+function whereClause() {
+  let w = "ROWREQUESTEDSTARTDATE <= CURRENT_TIMESTAMP AND " +
+          "ROWESTIMATEDCOMPLETIONDATE >= CURRENT_TIMESTAMP";
+  if (days) w += ` AND ROWREQUESTEDSTARTDATE >= CURRENT_TIMESTAMP - INTERVAL '${days}' DAY`;
+  if (emergency) w += " AND ROWISEMERGENCYREPAIR = 'Yes'";
+  return w;
+}
+
+async function fetchAll(where, cap = 8000) {
+  const out = [];
+  for (let off = 0; off < cap; off += 1000) {
+    const u = new URL(SVC);
+    u.search = new URLSearchParams({
+      where, outFields: FIELDS, returnGeometry: "true", outSR: "4326",
+      orderByFields: "ROWREQUESTEDSTARTDATE DESC",
+      resultOffset: off, resultRecordCount: 1000, f: "json",
+    });
+    const r = await fetch(u).then((x) => x.json());
+    const f = r.features || [];
+    out.push(...f);
+    if (f.length < 1000) break;
+  }
+  return out;
+}
+const toGeo = (rows) => ({ type: "FeatureCollection", features: rows
+  .filter((f) => f.geometry && f.geometry.x)
+  .map((f) => ({ type: "Feature",
+    geometry: { type: "Point", coordinates: [f.geometry.x, f.geometry.y] },
+    properties: { ...f.attributes, kind: kindOf(f.attributes.ROWIMPROVEMENTREPAIR) } })) });
+
+function card(p) {
+  const late = p.ROWESTIMATEDCOMPLETIONDATE && p.ROWESTIMATEDCOMPLETIONDATE < Date.now();
+  return `<b>${esc(p.kind)}</b>${p.ROWISEMERGENCYREPAIR === "Yes"
+      ? ' <span style="color:#ff5f56;font-weight:700">EMERGENCY</span>' : ""}<br>` +
+    `<span style="color:#9daebe">${esc(p.LOCATIONNAMES || "location not given")}</span><br>` +
+    `<span style="color:#9daebe">${esc(p.ROWREASONFORJOB)}</span><br>` +
+    (p.WORKDESCRIPTION ? `<span style="color:#6b7d8d">${esc(String(p.WORKDESCRIPTION).slice(0, 130))}</span><br>` : "") +
+    `<span style="color:#6b7d8d">started ${dstr(p.ROWREQUESTEDSTARTDATE)} · ` +
+    `due ${dstr(p.ROWESTIMATEDCOMPLETIONDATE)}${late ? " (overdue)" : ""}</span><br>` +
+    (p.ALLCONTRACTORSNAME ? `<span style="color:#6b7d8d">contractor: ${esc(p.ALLCONTRACTORSNAME)}</span><br>` : "") +
+    `<span style="color:#6b7d8d">permit ${esc(p.EXTERNALFILENUM)}</span>`;
+}
+
+function draw(gj) {
+  FEATS = gj.features;
+  if (map.getSource("w")) map.getSource("w").setData(gj);
+  else {
+    map.addSource("w", { type: "geojson", data: gj });
+    map.addLayer({ id: "w", type: "circle", source: "w",
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 3, 13, 6, 16, 11],
+        "circle-color": ["match", ["get", "kind"], ...KINDS.flat(), "#5f7080"],
+        "circle-opacity": 0.82,
+        "circle-stroke-color": "#0c0e11",
+        "circle-stroke-width": 0.7 } });
+    if (!map.getLayer("ref")) {
+      map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+    }
+    setBase(BASES.find((b) => b.id === baseKey));
+    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "320px" });
+    const show = (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      pop.setLngLat(e.features[0].geometry.coordinates.slice())
+         .setHTML(card(e.features[0].properties)).addTo(map);
+    };
+    map.on("mousemove", "w", show);
+    map.on("click", "w", show);
+    map.on("mouseleave", "w", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  }
+  applyFilter();
+}
+function applyFilter() {
+  if (map.getLayer("w")) map.setFilter("w", picked ? ["==", ["get", "kind"], picked] : null);
+  const n = {};
+  for (const f of FEATS) n[f.properties.kind] = (n[f.properties.kind] || 0) + 1;
+  document.getElementById("legend").innerHTML = KINDS.filter(([k]) => n[k])
+    .map(([k, c]) => `<button class="row" data-k="${k}" onclick="pick('${k}')">
+      <i style="background:${c}"></i><span>${k}</span><b>${num(n[k])}</b></button>`).join("");
+  document.querySelectorAll(".row").forEach((r) => r.classList.toggle("on", picked === r.dataset.k));
+  const shown = picked ? (n[picked] || 0) : FEATS.length;
+  document.getElementById("state").innerHTML =
+    `<b>${num(shown)}</b> streets open${emergency ? ", emergency only" : ""}` +
+    `<span>work under way now${days ? `, begun in the last ${days} days` : ""}</span>`;
+  document.getElementById("hint").textContent = picked
+    ? "Tap the same row again to show everything."
+    : "One point is one permit, at the address the city recorded.";
+}
+window.pick = (k) => { picked = picked === k ? null : k; applyFilter(); };
+
+async function load() {
+  document.getElementById("state").textContent = "Querying the city…";
+  try { draw(toGeo(await fetchAll(whereClause()))); }
+  catch (err) {
+    document.getElementById("state").innerHTML =
+      `<b>Could not reach the city</b><span>The permit service did not answer. ` +
+      `It is the city's, not ours.</span>`;
+  }
+}
+
+async function find() {
+  const q = document.getElementById("q").value.trim();
+  const box = document.getElementById("found");
+  if (!q) { box.classList.remove("on"); return; }
+  box.classList.add("on"); box.innerHTML = "Searching…";
+  const esq = q.replace(/'/g, "''").toUpperCase();
+  try {
+    const u = new URL(SVC);
+    u.search = new URLSearchParams({
+      where: `UPPER(LOCATIONNAMES) LIKE '%${esq}%' AND ` +
+             `ROWESTIMATEDCOMPLETIONDATE >= CURRENT_TIMESTAMP`,
+      outFields: FIELDS, returnGeometry: "true", outSR: "4326",
+      orderByFields: "ROWREQUESTEDSTARTDATE DESC", resultRecordCount: 50, f: "json",
+    });
+    const rows = (await fetch(u).then((x) => x.json())).features || [];
+    if (!rows.length) {
+      box.innerHTML = `No open street work matching “${esc(q)}”. That is good news.`;
+      return;
+    }
+    const f = rows[0], p = { ...f.attributes, kind: kindOf(f.attributes.ROWIMPROVEMENTREPAIR) };
+    box.innerHTML = `<b>${rows.length}</b> open permit${rows.length > 1 ? "s" : ""} on that street.` +
+      `<div style="margin-top:6px;color:#9daebe">Most recent: ${esc(p.kind)} at ` +
+      `${esc(p.LOCATIONNAMES)}<br>started ${dstr(p.ROWREQUESTEDSTARTDATE)}, ` +
+      `due ${dstr(p.ROWESTIMATEDCOMPLETIONDATE)}</div>`;
+    if (f.geometry && f.geometry.x) {
+      map.flyTo({ center: [f.geometry.x, f.geometry.y], zoom: 15.5 });
+      new maplibregl.Popup({ closeButton: true, maxWidth: "320px" })
+        .setLngLat([f.geometry.x, f.geometry.y]).setHTML(card(p)).addTo(map);
+    }
+  } catch (err) { box.innerHTML = "The city's service did not answer. Try again shortly."; }
+}
+document.getElementById("go").addEventListener("click", find);
+document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") find(); });
+
+map.on("load", load);
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Live from the ${A("https://gis.dallascityhall.com/arcgis/rest/services/Pbw_public/ROWMSPermits/MapServer", "City of Dallas right-of-way permit service")}
+      · public record · ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">What this shows, and what it can't tell you</span>
+  </summary>
+  <div class="notes">
+    <p><b>A right-of-way permit is permission to dig up the public street</b> —
+      the roadway, median, parkway, alley or sidewalk. Almost all of it is
+      utility work: across the whole file, 21,713 permits are gas, 13,287
+      wastewater, 7,586 water, 5,035 electric. Roughly half are repairs to
+      something existing and a third are new service connections.</p>
+    <p><b>It will not warn you in advance.</b> Of 63,227 permits, exactly
+      <b>17</b> carry a start date in the future. Dallas issues these at or
+      near the moment work begins, so this map shows streets that are already
+      open, not streets that are about to be. That is a limit of the record, not
+      of the map.</p>
+    <p><b>"Due" dates are the applicant's estimate.</b> Some run years out —
+      the latest completion date in the file is 2034 — and plenty are already
+      past. A permit still counted as open may be finished on the ground.</p>
+    <p><b>Why this map exists.</b> Dallas publishes this service openly: current
+      to within two days, no login, queryable by anyone. It also publishes
+      1.8 million building permits — but as a one-off layer ending in November
+      2024, on a portal with no catalogue, while the open data page everyone
+      visits still directs residents to a vendor login. The city plainly knows
+      how to do this. It has done it here.</p>
+    <p><b>Points are the city's own geocodes</b>, so some sit at a block centroid
+      rather than the exact trench. If the service is down this page is blank —
+      it keeps no copy.</p>
+  </div></details>`;
+</script>
