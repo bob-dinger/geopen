@@ -2,12 +2,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Every licence plate reader mapped in Texas</title>
-<meta name="description" content="16,243 automatic licence plate readers across Texas, mapped by volunteers. 92% are Flock Safety. Only 8.7% say who runs them.">
+<meta name="description" content="16,613 automatic licence plate readers across Texas, mapped by volunteers. 92% are Flock Safety. Only 8.5% say who runs them.">
 <link rel="canonical" href="https://geopen.io/maps/texas-alpr-cameras.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
 <meta property="og:title" content="Every licence plate reader mapped in Texas">
-<meta property="og:description" content="16,243 plate readers, 92% of them Flock Safety — and nine in ten don't say who operates them.">
+<meta property="og:description" content="16,613 plate readers, 92% of them Flock Safety — and nine in ten don't say who operates them.">
 <meta property="og:url" content="https://geopen.io/maps/texas-alpr-cameras.html">
 <meta property="og:image" content="https://geopen.io/maps/texas-alpr-cameras-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -72,6 +72,16 @@
     opacity: 0.75; }
   .controls:hover { opacity: 1; }
 
+  /* Phone only. On a small screen the legend covers the part of the map it is
+     describing, so it has to be dismissable — but it is also the key to the
+     colours, so it starts open and the button stays put when it closes. */
+  #paneltoggle { display: none; position: absolute; left: 10px; bottom: 10px; z-index: 7;
+    align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink-2); font: inherit; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; }
+  #paneltoggle .caret { color: var(--signal); font-weight: 700; }
+
   footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
     line-height: 1.5; }
   footer a { color: var(--ink-2); }
@@ -92,7 +102,10 @@
   .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
   @media (max-width: 700px) {
     .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
-    .panel { left: 10px; bottom: 10px; max-width: 186px; }
+    /* sits above the toggle rather than under it */
+    .panel { left: 10px; bottom: 56px; max-width: 186px; max-height: calc(100% - 78px); }
+    .panel.collapsed { display: none; }
+    #paneltoggle { display: inline-flex; }
   }
 </style>
 
@@ -100,10 +113,13 @@
   <div id="map"></div>
   <div class="titlecard">
     <h1>Every licence plate reader mapped in Texas</h1>
-    <p>16,243 cameras, recorded by volunteers driving past them. Nobody official
+    <p>16,613 cameras, recorded by volunteers driving past them. Nobody official
       publishes this. <a href="https://geopen.io/">geopen.io</a></p>
   </div>
-  <div class="panel">
+  <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
+    <span class="caret">▾</span><span id="pt-label">Hide legend</span>
+  </button>
+  <div class="panel" id="panel">
     <div class="state" id="state"></div>
     <h2 id="legtitle">Who operates it</h2>
     <div id="legend"></div>
@@ -150,7 +166,7 @@ const VIEWS = {
       ["School or university", "School or university", "#c2e812"],
       ["Other named operator", "Other named", "#9aa7b3"],
     ],
-    hint: "Only 8.7% of cameras say who runs them. The grey is not missing data to be filled in — it is the finding." },
+    hint: "Only 8.5% of cameras say who runs them. The grey is not missing data to be filled in — it is the finding." },
   make: { field: "make", title: "Who made it",
     cats: [
       ["Flock Safety", "Flock Safety", "#48e5c2"],
@@ -173,6 +189,21 @@ document.getElementById("bases").addEventListener("click", (e) => {
   const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
   if (bm) setBase(bm);
 });
+
+/* The toggle is styled away above 700px, and the collapse rule only exists
+   inside that media query — so a phone that is rotated or a window that is
+   widened gets the panel back without any resize listener. */
+(function () {
+  const btn = document.getElementById("paneltoggle");
+  const panel = document.getElementById("panel");
+  const label = document.getElementById("pt-label");
+  btn.addEventListener("click", () => {
+    const open = !panel.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide legend" : "Legend";
+    btn.querySelector(".caret").textContent = open ? "▾" : "▴";
+  });
+})();
 
 const map = new maplibregl.Map({
   container: "map",
@@ -239,7 +270,7 @@ function state() {
     `<b>${num(on.length)}</b> plate readers${lab ? ` — ${lab.toLowerCase()}` : " mapped in Texas"}` +
     `<span>${named ? `${num(named)} say who runs them` : "none of these say who runs them"}</span>`;
   document.getElementById("hint").innerHTML = sel
-    ? `<button class="clear" onclick="clearPick()">show all 16,243</button>`
+    ? `<button class="clear" onclick="clearPick()">show all 16,613</button>`
     : V.hint;
 }
 
@@ -351,16 +382,16 @@ document.getElementById("foot").innerHTML = `<details><summary>
       saw a camera and recorded it — 2,610 different contributors in Texas, and
       one of them has mapped a sixth of the state single-handed.</p>
     <p><b>So the count going up means people are looking harder</b>, not
-      necessarily that more cameras exist. This file grew from 14,807 to 16,243
-      in three weeks. Absence of a camera here is not evidence there is no
+      necessarily that more cameras exist. This file grew from 14,807 to 16,613
+      in five weeks — 370 of them in the last ten days. Absence of a camera here is not evidence there is no
       camera.</p>
-    <p><b>Nine in ten do not say who runs them.</b> 1,408 of 16,243 name an
-      operator. Where they do, the mix is not all police: retailers, hospitals,
+    <p><b>Nine in ten do not say who runs them.</b> 1,411 of 16,613 name an
+      operator, and they name only 124 distinct ones. Where they do, the mix is not all police: retailers, hospitals,
       neighbourhood associations and shopping centres appear alongside city
       departments. Nothing is inferred for the rest, and "not stated" is drawn in
       grey because it is the answer, not a hole.</p>
     <p><b>Direction is somebody's observation.</b> 98.3% of cameras record which
-      way they point, which means a person stood there and noted it. 987 record
+      way they point, which means a person stood there and noted it. 1,010 record
       more than one direction — "20;150" is two heads on one pole, "358-43" is an
       arc. Only single-value bearings are drawn as arrows, and they appear only
       when you zoom in far enough for a direction to mean a street.</p>

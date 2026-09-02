@@ -1,25 +1,25 @@
 {
- "cameras": 16243,
- "operator_named": 1408,
- "with_bearing": 14967,
- "multi_headed": 987,
+ "cameras": 16613,
+ "operator_named": 1411,
+ "with_bearing": 15313,
+ "multi_headed": 1010,
  "by_who": {
-  "Not stated": 14835,
-  "Law enforcement": 553,
+  "Not stated": 15202,
+  "Law enforcement": 552,
   "Vendor named, operator unclear": 452,
-  "Private business": 187,
+  "Private business": 192,
   "City or county government": 122,
-  "Other named operator": 50,
-  "Neighbourhood association": 37,
-  "School or university": 7
+  "Other named operator": 49,
+  "Neighbourhood association": 40,
+  "School or university": 4
  },
  "by_make": {
-  "Flock Safety": 14928,
-  "Not stated": 647,
-  "Motorola Solutions": 269,
-  "Genetec": 143,
-  "Axis Communications": 98,
-  "Leonardo": 94,
+  "Flock Safety": 15232,
+  "Not stated": 692,
+  "Motorola Solutions": 278,
+  "Genetec": 145,
+  "Axis Communications": 104,
+  "Leonardo": 96,
   "Neology, Inc.": 14,
   "Rekor": 11
  }
