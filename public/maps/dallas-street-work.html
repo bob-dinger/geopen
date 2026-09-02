@@ -322,7 +322,10 @@ function applyFilter() {
   if (map.getLayer("w")) map.setFilter("w", picked ? ["==", ["get", "kind"], picked] : null);
   const n = {};
   for (const f of FEATS) n[f.properties.kind] = (n[f.properties.kind] || 0) + 1;
+  // ranked by what is actually on screen, not by the whole file, so the legend
+  // never reads as out of order
   document.getElementById("legend").innerHTML = KINDS.filter(([k]) => n[k])
+    .sort((a, b) => n[b[0]] - n[a[0]])
     .map(([k, c]) => `<button class="row" data-k="${k}" onclick="pick('${k}')">
       <i style="background:${c}"></i><span>${k}</span><b>${num(n[k])}</b></button>`).join("");
   document.querySelectorAll(".row").forEach((r) => r.classList.toggle("on", picked === r.dataset.k));
