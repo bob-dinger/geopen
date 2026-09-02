@@ -190,7 +190,9 @@ const map = new maplibregl.Map({
     layers: [{ id: "base", type: "raster", source: "base",
       paint: { "raster-opacity": BASES[0].opacity } }],
   },
-  center: [-99.2, 31.3], zoom: 5.4, attributionControl: { compact: true },
+  // deliberately identical to texas-alpr-cameras.html — the two maps are read
+  // against each other, so they must frame the state the same way
+  center: [-97.6, 31.3], zoom: 5.6, attributionControl: { compact: true },
 });
 map.addControl(new maplibregl.NavigationControl(), "top-right");
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
