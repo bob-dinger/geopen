@@ -227,7 +227,7 @@ function refresh() {
   const n = inView().length;
   const has = FEATS.length > 0;
   document.getElementById("state").innerHTML = has
-    ? `<b>${num(n)}</b> on screen<span>${num(FEATS.length)} “${esc(TERM)}” in Texas</span>`
+    ? `<b>${num(n)}</b> on screen<span>${num(FEATS.length)} matching “${esc(TERM)}” in the extract</span>`
     : `Search a brand to begin.`;
   for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
     document.getElementById(id).disabled = !n;
@@ -346,10 +346,18 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">Where this comes from, and what it can't tell you</span>
   </summary>
   <div class="notes">
-    <p><b>1,722,927 places in Texas</b>, from the Overture Maps places theme —
-      an open compilation built from OpenStreetMap, Meta's and Microsoft's
-      contributions and other open sources. Searching matches on the recorded
-      name, so "Whataburger" finds 851 locations and "H-E-B" finds 926.</p>
+    <p><b>1,722,927 places</b>, from the Overture Maps places theme — an open
+      compilation built from OpenStreetMap, Meta's and Microsoft's contributions
+      and other open sources. Searching matches on the recorded name, so
+      "Whataburger" returns 851 and "H-E-B" 926.</p>
+    <p><b>Coverage is a rectangle, not the state, and you should know where it
+      fails.</b> The extract spans 106°W to 93°W and 25°N to 36°N. Texas reaches
+      past both edges, so <b>El&nbsp;Paso is missing entirely</b> — zero places —
+      and the Panhandle above 36°N has three. The same rectangle reaches into
+      Oklahoma, Arkansas, Louisiana, New Mexico and northern Mexico, so a search
+      for a chain that operates in those places will show some of them too.
+      Neither is a judgement about Texas; it is the shape of the file. A
+      corrected extract is the fix and it is on the list.</p>
     <p><b>The export is exactly what is on your screen.</b> Every match in Texas
       is loaded when you search; the download filters to the current view, so
       panning changes what you get and nothing is silently capped at a page
