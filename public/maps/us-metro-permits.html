@@ -1,0 +1,356 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where America actually builds homes</title>
+<meta name="description" content="Every US metro sized by the homes it permitted in 2025. Dallas-Fort Worth leads the country with 66,179 units. The metro ranked best for new construction this year built 2,958.">
+<link rel="canonical" href="https://geopen.io/maps/us-metro-permits.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Where America actually builds homes">
+<meta property="og:description" content="1.39 million homes permitted across 931 metros in 2025. DFW leads with 66,179 — and none of the ten metros named best for new construction are in the top ten for building any.">
+<meta property="og:url" content="https://geopen.io/maps/us-metro-permits.html">
+<meta property="og:image" content="https://geopen.io/maps/us-metro-permits-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/us-metro-permits-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0c0e11; --panel: #14181d; --panel-2: #1d232a;
+    --rule: rgba(200,220,240,0.14);
+    --ink: #e9eff5; --ink-2: #9daebe; --ink-3: #6b7d8d;
+    --signal: #48e5c2; --flag: #ff9f43;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; max-width: 344px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; text-wrap: balance; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px 11px;
+    max-width: 262px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+  .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; margin-bottom: 7px; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; }
+  h2 { margin: 10px 0 5px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  h2:first-child { margin-top: 0; }
+  .row { display: flex; align-items: center; gap: 6px; padding: 3px 5px; width: 100%;
+    border: 0; background: none; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    cursor: pointer; border-radius: 3px; text-align: left; }
+  .row i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .row b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row:hover { color: var(--ink); background: var(--panel-2); }
+  .rank { font-size: 0.66rem; color: var(--ink-2); display: flex; gap: 6px; padding: 2px 4px;
+    border-radius: 3px; cursor: pointer; }
+  .rank:hover { background: var(--panel-2); color: var(--ink); }
+  .rank u { color: var(--ink-3); text-decoration: none; width: 15px; text-align: right;
+    flex: none; font-variant-numeric: tabular-nums; }
+  .rank b { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--signal); }
+  .rank.flagged b { color: var(--flag); }
+  .hint { margin: 5px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .chk { display: flex; align-items: center; gap: 7px; padding: 4px 0; font-size: 0.7rem;
+    color: var(--ink-2); cursor: pointer; }
+  .chk input { accent-color: var(--flag); }
+  .scale { display: flex; align-items: flex-end; gap: 9px; padding: 3px 2px 0; }
+  .scale div { text-align: center; color: var(--ink-3); font-size: 0.55rem; }
+  .scale span { display: block; margin: 0 auto 3px; border-radius: 50%;
+    border: 1px solid var(--signal); background: rgba(72,229,194,0.18); }
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #05221c; font-weight: 700; }
+  .controls { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.8; }
+  .controls:hover { opacity: 1; }
+
+  #paneltoggle { display: none; position: absolute; left: 10px; bottom: 10px; z-index: 7;
+    align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink-2); font: inherit; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  #paneltoggle .caret { color: var(--signal); font-weight: 700; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 32vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5;
+    max-width: 290px; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+    .panel { left: 10px; bottom: 56px; max-width: 210px; max-height: calc(100% - 78px); }
+    .panel.collapsed { display: none; }
+    #paneltoggle { display: inline-flex; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>Where America actually builds homes</h1>
+    <p>Every metro area, sized by the homes it was permitted to build in 2025.
+      1.39 million of them, across 931 metros.
+      <a href="https://geopen.io/">geopen.io</a></p>
+  </div>
+  <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
+    <span class="caret">▾</span><span id="pt-label">Hide legend</span>
+  </button>
+  <div class="panel" id="panel">
+    <div class="state" id="state"></div>
+    <h2 id="listtitle">Most homes permitted, 2025</h2>
+    <div id="list"></div>
+    <p class="hint" id="hint"></p>
+    <div class="controls">
+      <label class="chk"><input type="checkbox" id="flag">
+        Mark the "top new-construction metros"</label>
+      <h2>What's being built</h2>
+      <div id="legend"></div>
+      <h2>Homes permitted</h2>
+      <div class="scale" id="scale"></div>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+];
+
+/* Realtor.com's 2026 "Top New-Construction Metros", cited by CBSA code so the
+   match cannot drift on a name change. This is a citation of their published
+   ranking, not a copy of their data — no Realtor figure appears in our
+   downloadable file, because we cannot license their numbers onward. */
+const RANKED = {
+  "16700": 1, "24860": 2, "14260": 3, "16740": 4, "34980": 5,
+  "16860": 6, "49180": 7, "31540": 8, "20500": 9, "17900": 10,
+};
+// share of the year's units in buildings of 5+ homes
+const MIX = [
+  ["houses", "Mostly houses", "#48e5c2", 0.25],
+  ["mixed", "Mixed", "#8a7fd0", 0.6],
+  ["apts", "Mostly apartments", "#5aa9e6", 1.01],
+];
+const mixOf = (s) => (MIX.find(([, , , hi]) => (s || 0) < hi) || MIX[2])[0];
+const COL = Object.fromEntries(MIX.map(([k, , c]) => [k, c]));
+
+let baseKey = "dark", flagged = false, FEATS = [];
+const num = (v) => Number(v || 0).toLocaleString();
+const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
+  ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+// BPS pads the state onto the name with two spaces
+const clean = (s) => String(s).replace(/\s{2,}/g, ", ");
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+document.getElementById("flag").addEventListener("change", (e) => {
+  flagged = e.target.checked; render();
+});
+(function () {
+  const btn = document.getElementById("paneltoggle"), panel = document.getElementById("panel");
+  const label = document.getElementById("pt-label");
+  btn.addEventListener("click", () => {
+    const open = !panel.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide legend" : "Legend";
+    btn.querySelector(".caret").textContent = open ? "▾" : "▴";
+  });
+})();
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-97.5, 38.6], zoom: 3.7, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+function render() {
+  if (!map.getLayer("m")) return;
+  map.setLayoutProperty("ring", "visibility", flagged ? "visible" : "none");
+  const list = document.getElementById("list");
+  document.getElementById("listtitle").textContent = flagged
+    ? "Their top ten, and what it built" : "Most homes permitted, 2025";
+  if (flagged) {
+    const rows = FEATS.filter((f) => RANKED[f.properties.cbsa])
+      .sort((a, b) => RANKED[a.properties.cbsa] - RANKED[b.properties.cbsa]);
+    list.innerHTML = rows.map((f) => {
+      const p = f.properties;
+      return `<div class="rank flagged" onclick="go(${p.cbsa})"><u>${RANKED[p.cbsa]}</u>
+        <span>${esc(clean(p.metro).split(",")[0])}</span>
+        <b>#${p.rank}</b></div>`;
+    }).join("");
+    document.getElementById("hint").innerHTML =
+      "Orange number is their rank; green is where the metro sits among all 931 " +
+      "for homes actually permitted.";
+  } else {
+    list.innerHTML = FEATS.slice(0, 10).map((f) => {
+      const p = f.properties;
+      return `<div class="rank" onclick="go(${p.cbsa})"><u>${p.rank}</u>
+        <span>${esc(clean(p.metro).split(",")[0])}</span>
+        <b>${num(p.units)}</b></div>`;
+    }).join("");
+    document.getElementById("hint").textContent =
+      "Permits authorised, not homes finished. Click a metro to fly to it.";
+  }
+}
+window.go = (cbsa) => {
+  const f = FEATS.find((x) => +x.properties.cbsa === +cbsa);
+  if (!f) return;
+  map.flyTo({ center: f.geometry.coordinates, zoom: 7 });
+  new maplibregl.Popup({ closeButton: true, maxWidth: "300px" })
+    .setLngLat(f.geometry.coordinates).setHTML(card(f.properties)).addTo(map);
+};
+function card(p) {
+  const r = RANKED[p.cbsa];
+  return `<b>${num(p.units)}</b> homes permitted in 2025<br>` +
+    `<span style="color:#9daebe">${esc(clean(p.metro))}</span><br>` +
+    `<span style="color:#6b7d8d">${num(p.sf)} houses · ${num(p.mf)} in buildings of 5+ · ` +
+    `${num(p.small)} in 2–4 unit buildings</span><br>` +
+    `<span style="color:#6b7d8d">${p.rank} of 931 metros</span>` +
+    (r ? `<br><span style="color:#ff9f43">ranked #${r} for new construction by ` +
+         `Realtor.com, 2026</span>` : "");
+}
+
+map.on("load", () => {
+  fetch("/data/us_metro_permits.geojson").then((r) => r.json()).then((gj) => {
+    gj.features.forEach((f) => { f.properties.mix = mixOf(f.properties.mf_share); });
+    FEATS = gj.features.slice().sort((a, b) => a.properties.rank - b.properties.rank);
+    map.addSource("m", { type: "geojson", data: gj });
+    map.addLayer({ id: "m", type: "circle", source: "m",
+      paint: {
+        // area tracks units, so a metro twice the size looks twice the weight
+        "circle-radius": ["interpolate", ["linear"], ["zoom"],
+          3, ["interpolate", ["linear"], ["sqrt", ["get", "units"]], 1, 1.2, 257, 26],
+          7, ["interpolate", ["linear"], ["sqrt", ["get", "units"]], 1, 3, 257, 60]],
+        "circle-color": ["match", ["get", "mix"], ...MIX.flatMap(([k, , c]) => [k, c]), "#5f7080"],
+        "circle-opacity": 0.62,
+        "circle-stroke-color": "#0c0e11",
+        "circle-stroke-width": 0.5 } });
+    map.addLayer({ id: "ring", type: "circle", source: "m",
+      filter: ["in", ["get", "cbsa"], ["literal", Object.keys(RANKED)]],
+      layout: { visibility: "none" },
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"],
+          3, ["+", 5, ["interpolate", ["linear"], ["sqrt", ["get", "units"]], 1, 1.2, 257, 26]],
+          7, ["+", 8, ["interpolate", ["linear"], ["sqrt", ["get", "units"]], 1, 3, 257, 60]]],
+        "circle-color": "rgba(0,0,0,0)",
+        "circle-stroke-color": "#ff9f43",
+        "circle-stroke-width": 2 } });
+    map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+    setBase(BASES[0]);
+
+    const total = FEATS.reduce((a, f) => a + f.properties.units, 0);
+    document.getElementById("state").innerHTML =
+      `<b>${num(total)}</b> homes permitted<span>across ${num(FEATS.length)} metro areas in 2025</span>`;
+    document.getElementById("legend").innerHTML = MIX.map(([k, lab, c]) =>
+      `<button class="row"><i style="background:${c}"></i><span>${lab}</span></button>`).join("");
+    document.getElementById("scale").innerHTML = [2000, 20000, 66179].map((v) => {
+      const r = 1.2 + (Math.sqrt(v) - 1) / (257 - 1) * 24.8;
+      return `<div><span style="width:${(r*2).toFixed(0)}px;height:${(r*2).toFixed(0)}px"></span>${num(v)}</div>`;
+    }).join("");
+    render();
+
+    const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "300px" });
+    const show = (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      pop.setLngLat(e.features[0].geometry.coordinates.slice())
+         .setHTML(card(e.features[0].properties)).addTo(map);
+    };
+    map.on("mousemove", "m", show);
+    map.on("click", "m", show);
+    map.on("mouseleave", "m", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  });
+});
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">${A("https://www.census.gov/construction/bps/", "Census Building Permits Survey")}
+      2025 · public domain · ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">What this measures, and what "top new-construction metro" measures</span>
+  </summary>
+  <div class="notes">
+    <p><b>This is volume.</b> 1,388,338 homes authorised by building permit across
+      931 metro areas in 2025. Dallas-Fort Worth leads the country at 66,179,
+      Houston is second at 65,075, and the two Texas metros together permitted
+      more homes than the next three combined.</p>
+    <p><b>"Top new-construction metro" measures something else.</b> Realtor.com's
+      2026 ranking scores metros on the share of listings that are new builds
+      (33%), how new-build prices compare with existing homes (33%), climate risk
+      (17%) and buyer interest (17%). None of those is a measure of how much gets
+      built, and the report says as much. Tick the box in the panel to see where
+      their ten sit here: their sixth-placed metro, Chattanooga, ranks
+      <b>101st</b> for homes permitted, with 2,958 against Dallas's 66,179.</p>
+    <p><b>Both are useful, and they are not the same fact.</b> In Dallas new
+      construction is a small slice of an enormous market; in Chattanooga it is
+      most of what is for sale. A buyer choosing where to shop for a new build
+      wants share. Anyone asking where America is housing itself wants volume.</p>
+    <p><b>Permits are authorisations, not completions.</b> Some are never built,
+      and multifamily buildings take years. Colour is the share of the year's
+      units in buildings of five or more homes: New York is 71% apartments,
+      Dallas 37%, and much of the country is almost entirely houses.</p>
+    <p><b>Points are a representative point inside each metro's boundary</b>, not
+      a downtown. The underlying file is public domain and free to download —
+      Realtor's rankings are not ours to redistribute, so no figure of theirs is
+      in it; the ten are cited on this page only.</p>
+  </div></details>`;
+</script>
