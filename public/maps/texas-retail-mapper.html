@@ -163,7 +163,10 @@ const BASES = [
 ];
 const SUGGEST = ["Whataburger", "H-E-B", "Buc-ee's", "Dollar General", "Starbucks", "7-Eleven"];
 
-let baseKey = "dark", FEATS = [], TERM = "";
+// Streets by default: this is a tool for finding a place, so the roads and
+// labels around a result matter more than the map looking moody.
+const START = BASES.find((b) => b.id === "topo");
+let baseKey = START.id, FEATS = [], TERM = "";
 const num = (v) => Number(v || 0).toLocaleString();
 const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
   ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
@@ -195,11 +198,11 @@ const map = new maplibregl.Map({
   container: "map",
   style: { version: 8,
     sources: {
-      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [START.url] },
       ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
     },
     layers: [{ id: "base", type: "raster", source: "base",
-      paint: { "raster-opacity": BASES[0].opacity } }],
+      paint: { "raster-opacity": START.opacity } }],
   },
   center: [-99.3, 31.3], zoom: 5.1, attributionControl: { compact: true },
 });
@@ -276,11 +279,11 @@ async function run() {
       map.addSource("p", { type: "geojson", data: gj });
       map.addLayer({ id: "p", type: "circle", source: "p",
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3, 10, 5.5, 15, 9],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4.5, 10, 8, 15, 13],
           "circle-color": "#48e5c2",
           "circle-opacity": 1,
           "circle-stroke-color": "#0c0e11",
-          "circle-stroke-width": 1 } });
+          "circle-stroke-width": 1.4 } });
       if (!map.getLayer("ref")) {
         map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
       }
@@ -315,13 +318,6 @@ async function run() {
 document.getElementById("go").addEventListener("click", run);
 document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
 
-/* Open on a search rather than an empty map. A blank page with a text box does
-   not explain what this does; 851 Whataburgers do. It also means the preview
-   card shows the tool working instead of the instruction to use it. */
-map.on("load", () => {
-  document.getElementById("q").value = "Whataburger";
-  run();
-});
 
 function save(name, text, mime) {
   const a = document.createElement("a");
