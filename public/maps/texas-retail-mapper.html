@@ -315,6 +315,14 @@ async function run() {
 document.getElementById("go").addEventListener("click", run);
 document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
 
+/* Open on a search rather than an empty map. A blank page with a text box does
+   not explain what this does; 851 Whataburgers do. It also means the preview
+   card shows the tool working instead of the instruction to use it. */
+map.on("load", () => {
+  document.getElementById("q").value = "Whataburger";
+  run();
+});
+
 function save(name, text, mime) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type: mime }));
