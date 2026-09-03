@@ -67,6 +67,9 @@
   .exp button:hover:not(:disabled) { color: var(--signal); border-color: var(--signal); }
   .exp button:disabled { opacity: 0.4; cursor: default; }
   .hint { margin: 6px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .chk { display: flex; align-items: center; gap: 7px; padding: 2px 0 7px; font-size: 0.68rem;
+    color: var(--ink-2); cursor: pointer; }
+  .chk input { accent-color: var(--signal); }
   .bases { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
   .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
     color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
@@ -129,14 +132,15 @@
   <div class="panel" id="panel">
     <div class="state" id="state">Search a brand to begin.</div>
     <div class="controls">
-      <h2>Export what's on screen</h2>
+      <h2>Export</h2>
+      <label class="chk"><input type="checkbox" id="onlyview">
+        Only what's on screen</label>
       <div class="exp">
         <button id="dl-geojson" type="button" disabled>GeoJSON</button>
         <button id="dl-csv" type="button" disabled>CSV</button>
         <button id="dl-kml" type="button" disabled>KML</button>
       </div>
-      <p class="hint" id="hint">Pan and zoom first — the download is whatever is
-        inside the current view.</p>
+      <p class="hint" id="hint"></p>
       <h2>Basemap</h2>
       <div class="bases" id="bases"></div>
     </div>
@@ -223,17 +227,28 @@ function inView() {
     return x >= b.getWest() && x <= b.getEast() && y >= b.getSouth() && y <= b.getNorth();
   });
 }
+// The search returns every match; the map fits to all of them. So a download
+// means all of them too, unless you say otherwise — the earlier behaviour
+// quietly shrank the export as soon as you zoomed in.
+const onlyView = () => document.getElementById("onlyview").checked;
+function exportSet() { return onlyView() ? inView() : FEATS; }
+
 function refresh() {
   const n = inView().length;
   const has = FEATS.length > 0;
   document.getElementById("state").innerHTML = has
-    ? `<b>${num(n)}</b> on screen<span>${num(FEATS.length)} matching “${esc(TERM)}” in the extract</span>`
+    ? `<b>${num(FEATS.length)}</b> matching “${esc(TERM)}”<span>${num(n)} of them on screen</span>`
     : `Search a brand to begin.`;
+  document.getElementById("hint").textContent = has
+    ? `Downloads ${num(exportSet().length)} ${onlyView() ? "in the current view" : "— every match, wherever it is"}.`
+    : "";
+  const k = exportSet().length;
   for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
-    document.getElementById(id).disabled = !n;
+    document.getElementById(id).disabled = !k;
   }
 }
 map.on("moveend", refresh);
+document.getElementById("onlyview").addEventListener("change", refresh);
 
 async function run() {
   const term = document.getElementById("q").value.trim();
@@ -301,7 +316,7 @@ function save(name, text, mime) {
 const slug = () => (TERM.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "places");
 
 document.getElementById("dl-geojson").addEventListener("click", () => {
-  const f = inView();
+  const f = exportSet();
   save(`${slug()}-texas.geojson`, JSON.stringify({
     type: "FeatureCollection",
     name: `${TERM} — Texas`,
@@ -312,7 +327,7 @@ document.getElementById("dl-geojson").addEventListener("click", () => {
   }), "application/geo+json");
 });
 document.getElementById("dl-csv").addEventListener("click", () => {
-  const f = inView();
+  const f = exportSet();
   const cell = (v) => {
     const s = v == null ? "" : String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -324,7 +339,7 @@ document.getElementById("dl-csv").addEventListener("click", () => {
   save(`${slug()}-texas.csv`, head + "\n" + body + "\n", "text/csv");
 });
 document.getElementById("dl-kml").addEventListener("click", () => {
-  const f = inView();
+  const f = exportSet();
   const x = (s) => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const marks = f.map((p) =>
@@ -358,10 +373,11 @@ document.getElementById("foot").innerHTML = `<details><summary>
       for a chain that operates in those places will show some of them too.
       Neither is a judgement about Texas; it is the shape of the file. A
       corrected extract is the fix and it is on the list.</p>
-    <p><b>The export is exactly what is on your screen.</b> Every match in Texas
-      is loaded when you search; the download filters to the current view, so
-      panning changes what you get and nothing is silently capped at a page
-      boundary. GeoJSON carries the licence inside the file.</p>
+    <p><b>The download is every match by default.</b> A search loads all of
+      them at once, so the export is complete rather than whatever a page
+      boundary happened to return. Tick "only what's on screen" if you want just
+      the current view instead, and the panel tells you how many that is before
+      you click. GeoJSON carries the licence inside the file.</p>
     <p><b>It is a compilation, not a company's own list.</b> A chain's real
       store count and this count will differ: closed locations linger, new ones
       take time to appear, and a name recorded slightly differently — a
