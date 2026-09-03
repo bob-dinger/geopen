@@ -60,6 +60,16 @@
     margin-top: 3px; }
   h2 { margin: 11px 0 6px; font-size: 0.58rem; text-transform: uppercase;
     letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .brk { margin-top: 9px; max-height: 168px; overflow-y: auto; scrollbar-width: thin; }
+  .brk button { display: flex; align-items: baseline; gap: 7px; width: 100%; border: 0;
+    background: none; font: inherit; font-size: 0.68rem; color: var(--ink-2);
+    padding: 2px 4px; border-radius: 3px; cursor: pointer; text-align: left; }
+  .brk button:hover { color: var(--ink); background: var(--panel-2); }
+  .brk button.on { color: var(--signal); font-weight: 700; background: var(--panel-2);
+    box-shadow: inset 0 0 0 1px var(--signal); }
+  .brk button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .brk button b { margin-left: auto; font-variant-numeric: tabular-nums; flex: none; }
+  .brk .rest { color: var(--ink-3); font-size: 0.6rem; padding: 3px 4px 0; }
   .exp { display: flex; gap: 5px; }
   .exp button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
     color: var(--ink-2); font: inherit; font-size: 0.68rem; font-weight: 600;
@@ -131,6 +141,7 @@
   </button>
   <div class="panel" id="panel">
     <div class="state" id="state">Search a brand to begin.</div>
+    <div id="names"></div>
     <div class="controls">
       <h2>Export this view</h2>
       <div class="exp">
@@ -232,15 +243,26 @@ function inView() {
 /* The map view is the query. Every match is held in memory so panning re-filters
    without another request, but what you see, what is counted and what downloads
    are the same set: the ones inside the current box. */
-function exportSet() { return inView(); }
+/* A chain is recorded under several names — H-E-B, H-E-B Pharmacy, H-E-B Fuel,
+   HEB ATM — and a single count hides that. The breakdown shows the composition
+   of what is in view, and picking one narrows the map, the count and the
+   download together, so the contract stays "what you see is what you get". */
+let NAME = null;
+function visible() {
+  const f = inView();
+  return NAME === null ? f : f.filter((x) => x.properties.name === NAME);
+}
+function exportSet() { return visible(); }
+window.pickName = (n) => { NAME = NAME === n ? null : n; refresh(); };
 
 function refresh() {
   if (!FEATS.length) return;
-  const f = inView(), n = f.length;
+  const f = visible(), n = f.length;
   if (map.getSource("p")) {
     map.getSource("p").setData({ type: "FeatureCollection", features: f });
   }
-  const away = FEATS.length - n;
+  drawNames();
+  const away = FEATS.length - inView().length;
   document.getElementById("state").innerHTML = n
     ? `<b>${num(n)}</b> “${esc(TERM)}” in view` +
       `<span>${away ? `${num(away)} more outside it` : "every one that was found"}</span>`
@@ -249,12 +271,33 @@ function refresh() {
   document.getElementById("hint").textContent = n
     ? `Downloads these ${num(n)}. Pan or zoom to change what you get.`
     : "";
+  if (NAME !== null && !n) { NAME = null; refresh(); return; }
   for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
     document.getElementById(id).disabled = !n;
   }
   const z = document.getElementById("zoomall");
   if (z) z.addEventListener("click", (e) => { e.preventDefault(); fitAll(); });
 }
+function drawNames() {
+  const counts = new Map();
+  for (const f of inView()) {
+    const k = f.properties.name || "(no name recorded)";
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  const rows = [...counts].sort((a, b) => b[1] - a[1]);
+  const box = document.getElementById("names");
+  if (rows.length < 2) { box.innerHTML = ""; return; }
+  const top = rows.slice(0, 7);
+  const rest = rows.length - top.length;
+  box.innerHTML = `<h2>Recorded as</h2><div class="brk">` +
+    top.map(([n, k]) =>
+      `<button type="button" class="${NAME === n ? "on" : ""}"
+         onclick="pickName(${JSON.stringify(n).replace(/"/g, "&quot;")})"
+         title="${esc(n)}"><span>${esc(n)}</span><b>${num(k)}</b></button>`).join("") +
+    (rest ? `<p class="rest">and ${num(rest)} other name${rest > 1 ? "s" : ""}</p>` : "") +
+    `</div>`;
+}
+
 function fitAll() {
   if (!FEATS.length) return;
   const xs = FEATS.map((f) => f.geometry.coordinates[0]);
