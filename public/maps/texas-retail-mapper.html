@@ -1,0 +1,367 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Texas retail mapper</title>
+<meta name="description" content="Find every location of any chain in Texas — Whataburger, H-E-B, Dollar General — map them, then export what's on your screen as GeoJSON, CSV or KML. Built on Overture Maps.">
+<link rel="canonical" href="https://geopen.io/maps/texas-retail-mapper.html">
+<meta name="geopen:type" content="tool">
+<meta name="geopen:live" content="lookup">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Texas retail mapper">
+<meta property="og:description" content="Every Whataburger. Every H-E-B. Every Dollar General. Search 1.7 million Texas places, map them, and export the ones on your screen.">
+<meta property="og:url" content="https://geopen.io/maps/texas-retail-mapper.html">
+<meta property="og:image" content="https://geopen.io/maps/texas-retail-mapper-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/texas-retail-mapper-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0c0e11; --panel: #14181d; --panel-2: #1d232a;
+    --rule: rgba(200,220,240,0.14);
+    --ink: #e9eff5; --ink-2: #9daebe; --ink-3: #6b7d8d;
+    --signal: #48e5c2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { flex: 1; min-height: 0; position: relative; }
+  #map { position: absolute; inset: 0; }
+
+  .titlecard { position: absolute; left: 16px; top: 16px; z-index: 6; width: 352px;
+    max-width: calc(100% - 32px); background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 11px 14px 12px; }
+  .titlecard h1 { margin: 0; font-size: 0.98rem; font-weight: 700; line-height: 1.25;
+    letter-spacing: -0.01em; }
+  .titlecard p { margin: 5px 0 0; font-size: 0.71rem; color: var(--ink-3); line-height: 1.5; }
+  .titlecard a { color: var(--ink-2); text-decoration: none; }
+  .titlecard a:hover { color: var(--signal); }
+  .search { margin-top: 9px; display: flex; gap: 5px; }
+  .search input { flex: 1; min-width: 0; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 3px; font: inherit; font-size: 0.76rem;
+    padding: 7px 9px; }
+  .search input::placeholder { color: var(--ink-3); }
+  .search button { background: var(--signal); border: 0; color: #05221c; font: inherit;
+    font-size: 0.72rem; font-weight: 700; padding: 7px 13px; border-radius: 3px;
+    cursor: pointer; }
+  .search button:disabled { opacity: 0.5; cursor: default; }
+  .suggest { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .suggest button { background: none; border: 1px solid var(--rule); color: var(--ink-3);
+    font: inherit; font-size: 0.62rem; padding: 3px 7px; border-radius: 99px; cursor: pointer; }
+  .suggest button:hover { color: var(--signal); border-color: var(--signal); }
+
+  .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 11px 13px 12px;
+    width: 288px; max-width: calc(100% - 32px); }
+  .state { font-size: 0.84rem; font-weight: 700; line-height: 1.3; }
+  .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
+  .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
+    margin-top: 3px; }
+  h2 { margin: 11px 0 6px; font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--ink-3); font-weight: 600; }
+  .exp { display: flex; gap: 5px; }
+  .exp button { flex: 1; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 6px 2px; border-radius: 3px; cursor: pointer; }
+  .exp button:hover:not(:disabled) { color: var(--signal); border-color: var(--signal); }
+  .exp button:disabled { opacity: 0.4; cursor: default; }
+  .hint { margin: 6px 0 0; font-size: 0.58rem; color: var(--ink-3); line-height: 1.45; }
+  .bases { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .bases button { flex: 1 1 44%; background: var(--panel-2); border: 1px solid var(--rule);
+    color: var(--ink-2); font: inherit; font-size: 0.65rem; padding: 4px 2px;
+    border-radius: 3px; cursor: pointer; }
+  .bases button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal);
+    color: #05221c; font-weight: 700; }
+  .controls { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--rule);
+    opacity: 0.8; }
+  .controls:hover { opacity: 1; }
+
+  #paneltoggle { display: none; position: absolute; left: 10px; bottom: 10px; z-index: 7;
+    align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink-2); font: inherit; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  #paneltoggle .caret { color: var(--signal); font-weight: 700; }
+
+  footer { flex: none; padding: 7px 20px 9px; font-size: 0.64rem; color: var(--ink-3);
+    line-height: 1.5; }
+  footer a { color: var(--ink-2); }
+  footer summary { cursor: pointer; list-style: none; display: flex; gap: 7px;
+    align-items: baseline; white-space: nowrap; overflow: hidden; }
+  footer summary::-webkit-details-marker { display: none; }
+  footer summary .src { overflow: hidden; text-overflow: ellipsis; }
+  footer summary .more { color: var(--signal); font-weight: 600; flex: none; }
+  footer summary .more::after { content: " ▾"; }
+  footer details[open] summary .more::after { content: " ▴"; }
+  footer .notes { margin-top: 7px; max-height: 32vh; overflow-y: auto; padding-right: 10px;
+    border-top: 1px solid var(--rule); padding-top: 7px; }
+  footer .notes p { margin: 0 0 6px; }
+  footer .notes b { color: var(--ink-2); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); font-size: 0.76rem; padding: 10px 12px; line-height: 1.5;
+    max-width: 280px; }
+  .maplibregl-popup-content b { color: var(--signal); }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  @media (max-width: 700px) {
+    .titlecard { left: 10px; top: 10px; width: calc(100% - 20px); }
+    .panel { left: 10px; bottom: 56px; width: calc(100% - 20px); }
+    .panel.collapsed { display: none; }
+    #paneltoggle { display: inline-flex; }
+  }
+</style>
+
+<div class="wrap">
+  <div id="map"></div>
+  <div class="titlecard">
+    <h1>Texas retail mapper</h1>
+    <p>Every location of any chain in Texas. Search 1.7 million places, then take
+      the ones on your screen with you. <a href="https://geopen.io/">geopen.io</a></p>
+    <div class="search">
+      <input id="q" type="search" placeholder="Whataburger, H-E-B, Dollar General…"
+             autocomplete="off" spellcheck="false">
+      <button id="go" type="button">Map it</button>
+    </div>
+    <div class="suggest" id="suggest"></div>
+  </div>
+  <button id="paneltoggle" type="button" aria-expanded="true" aria-controls="panel">
+    <span class="caret">▾</span><span id="pt-label">Hide panel</span>
+  </button>
+  <div class="panel" id="panel">
+    <div class="state" id="state">Search a brand to begin.</div>
+    <div class="controls">
+      <h2>Export what's on screen</h2>
+      <div class="exp">
+        <button id="dl-geojson" type="button" disabled>GeoJSON</button>
+        <button id="dl-csv" type="button" disabled>CSV</button>
+        <button id="dl-kml" type="button" disabled>KML</button>
+      </div>
+      <p class="hint" id="hint">Pan and zoom first — the download is whatever is
+        inside the current view.</p>
+      <h2>Basemap</h2>
+      <div class="bases" id="bases"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="foot">Loading…</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.55, dark: true },
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: false },
+  { id: "topo", label: "Streets", url: `${E}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    ref: null, opacity: 1, dark: false },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, dark: true },
+];
+const SUGGEST = ["Whataburger", "H-E-B", "Buc-ee's", "Dollar General", "Starbucks", "7-Eleven"];
+
+let baseKey = "dark", FEATS = [], TERM = "";
+const num = (v) => Number(v || 0).toLocaleString();
+const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
+  ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+document.getElementById("suggest").innerHTML = SUGGEST.map((s) =>
+  `<button type="button" data-s="${esc(s)}">${esc(s)}</button>`).join("");
+document.getElementById("suggest").addEventListener("click", (e) => {
+  const s = e.target.dataset && e.target.dataset.s;
+  if (s) { document.getElementById("q").value = s; run(); }
+});
+(function () {
+  const btn = document.getElementById("paneltoggle"), panel = document.getElementById("panel");
+  const label = document.getElementById("pt-label");
+  btn.addEventListener("click", () => {
+    const open = !panel.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide panel" : "Panel";
+    btn.querySelector(".caret").textContent = open ? "▾" : "▴";
+  });
+})();
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-99.3, 31.3], zoom: 5.1, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+window.__map = map;
+
+function setBase(bm) {
+  baseKey = bm.id;
+  map.getSource("base").setTiles([bm.url]);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (map.getLayer("ref")) map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((x) =>
+    x.setAttribute("aria-pressed", String(x.dataset.base === bm.id)));
+}
+
+/* Every result is loaded at once and filtered to the viewport in the browser,
+   so "export what's on screen" is exact and instant, and panning costs nothing. */
+function inView() {
+  if (!FEATS.length) return [];
+  const b = map.getBounds();
+  return FEATS.filter((f) => {
+    const [x, y] = f.geometry.coordinates;
+    return x >= b.getWest() && x <= b.getEast() && y >= b.getSouth() && y <= b.getNorth();
+  });
+}
+function refresh() {
+  const n = inView().length;
+  const has = FEATS.length > 0;
+  document.getElementById("state").innerHTML = has
+    ? `<b>${num(n)}</b> on screen<span>${num(FEATS.length)} “${esc(TERM)}” in Texas</span>`
+    : `Search a brand to begin.`;
+  for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
+    document.getElementById(id).disabled = !n;
+  }
+}
+map.on("moveend", refresh);
+
+async function run() {
+  const term = document.getElementById("q").value.trim();
+  if (term.length < 3) return;
+  const btn = document.getElementById("go");
+  btn.disabled = true; btn.textContent = "…";
+  document.getElementById("state").textContent = "Searching 1.7 million places…";
+  try {
+    const r = await fetch("/api/places?q=" + encodeURIComponent(term)).then((x) => x.json());
+    FEATS = r.features || []; TERM = term;
+    const gj = { type: "FeatureCollection", features: FEATS };
+    if (map.getSource("p")) map.getSource("p").setData(gj);
+    else {
+      map.addSource("p", { type: "geojson", data: gj });
+      map.addLayer({ id: "p", type: "circle", source: "p",
+        paint: {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3, 10, 5.5, 15, 9],
+          "circle-color": "#48e5c2",
+          "circle-opacity": 1,
+          "circle-stroke-color": "#0c0e11",
+          "circle-stroke-width": 1 } });
+      if (!map.getLayer("ref")) {
+        map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+      }
+      setBase(BASES.find((b) => b.id === baseKey));
+      const pop = new maplibregl.Popup({ closeButton: false, maxWidth: "300px" });
+      const show = (e) => {
+        map.getCanvas().style.cursor = "pointer";
+        const p = e.features[0].properties;
+        pop.setLngLat(e.features[0].geometry.coordinates.slice()).setHTML(
+          `<b>${esc(p.name)}</b><br>` +
+          `<span style="color:#9daebe">${esc(p.address || "no address recorded")}</span><br>` +
+          `<span style="color:#6b7d8d">${esc(p.category || "")}</span>`).addTo(map);
+      };
+      map.on("mousemove", "p", show);
+      map.on("click", "p", show);
+      map.on("mouseleave", "p", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+    }
+    if (!FEATS.length) {
+      document.getElementById("state").innerHTML =
+        `<b>Nothing</b><span>No Texas place matches “${esc(term)}”.</span>`;
+    } else {
+      const xs = FEATS.map((f) => f.geometry.coordinates[0]);
+      const ys = FEATS.map((f) => f.geometry.coordinates[1]);
+      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+        { padding: 60, duration: 700, maxZoom: 13 });
+    }
+    refresh();
+  } catch (err) {
+    document.getElementById("state").innerHTML =
+      `<b>Search failed</b><span>Try again in a moment.</span>`;
+  }
+  btn.disabled = false; btn.textContent = "Map it";
+}
+document.getElementById("go").addEventListener("click", run);
+document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+
+function save(name, text, mime) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: mime }));
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const slug = () => (TERM.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "places");
+
+document.getElementById("dl-geojson").addEventListener("click", () => {
+  const f = inView();
+  save(`${slug()}-texas.geojson`, JSON.stringify({
+    type: "FeatureCollection",
+    name: `${TERM} — Texas`,
+    attribution: "© Overture Maps Foundation",
+    license: "ODbL-1.0",
+    source: "Overture Maps places theme via geopen.io",
+    features: f,
+  }), "application/geo+json");
+});
+document.getElementById("dl-csv").addEventListener("click", () => {
+  const f = inView();
+  const cell = (v) => {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const head = "name,category,address,website,longitude,latitude,confidence,overture_id";
+  const body = f.map((x) => [x.properties.name, x.properties.category, x.properties.address,
+    x.properties.website, x.geometry.coordinates[0], x.geometry.coordinates[1],
+    x.properties.confidence, x.properties.id].map(cell).join(",")).join("\n");
+  save(`${slug()}-texas.csv`, head + "\n" + body + "\n", "text/csv");
+});
+document.getElementById("dl-kml").addEventListener("click", () => {
+  const f = inView();
+  const x = (s) => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const marks = f.map((p) =>
+    `  <Placemark><name>${x(p.properties.name)}</name>` +
+    `<description>${x([p.properties.address, p.properties.category].filter(Boolean).join(" · "))}</description>` +
+    `<Point><coordinates>${p.geometry.coordinates[0]},${p.geometry.coordinates[1]},0</coordinates></Point>` +
+    `</Placemark>`).join("\n");
+  save(`${slug()}-texas.kml`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n` +
+    `<Document><name>${x(TERM)} — Texas</name>\n` +
+    `<description>© Overture Maps Foundation, ODbL 1.0, via geopen.io</description>\n` +
+    marks + `\n</Document>\n</kml>\n`, "application/vnd.google-earth.kml+xml");
+});
+
+const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+document.getElementById("foot").innerHTML = `<details><summary>
+    <span class="src">Places from ${A("https://overturemaps.org/", "Overture Maps")}
+      · ODbL · ${A("https://geopen.io/", "geopen.io")}</span>
+    <span class="more">Where this comes from, and what it can't tell you</span>
+  </summary>
+  <div class="notes">
+    <p><b>1,722,927 places in Texas</b>, from the Overture Maps places theme —
+      an open compilation built from OpenStreetMap, Meta's and Microsoft's
+      contributions and other open sources. Searching matches on the recorded
+      name, so "Whataburger" finds 851 locations and "H-E-B" finds 926.</p>
+    <p><b>The export is exactly what is on your screen.</b> Every match in Texas
+      is loaded when you search; the download filters to the current view, so
+      panning changes what you get and nothing is silently capped at a page
+      boundary. GeoJSON carries the licence inside the file.</p>
+    <p><b>It is a compilation, not a company's own list.</b> A chain's real
+      store count and this count will differ: closed locations linger, new ones
+      take time to appear, and a name recorded slightly differently — a
+      franchise inside a petrol station, say — will not match. Treat it as a
+      good open approximation, not an official register.</p>
+    <p><b>Licence.</b> Overture places are ODbL, which is share-alike: anything
+      you derive from this file stays ODbL and must credit OpenStreetMap and
+      Overture. That is why the attribution travels inside the download rather
+      than sitting only on this page.</p>
+  </div></details>`;
+</script>
