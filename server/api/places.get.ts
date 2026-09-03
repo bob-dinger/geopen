@@ -52,15 +52,26 @@ export default defineEventHandler(async (event) => {
   const cols = 'id,primary_name,brand,primary_category,address,city,operating_status,' +
                'websites,confidence,geometry_geojson'
 
-  const rows = await pageAll<Row>((from, to) => {
+  /* Punctuation was making chains unfindable: the table stores "P.F. Chang's",
+     so searching "pf changs" matched nothing at all, and the same held for
+     Buc-ee's, 7-Eleven and H-E-B. Both sides are folded to letters and digits
+     only — name_key and brand_key are stored that way — so "pf changs" and
+     "P.F. Chang's" both become "pfchangs".
+
+     Anchored at the start rather than floating: as a substring, "heb" appears
+     inside "thebudgetboutique" and returns 8,121 results. Prefix returns the
+     chain. If a prefix finds nothing we fall back to a substring, which is what
+     rescues a search for the tail of a name. */
+  const key = term.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const fetchRows = (pattern: string) => pageAll<Row>((from, to) => {
     let sel = sb.schema('parcels').from('texas_places').select(cols).range(from, to)
-    // Match the brand as well as the recorded name: Overture identifies the
-    // chain separately, so a store signed something else still belongs to it.
-    // A trigram index covers the unanchored name pattern.
-    if (term) sel = sel.or(`primary_name.ilike.%${term}%,brand.ilike.%${term}%`)
+    if (key) sel = sel.or(`name_key.like.${pattern},brand_key.like.${pattern}`)
     if (cat) sel = sel.eq('primary_category', cat)
     return sel
   })
+
+  let rows = await fetchRows(`${key}*`)
+  if (term && !rows.length) rows = await fetchRows(`*${key}*`)
 
   const features = []
   for (const r of rows.slice(0, MAX)) {
