@@ -38,7 +38,7 @@
 
   .panel { position: absolute; left: 16px; bottom: 16px; z-index: 5; background: var(--panel);
     border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px 11px;
-    max-width: 262px; max-height: calc(100% - 32px); overflow-y: auto; scrollbar-width: thin; }
+    max-width: 262px; max-height: calc(100% - 196px); overflow-y: auto; scrollbar-width: thin; }
   .state { font-size: 0.82rem; font-weight: 700; line-height: 1.3; margin-bottom: 7px; }
   .state b { color: var(--signal); font-variant-numeric: tabular-nums; }
   .state span { display: block; font-size: 0.7rem; font-weight: 400; color: var(--ink-2);
@@ -178,6 +178,9 @@ const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
   ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 // BPS pads the state onto the name with two spaces
 const clean = (s) => String(s).replace(/\s{2,}/g, ", ");
+// panel rows are one line; full name still shows in the popup
+const shortName = (s) => { const n = clean(s).split(",")[0];
+  return n.length > 22 ? n.slice(0, 21) + "\u2026" : n; };
 
 document.getElementById("bases").innerHTML = BASES.map((b) =>
   `<button type="button" data-base="${b.id}" aria-pressed="${b.id===baseKey}">${b.label}</button>`).join("");
@@ -236,17 +239,17 @@ function render() {
     list.innerHTML = rows.map((f) => {
       const p = f.properties;
       return `<div class="rank flagged" onclick="go(${p.cbsa})"><u>${RANKED[p.cbsa]}</u>
-        <span>${esc(clean(p.metro).split(",")[0])}</span>
+        <span>${esc(shortName(p.metro))}</span>
         <b>#${p.rank}</b></div>`;
     }).join("");
     document.getElementById("hint").innerHTML =
       "Orange number is their rank; green is where the metro sits among all 931 " +
       "for homes actually permitted.";
   } else {
-    list.innerHTML = FEATS.slice(0, 10).map((f) => {
+    list.innerHTML = FEATS.slice(0, 8).map((f) => {
       const p = f.properties;
       return `<div class="rank" onclick="go(${p.cbsa})"><u>${p.rank}</u>
-        <span>${esc(clean(p.metro).split(",")[0])}</span>
+        <span>${esc(shortName(p.metro))}</span>
         <b>${num(p.units)}</b></div>`;
     }).join("");
     document.getElementById("hint").textContent =
