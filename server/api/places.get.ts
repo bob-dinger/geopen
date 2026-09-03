@@ -86,28 +86,56 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  /* Overture is a compilation, and it has not fully merged its sources: the same
+  /* Overture is a compilation and has not fully merged its sources: the same
      Whataburger appears twice, once named "Whataburger" and once "Doniphan &
-     Thorn", from two contributors. Brand-matching surfaces both, which inflated
-     a search from 851 to 1,586. Collapse anything sharing a brand within about
-     eleven metres, preferring the record whose name is the brand and then the
-     more confident one. Places with no brand are left alone — there is no safe
-     key for them. */
+     Thorn", from two contributors. Brand-matching surfaces both, which took one
+     chain from 851 results to 1,586.
+
+     Collapse records sharing a brand within ~110m. Two outlets of one chain
+     that close together do not exist, and the threshold matters: at 11m the
+     chain still reported 1,058 against a real Texas estimate near 750; at 110m
+     it reports 827. A grid alone would miss pairs that straddle a cell edge, so
+     each candidate is measured against the cell it lands in and its eight
+     neighbours. Unbranded places are left alone — there is no safe key. */
+  const MERGE_M = 110
+  const CELL = 3 // decimal places, ~110m at this latitude
+  const cells = new Map<string, number[]>()
   const merged: typeof features = []
-  const seen = new Map<string, number>()
+  const metres = (ax: number, ay: number, bx: number, by: number) => {
+    const mLat = 111_320, mLon = 111_320 * Math.cos((ay * Math.PI) / 180)
+    return Math.hypot((ax - bx) * mLon, (ay - by) * mLat)
+  }
   for (const f of features) {
     const b = f.properties.brand
     if (!b) { merged.push(f); continue }
     const [x, y] = f.geometry.coordinates
-    const key = `${b}|${x.toFixed(4)}|${y.toFixed(4)}`
-    const at = seen.get(key)
-    if (at === undefined) { seen.set(key, merged.length); merged.push(f); continue }
-    const kept = merged[at]
-    const better =
-      (f.properties.name === b && kept.properties.name !== b) ||
-      ((f.properties.confidence || 0) > (kept.properties.confidence || 0) &&
-       !(kept.properties.name === b && f.properties.name !== b))
-    if (better) merged[at] = f
+    const cx = Math.round(x * 10 ** CELL), cy = Math.round(y * 10 ** CELL)
+    let hit = -1
+    for (let dx = -1; dx <= 1 && hit < 0; dx++) {
+      for (let dy = -1; dy <= 1 && hit < 0; dy++) {
+        for (const i of cells.get(`${cx + dx}|${cy + dy}`) || []) {
+          const k = merged[i]
+          if (k.properties.brand !== b) continue
+          const [kx, ky] = k.geometry.coordinates
+          if (metres(x, y, kx, ky) <= MERGE_M) { hit = i; break }
+        }
+      }
+    }
+    if (hit < 0) {
+      const key = `${cx}|${cy}`
+      if (!cells.has(key)) cells.set(key, [])
+      cells.get(key)!.push(merged.length)
+      merged.push(f)
+      continue
+    }
+    // keep the record actually named for the brand, then the more confident one
+    const kept = merged[hit]
+    const namedForBrand = (z: any) => z.properties.name === b
+    if ((namedForBrand(f) && !namedForBrand(kept)) ||
+        (namedForBrand(f) === namedForBrand(kept) &&
+         (f.properties.confidence || 0) > (kept.properties.confidence || 0))) {
+      merged[hit] = f
+    }
   }
 
   // Overture is a compilation of open sources; the ODbL share-alike travels
