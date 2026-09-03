@@ -86,6 +86,30 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  /* Overture is a compilation, and it has not fully merged its sources: the same
+     Whataburger appears twice, once named "Whataburger" and once "Doniphan &
+     Thorn", from two contributors. Brand-matching surfaces both, which inflated
+     a search from 851 to 1,586. Collapse anything sharing a brand within about
+     eleven metres, preferring the record whose name is the brand and then the
+     more confident one. Places with no brand are left alone — there is no safe
+     key for them. */
+  const merged: typeof features = []
+  const seen = new Map<string, number>()
+  for (const f of features) {
+    const b = f.properties.brand
+    if (!b) { merged.push(f); continue }
+    const [x, y] = f.geometry.coordinates
+    const key = `${b}|${x.toFixed(4)}|${y.toFixed(4)}`
+    const at = seen.get(key)
+    if (at === undefined) { seen.set(key, merged.length); merged.push(f); continue }
+    const kept = merged[at]
+    const better =
+      (f.properties.name === b && kept.properties.name !== b) ||
+      ((f.properties.confidence || 0) > (kept.properties.confidence || 0) &&
+       !(kept.properties.name === b && f.properties.name !== b))
+    if (better) merged[at] = f
+  }
+
   // Overture is a compilation of open sources; the ODbL share-alike travels
   // with anything derived from it, so it has to be on the payload as well as
   // on the page.
@@ -96,8 +120,9 @@ export default defineEventHandler(async (event) => {
     license: 'ODbL-1.0',
     source: 'Overture Maps places theme, Texas extract',
     query: term || cat,
-    count: features.length,
+    count: merged.length,
+    duplicates_merged: features.length - merged.length,
     truncated: rows.length > MAX,
-    features,
+    features: merged,
   }
 })
