@@ -36,6 +36,7 @@ export default defineCachedEventHandler(
     urls.push(`  <url><loc>${SITE}/licence</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>`)
     urls.push(`  <url><loc>${SITE}/sources</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>`)
     urls.push(`  <url><loc>${SITE}/maps</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>`)
+    urls.push(`  <url><loc>${SITE}/tools</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>`)
 
     /* The map pages are static HTML in public/, so nothing else knows they
        exist: until this was added, 26 maps were absent from the sitemap, unlinked

@@ -49,8 +49,14 @@ export default defineEventHandler(async () => {
       blurb: grab(/<meta property="og:description" content="([^"]*)"/i)
              || grab(/<meta name="description" content="([^"]*)"/i),
       card: card ? `/maps/${card}` : null,
+      // A tool has a search box and a different answer tomorrow; a map is read
+      // once. Declared by the page itself rather than a list kept here, for the
+      // same reason the rest of this file reads the pages: a manifest drifts.
+      type: grab(/<meta name="geopen:type" content="([^"]*)"/i) || 'map',
+      live: grab(/<meta name="geopen:live" content="([^"]*)"/i) || null,
     })
   }
   maps.sort((a, b) => a.title.localeCompare(b.title))
-  return { maps, count: maps.length }
+  const tools = maps.filter((m) => m.type === 'tool')
+  return { maps, count: maps.length, tools, toolCount: tools.length }
 })
