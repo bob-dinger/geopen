@@ -117,8 +117,8 @@
   <div id="map"></div>
   <div class="titlecard">
     <h1>Texas retail mapper</h1>
-    <p>Every location of any chain in Texas. Search 1.7 million places, then take
-      the ones on your screen with you. <a href="https://geopen.io/">geopen.io</a></p>
+    <p>Find a chain, put it on the map where you are looking, and take that view
+      with you as a file. <a href="https://geopen.io/">geopen.io</a></p>
     <div class="search">
       <input id="q" type="search" placeholder="Whataburger, H-E-B, Dollar General…"
              autocomplete="off" spellcheck="false">
@@ -132,15 +132,14 @@
   <div class="panel" id="panel">
     <div class="state" id="state">Search a brand to begin.</div>
     <div class="controls">
-      <h2>Export</h2>
-      <label class="chk"><input type="checkbox" id="onlyview">
-        Only what's on screen</label>
+      <h2>Export this view</h2>
       <div class="exp">
         <button id="dl-geojson" type="button" disabled>GeoJSON</button>
         <button id="dl-csv" type="button" disabled>CSV</button>
         <button id="dl-kml" type="button" disabled>KML</button>
       </div>
-      <p class="hint" id="hint"></p>
+      <p class="hint" id="hint">Search a chain, then pan or zoom to the area you
+        want.</p>
       <h2>Basemap</h2>
       <div class="bases" id="bases"></div>
     </div>
@@ -227,28 +226,40 @@ function inView() {
     return x >= b.getWest() && x <= b.getEast() && y >= b.getSouth() && y <= b.getNorth();
   });
 }
-// The search returns every match; the map fits to all of them. So a download
-// means all of them too, unless you say otherwise — the earlier behaviour
-// quietly shrank the export as soon as you zoomed in.
-const onlyView = () => document.getElementById("onlyview").checked;
-function exportSet() { return onlyView() ? inView() : FEATS; }
+/* The map view is the query. Every match is held in memory so panning re-filters
+   without another request, but what you see, what is counted and what downloads
+   are the same set: the ones inside the current box. */
+function exportSet() { return inView(); }
 
 function refresh() {
-  const n = inView().length;
-  const has = FEATS.length > 0;
-  document.getElementById("state").innerHTML = has
-    ? `<b>${num(FEATS.length)}</b> matching “${esc(TERM)}”<span>${num(n)} of them on screen</span>`
-    : `Search a brand to begin.`;
-  document.getElementById("hint").textContent = has
-    ? `Downloads ${num(exportSet().length)} ${onlyView() ? "in the current view" : "— every match, wherever it is"}.`
-    : "";
-  const k = exportSet().length;
-  for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
-    document.getElementById(id).disabled = !k;
+  if (!FEATS.length) return;
+  const f = inView(), n = f.length;
+  if (map.getSource("p")) {
+    map.getSource("p").setData({ type: "FeatureCollection", features: f });
   }
+  const away = FEATS.length - n;
+  document.getElementById("state").innerHTML = n
+    ? `<b>${num(n)}</b> “${esc(TERM)}” in view` +
+      `<span>${away ? `${num(away)} more outside it` : "every one that was found"}</span>`
+    : `<b>None</b> in view<span>${num(FEATS.length)} found elsewhere — ` +
+      `<a href="#" id="zoomall" style="color:#48e5c2">zoom out to them</a></span>`;
+  document.getElementById("hint").textContent = n
+    ? `Downloads these ${num(n)}. Pan or zoom to change what you get.`
+    : "";
+  for (const id of ["dl-geojson", "dl-csv", "dl-kml"]) {
+    document.getElementById(id).disabled = !n;
+  }
+  const z = document.getElementById("zoomall");
+  if (z) z.addEventListener("click", (e) => { e.preventDefault(); fitAll(); });
+}
+function fitAll() {
+  if (!FEATS.length) return;
+  const xs = FEATS.map((f) => f.geometry.coordinates[0]);
+  const ys = FEATS.map((f) => f.geometry.coordinates[1]);
+  map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+    { padding: 60, duration: 700, maxZoom: 13 });
 }
 map.on("moveend", refresh);
-document.getElementById("onlyview").addEventListener("change", refresh);
 
 async function run() {
   const term = document.getElementById("q").value.trim();
@@ -289,14 +300,12 @@ async function run() {
     }
     if (!FEATS.length) {
       document.getElementById("state").innerHTML =
-        `<b>Nothing</b><span>No Texas place matches “${esc(term)}”.</span>`;
+        `<b>Nothing</b><span>No place in the extract matches “${esc(term)}”.</span>`;
+      document.getElementById("hint").textContent = "";
     } else {
-      const xs = FEATS.map((f) => f.geometry.coordinates[0]);
-      const ys = FEATS.map((f) => f.geometry.coordinates[1]);
-      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
-        { padding: 60, duration: 700, maxZoom: 13 });
+      // stay where the user is looking — the view is the question they asked
+      refresh();
     }
-    refresh();
   } catch (err) {
     document.getElementById("state").innerHTML =
       `<b>Search failed</b><span>Try again in a moment.</span>`;
@@ -373,11 +382,12 @@ document.getElementById("foot").innerHTML = `<details><summary>
       for a chain that operates in those places will show some of them too.
       Neither is a judgement about Texas; it is the shape of the file. A
       corrected extract is the fix and it is on the list.</p>
-    <p><b>The download is every match by default.</b> A search loads all of
-      them at once, so the export is complete rather than whatever a page
-      boundary happened to return. Tick "only what's on screen" if you want just
-      the current view instead, and the panel tells you how many that is before
-      you click. GeoJSON carries the licence inside the file.</p>
+    <p><b>The map view is the query.</b> What you see, the count in the panel and
+      the file you download are the same set: the places inside the current box.
+      Pan or zoom and all three change together. Every match is held in memory
+      after a search, so re-filtering costs no further requests and nothing is
+      silently cut off at a page boundary. GeoJSON carries the licence inside the
+      file.</p>
     <p><b>It is a compilation, not a company's own list.</b> A chain's real
       store count and this count will differ: closed locations linger, new ones
       take time to appear, and a name recorded slightly differently — a
