@@ -194,7 +194,9 @@ STAGES.forEach(([k, , , sts], i) => sts.forEach((s) => { STAGE_OF[s.toLowerCase(
 const stageOf = (s) => STAGE_OF[String(s || "").toLowerCase()] || { k: "intake", i: 0 };
 const COL = Object.fromEntries(STAGES.map(([k, , c]) => [k, c]));
 
-let baseKey = "dark", days = 7, picked = null, FEATS = [];
+// the map opens light; the panels stay dark for contrast against it
+const START = BASES.find((b) => b.id === "light");
+let baseKey = START.id, days = 7, picked = null, FEATS = [];
 const num = (v) => Number(v || 0).toLocaleString();
 const dstr = (ms) => ms ? new Date(ms).toISOString().slice(0, 10) : "—";
 const esc = (s) => String(s == null ? "" : s).replace(/[<>&"]/g, (c) =>
@@ -229,11 +231,11 @@ const map = new maplibregl.Map({
   container: "map",
   style: { version: 8,
     sources: {
-      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [BASES[0].url] },
+      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri", tiles: [START.url] },
       ref: { type: "raster", tileSize: 256, maxzoom: 19, tiles: [BASES.find((b)=>b.ref).ref] },
     },
     layers: [{ id: "base", type: "raster", source: "base",
-      paint: { "raster-opacity": BASES[0].opacity } }],
+      paint: { "raster-opacity": START.opacity } }],
   },
   center: [-97.33, 32.755], zoom: 10.2, attributionControl: { compact: true },
 });
