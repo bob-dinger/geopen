@@ -2,14 +2,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Texas retail mapper</title>
-<meta name="description" content="Find every location of any chain in Texas — Whataburger, H-E-B, Dollar General — map them, then export what's on your screen as GeoJSON, CSV or KML. Built on Overture Maps.">
+<meta name="description" content="Find every location of any chain in Texas — Whataburger, H-E-B, Buc-ee's — map them, then export the view as GeoJSON, CSV or KML. 1.46 million places from Overture Maps.">
 <link rel="canonical" href="https://geopen.io/maps/texas-retail-mapper.html">
 <meta name="geopen:type" content="tool">
 <meta name="geopen:live" content="lookup">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
 <meta property="og:title" content="Texas retail mapper">
-<meta property="og:description" content="Every Whataburger. Every H-E-B. Every Dollar General. Search 1.7 million Texas places, map them, and export the ones on your screen.">
+<meta property="og:description" content="Every Whataburger. Every H-E-B. Every Buc-ee's. Search 1.46 million Texas places, map them, and export the view.">
 <meta property="og:url" content="https://geopen.io/maps/texas-retail-mapper.html">
 <meta property="og:image" content="https://geopen.io/maps/texas-retail-mapper-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -118,7 +118,7 @@
   <div class="titlecard">
     <h1>Texas retail mapper</h1>
     <p>Find a chain, put it on the map where you are looking, and take that view
-      with you as a file. <a href="https://geopen.io/">geopen.io</a></p>
+      with you as a file. 1.46 million places, every one inside Texas. <a href="https://geopen.io/">geopen.io</a></p>
     <div class="search">
       <input id="q" type="search" placeholder="Whataburger, H-E-B, Dollar General…"
              autocomplete="off" spellcheck="false">
@@ -378,18 +378,11 @@ document.getElementById("foot").innerHTML = `<details><summary>
     <span class="more">Where this comes from, and what it can't tell you</span>
   </summary>
   <div class="notes">
-    <p><b>1,722,927 places</b>, from the Overture Maps places theme — an open
-      compilation built from OpenStreetMap, Meta's and Microsoft's contributions
-      and other open sources. Searching matches on the recorded name, so
-      "Whataburger" returns 851 and "H-E-B" 926.</p>
-    <p><b>Coverage is a rectangle, not the state, and you should know where it
-      fails.</b> The extract spans 106°W to 93°W and 25°N to 36°N. Texas reaches
-      past both edges, so <b>El&nbsp;Paso is missing entirely</b> — zero places —
-      and the Panhandle above 36°N has three. The same rectangle reaches into
-      Oklahoma, Arkansas, Louisiana, New Mexico and northern Mexico, so a search
-      for a chain that operates in those places will show some of them too.
-      Neither is a judgement about Texas; it is the shape of the file. A
-      corrected extract is the fix and it is on the list.</p>
+    <p><b>1,462,608 places, clipped to the state line.</b> From the Overture Maps
+      places theme — an open compilation built from OpenStreetMap, Meta's and
+      Microsoft's contributions and other open sources. Searching matches the
+      recorded name and the brand Overture assigns, so a store signed something
+      slightly different still turns up with its chain.</p>
     <p><b>The map view is the query.</b> What you see, the count in the panel and
       the file you download are the same set: the places inside the current box.
       Pan or zoom and all three change together. Every match is held in memory

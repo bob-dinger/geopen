@@ -26,8 +26,11 @@ const DP = 5 // ~1 metre; the source is not more accurate than its geocoder
 type Row = {
   id: string
   primary_name: string | null
+  brand: string | null
   primary_category: string | null
   address: string | null
+  city: string | null
+  operating_status: string | null
   websites: any
   confidence: number | null
   geometry_geojson: string | null
@@ -46,13 +49,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const sb = db()
-  const cols = 'id,primary_name,primary_category,address,websites,confidence,geometry_geojson'
+  const cols = 'id,primary_name,brand,primary_category,address,city,operating_status,' +
+               'websites,confidence,geometry_geojson'
 
   const rows = await pageAll<Row>((from, to) => {
     let sel = sb.schema('parcels').from('texas_places').select(cols).range(from, to)
-    // ilike on an unanchored pattern cannot use the btree index, so this is a
-    // scan — about a second across 1.7M rows, which is why the result is cached.
-    if (term) sel = sel.ilike('primary_name', `%${term}%`)
+    // Match the brand as well as the recorded name: Overture identifies the
+    // chain separately, so a store signed something else still belongs to it.
+    // A trigram index covers the unanchored name pattern.
+    if (term) sel = sel.or(`primary_name.ilike.%${term}%,brand.ilike.%${term}%`)
     if (cat) sel = sel.eq('primary_category', cat)
     return sel
   })
@@ -70,8 +75,11 @@ export default defineEventHandler(async (event) => {
       properties: {
         id: r.id,
         name: r.primary_name,
+        brand: r.brand,
         category: r.primary_category,
         address: r.address,
+        city: r.city,
+        status: r.operating_status,
         website: Array.isArray(r.websites) ? r.websites[0] || null : null,
         confidence: r.confidence == null ? null : Number(r.confidence.toFixed(2)),
       },
