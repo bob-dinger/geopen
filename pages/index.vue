@@ -165,10 +165,29 @@ const total = ref<number>(first.value?.total || 0)
 const pending = ref(false)
 
 const { data: srcData } = await useFetch<any>('/api/sources', { default: () => null as any })
-// biggest first, and only ones carrying real weight — a source with two layers
-// is true but says nothing about what is here
-const topSources = computed(() =>
-  (srcData.value?.sources || []).filter((s: any) => s.layers >= 20).slice(0, 6))
+/* Biggest first, and only ones carrying real weight — a source with two layers
+   is true but says nothing about what is here.
+
+   Two corrections the raw host list needs before it can be read as publishers.
+   Shared hosting is not a publisher: services2.arcgis.com is where dozens of
+   unrelated organisations happen to serve from, so naming it says nothing about
+   provenance. And subdomains of one publisher are one publisher — census.gov and
+   data.census.gov were showing as two separate chips. */
+const GENERIC = /^(services\d*\.arcgis\.com|tiles\.arcgis\.com|www\.arcgis\.com|s3[.-]|.*\.amazonaws\.com|.*\.blob\.core\.windows\.net|.*\.supabase\.co|drive\.google\.com|docs\.google\.com)$/i
+const registrable = (h: string) => h.split('.').slice(-2).join('.')
+const topSources = computed(() => {
+  const out: any[] = []
+  const seen = new Set<string>()
+  for (const s of (srcData.value?.sources || [])) {
+    if (s.layers < 20 || GENERIC.test(s.host)) continue
+    const key = registrable(s.host)
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(s)
+    if (out.length >= 6) break
+  }
+  return out
+})
 
 async function run() {
   pending.value = true
