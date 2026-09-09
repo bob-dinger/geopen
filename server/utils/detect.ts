@@ -1,5 +1,6 @@
 import { lookup } from 'node:dns/promises'
 import { isIP } from 'node:net'
+import { inspectShapefileZip, MAX_ZIP_BYTES, type ShapefileLayer } from './shapefile'
 
 /**
  * Work out what geographic data, if any, sits behind a URL.
@@ -38,6 +39,9 @@ import { isIP } from 'node:net'
 const UA = 'geopen.io source-detector (+https://geopen.io/)'
 const TIMEOUT = 15000
 const MAX_BYTES = 2_000_000
+// A zip is read for its headers, not parsed, so it can afford to be far larger
+// than anything else here — but not unbounded. See shapefile.ts.
+const ZIP_TIMEOUT = 60000
 
 export type Detection = {
   ok: boolean
@@ -198,6 +202,108 @@ async function geojsonFile(url: string): Promise<Detection> {
            licence: lic, licence_known: !!lic }
 }
 
+/* ---- zipped shapefiles -------------------------------------------------- */
+
+/**
+ * Pull a zip into memory, under a cap, so its headers can be read.
+ *
+ * The cap is not politeness. Content-length is checked first because it is free,
+ * but it can be absent or wrong, so the body is counted as it arrives and the
+ * read is abandoned the moment it goes over. Texas publishes a 2.6GB statewide
+ * parcel zip; without this, one pasted link ends the process.
+ */
+async function grabZip(u: URL): Promise<Buffer> {
+  await assertPublic(u)
+
+  const head = await fetch(u, { method: 'HEAD', headers: { 'user-agent': UA },
+                                redirect: 'follow' }).catch(() => null)
+  const declared = Number(head?.headers.get('content-length') || 0)
+  if (declared > MAX_ZIP_BYTES) {
+    throw new Error(`${(declared / 1e6).toFixed(0)}MB — too large to inspect here`)
+  }
+
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), ZIP_TIMEOUT)
+  try {
+    const r = await fetch(u, { headers: { 'user-agent': UA }, signal: ctrl.signal,
+                               redirect: 'follow' })
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    if (!r.body) throw new Error('no response body')
+
+    const chunks: Buffer[] = []
+    let seen = 0
+    for await (const chunk of r.body as any) {
+      seen += chunk.length
+      if (seen > MAX_ZIP_BYTES) {
+        ctrl.abort()
+        throw new Error(`over ${(MAX_ZIP_BYTES / 1e6).toFixed(0)}MB — too large to inspect here`)
+      }
+      chunks.push(Buffer.from(chunk))
+    }
+    const buf = Buffer.concat(chunks)
+    // Servers answer 200 with an HTML error page more often than they 404 —
+    // census.gov does it for an unrecognised FIPS code. Without this check the
+    // user gets JSZip's "can't find end of central directory", which tells them
+    // nothing about what actually went wrong.
+    if (buf.length < 4 || buf[0] !== 0x50 || buf[1] !== 0x4b) {
+      throw new Error('the server did not return a zip file')
+    }
+    return buf
+  } finally {
+    clearTimeout(t)
+  }
+}
+
+async function shapefileZip(u: URL): Promise<Detection> {
+  const filename = u.pathname.split('/').pop() || 'archive.zip'
+  let layers: ShapefileLayer[]
+  try {
+    layers = await inspectShapefileZip(await grabZip(u))
+  } catch (e: any) {
+    // A zip we cannot read is still probably data; say what stopped us rather
+    // than reporting nothing found.
+    return { ok: false, kind: 'zip', url: u.href, title: filename,
+             licence_known: false,
+             note: `zip archive — ${String(e?.message || e).slice(0, 120)}` }
+  }
+
+  if (!layers.length) {
+    return { ok: false, kind: 'zip', url: u.href, title: filename,
+             licence_known: false,
+             note: 'a zip, but no shapefile inside it' }
+  }
+
+  const total = layers.reduce((a, l) => a + l.features, 0)
+  const main = layers.slice().sort((a, b) => b.features - a.features)[0]
+
+  // Flag what would go wrong on conversion, before anyone converts it.
+  const warn: string[] = []
+  if (layers.some((l) => !l.bbox)) warn.push('coordinate system could not be resolved')
+  if (layers.some((l) => l.has_z)) warn.push('has Z values, which are dropped on import')
+
+  return {
+    ok: true,
+    kind: 'shapefile',
+    url: u.href,
+    title: layers.length === 1 ? main.name : filename,
+    features: total,
+    geometry: main.geometry.replace(/[ZM]$/, ''),
+    // A shapefile carries no licence field. Saying nothing is correct; assuming
+    // is the failure this whole module exists to avoid.
+    licence: null,
+    licence_known: false,
+    candidates: layers.length > 1
+      ? layers.map((l) => ({ title: `${l.name} (${l.geometry})`, url: u.href,
+                             features: l.features }))
+      : undefined,
+    note: [
+      `${layers.length > 1 ? `${layers.length} shapefiles, ` : ''}` +
+        `${main.crs || 'coordinate system undeclared'}`,
+      ...warn,
+    ].join('; '),
+  }
+}
+
 /* ---- the cascade -------------------------------------------------------- */
 
 export async function detectSource(raw: string): Promise<Detection> {
@@ -221,11 +327,7 @@ export async function detectSource(raw: string): Promise<Detection> {
     if (/socrata|opendata|\/resource\/|\/d\/[a-z0-9]{4}-[a-z0-9]{4}/i.test(u.href)) {
       return await socrata(u)
     }
-    if (/\.zip(\?|$)/i.test(u.pathname)) {
-      return { ok: true, kind: 'zip', url: u.href, licence_known: false,
-               title: u.pathname.split('/').pop(),
-               note: 'probably a shapefile — needs downloading to confirm' }
-    }
+    if (/\.zip(\?|$)/i.test(u.pathname)) return await shapefileZip(u)
 
     // last resort: read the page and look for something we do understand. Skip
     // anything that is plainly not a document — a PDF scanned for links is a
