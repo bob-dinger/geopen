@@ -5,7 +5,15 @@
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <h1>The open library of <em>geography</em></h1>
+          <!-- The rotating word is last in the line on purpose: nothing follows
+               it, so a change of width cannot reflow anything. The heading keeps
+               a fixed accessible name and the span is hidden from assistive tech,
+               because a heading whose name changes every two seconds is unusable
+               to anyone navigating by headings. -->
+          <h1 aria-label="The open library of geography">
+            The open library of
+            <em class="cycle" aria-hidden="true" :class="{ fade: fading }">{{ word }}</em>
+          </h1>
 
           <ul class="facts mono">
             <li v-if="stats?.sources">
@@ -160,6 +168,37 @@
 </template>
 
 <script setup lang="ts">
+/* The headline word cycles through the formats and settles on "everything".
+ *
+ * It settles rather than loops. A headline that never stops moving is a fidget
+ * on a page people are meant to read, and the sequence only makes its point
+ * once — the formats are the argument, "everything" is the conclusion. Change
+ * WORDS to change either.
+ *
+ * "geography" is the first word and the accessible name, so a reader who
+ * arrives late, prefers reduced motion, or is using a screen reader gets the
+ * true claim rather than the flourish. */
+const WORDS = ['geography', 'geojson', 'kml', 'shapefile', 'excel', 'csv', 'everything']
+const HOLD = 1100
+const FADE = 180
+
+const word = ref(WORDS[0])
+const fading = ref(false)
+let timers: ReturnType<typeof setTimeout>[] = []
+
+onMounted(() => {
+  // Respect the OS setting: no motion means the resting claim, immediately.
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+
+  WORDS.slice(1).forEach((w, i) => {
+    const at = (i + 1) * HOLD
+    timers.push(setTimeout(() => { fading.value = true }, at - FADE))
+    timers.push(setTimeout(() => { word.value = w; fading.value = false }, at))
+  })
+})
+
+onBeforeUnmount(() => { timers.forEach(clearTimeout); timers = [] })
+
 const q = ref('')
 const examples = ['parcels', 'zoning', 'aquifers', 'census tracts', 'crime']
 const PAGE = 24
@@ -268,6 +307,15 @@ useHead({
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
      line-height: 1.24; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
+/* Fades rather than slides: the word sits at the end of a line of prose, and
+   movement there reads as a glitch. Opacity only — no transform, nothing that
+   could shift the baseline. */
+.cycle { display: inline-block; transition: opacity 180ms ease; }
+.cycle.fade { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .cycle { transition: none; }
+  .cycle.fade { opacity: 1; }
+}
 
 /* Four claims, not four sentences. Stacked rather than in a row: a single
    column is read, a row is skimmed, and these are the answers to the questions
