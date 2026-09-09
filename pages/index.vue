@@ -168,36 +168,41 @@
 </template>
 
 <script setup lang="ts">
-/* The headline word cycles through the formats and settles on "everything".
+/* The headline word cycles continuously through the formats.
  *
- * It settles rather than loops. A headline that never stops moving is a fidget
- * on a page people are meant to read, and the sequence only makes its point
- * once — the formats are the argument, "everything" is the conclusion. Change
- * WORDS to change either.
- *
- * "geography" is the first word and the accessible name, so a reader who
- * arrives late, prefers reduced motion, or is using a screen reader gets the
- * true claim rather than the flourish. */
+ * "geography" is the first word, the resting word under reduced motion, and the
+ * heading's fixed accessible name — so the true claim is what a screen reader
+ * gets and what anyone who prefers no motion sees. The formats passing through
+ * are the argument: they show the breadth instead of asserting one format. */
 const WORDS = ['geography', 'geojson', 'kml', 'shapefile', 'excel', 'csv', 'everything']
-const HOLD = 1100
+const HOLD = 1600
 const FADE = 180
 
 const word = ref(WORDS[0])
 const fading = ref(false)
-let timers: ReturnType<typeof setTimeout>[] = []
+let tick: ReturnType<typeof setInterval> | null = null
+let swap: ReturnType<typeof setTimeout> | null = null
+let i = 0
 
 onMounted(() => {
   // Respect the OS setting: no motion means the resting claim, immediately.
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
 
-  WORDS.slice(1).forEach((w, i) => {
-    const at = (i + 1) * HOLD
-    timers.push(setTimeout(() => { fading.value = true }, at - FADE))
-    timers.push(setTimeout(() => { word.value = w; fading.value = false }, at))
-  })
+  tick = setInterval(() => {
+    fading.value = true
+    swap = setTimeout(() => {
+      i = (i + 1) % WORDS.length
+      word.value = WORDS[i]
+      fading.value = false
+    }, FADE)
+  }, HOLD)
 })
 
-onBeforeUnmount(() => { timers.forEach(clearTimeout); timers = [] })
+onBeforeUnmount(() => {
+  if (tick) clearInterval(tick)
+  if (swap) clearTimeout(swap)
+  tick = swap = null
+})
 
 const q = ref('')
 const examples = ['parcels', 'zoning', 'aquifers', 'census tracts', 'crime']
