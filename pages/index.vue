@@ -25,7 +25,6 @@
             <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
             <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
             <li><img src="/img/formats/pmtiles.png" alt="PMTiles" width="153" height="200" loading="lazy" decoding="async" /></li>
-            <li class="txt">CSV</li>
           </ul>
         </div>
 
@@ -231,13 +230,12 @@ h1 em { font-style: normal; color: var(--accent); }
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
 
-/* Small on purpose — these say "you get a file", they are not the argument. */
-.formats { display: flex; align-items: flex-end; gap: 12px; list-style: none;
+/* Big enough that the sub-labels under SHP and XLSX are readable — below about
+   56px they are shapes you recognise rather than words you read. */
+.formats { display: flex; align-items: flex-end; gap: 14px; list-style: none;
   margin: 2px 0 0; padding: 0; flex-wrap: wrap; }
-.formats img { display: block; height: 38px; width: auto; }
-.formats .txt { font-family: var(--mono); font-size: 12px; color: var(--ink-3);
-  border: 1px solid var(--rule); border-radius: 3px; padding: 4px 9px; }
-@media (max-width: 520px) { .formats img { height: 32px; } }
+.formats img { display: block; height: 58px; width: auto; }
+@media (max-width: 520px) { .formats img { height: 46px; } }
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
