@@ -113,8 +113,8 @@
   <div class="pane" id="before"></div>
   <div class="pane" id="after"></div>
   <div id="swipe"><div id="grip">⇄</div></div>
-  <div class="era" id="eraL">2018<span>designated</span></div>
-  <div class="era" id="eraR">2026<span>nominated</span></div>
+  <div class="era" id="eraL">2018<span>runs to 2028</span></div>
+  <div class="era" id="eraR">2026<span>starts 2027</span></div>
 
   <div class="titlecard">
     <h1>Texas is replacing three quarters of its Opportunity Zones</h1>
@@ -252,7 +252,7 @@ addZones(before, "/data/texas_oz_2018.geojson", "old", "#ff9f43",
   (p) => `<b>Tract ${esc(p.tract)}</b><br>` +
     `<span style="color:#9daebe">${esc(p.county)} County · designated 2018</span><br>` +
     `<span style="color:#6b7d8d">${p.renominated
-      ? "Still covered by a 2026 nomination" : "Not nominated again — lapses after 2026"}</span>`);
+      ? "Still covered by a 2026 nomination" : "Not nominated again — ends after 2028"}</span>`);
 
 addZones(after, "/data/texas_oz_2027.geojson", "new", "#2f8fd6",
   (p) => `<b>Tract ${esc(p.tract)}</b><br>` +
@@ -265,15 +265,19 @@ addZones(after, "/data/texas_oz_2027.geojson", "new", "#2f8fd6",
 const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
 document.getElementById("foot").innerHTML = `<details><summary>
     <span class="src">2018 zones from the ${A("https://www.cdfifund.gov/opportunity-zones", "CDFI Fund")};
-      2027 nominations from the ${A("https://gov.texas.gov/business/page/opportunity-zones", "Texas Governor's Economic Development &amp; Tourism office")}
+      2026 nominations from the ${A("https://gov.texas.gov/business/page/opportunity-zones", "Texas Governor's Economic Development &amp; Tourism office")}
       · ${A("https://geopen.io/", "geopen.io")}</span>
     <span class="more">What this shows, and what it can't tell you</span>
   </summary>
   <div class="notes">
     <p><b>These are nominations, not designations.</b> Texas submitted 605 census
       tracts to the Treasury on <b>4 September 2026</b>. Treasury has not
-      certified them. If it does, they run from 1 January 2027 to the end of
-      2036 and the 2018 zones lapse.</p>
+      certified them.</p>
+    <p><b>Nothing switches off next year.</b> If certified, the new zones run from
+      1 January 2027 to the end of 2036 — and the 2018 zones stay in effect until
+      <b>31 December 2028</b>, so both maps are live through 2027 and 2028. But
+      nothing is grandfathered: a 2018 zone that was not renominated simply
+      reaches the end of 2028 and stops.</p>
     <p><b>Texas nominated 605 of 2,420 eligible tracts</b> — the federal cap is
       25% of a state's eligible tracts. 419 are non-rural, 184 rural, and
       <b>two are tracts the federal list marks ineligible</b>, both in Travis
