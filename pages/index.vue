@@ -15,18 +15,27 @@
             <li>Downloadable, no account required</li>
           </ul>
 
-          <!-- The formats, as the files they are. Each carries its own alt text,
-               so the row reads as a list of formats with images off or on a
-               screen reader — it is not decoration standing in for a fact. CSV
-               has no icon and is named instead rather than quietly dropped. -->
-          <ul class="formats" aria-label="Available download formats">
-            <li><img src="/img/formats/geojson.png" alt="GeoJSON" width="158" height="200" loading="lazy" decoding="async" /></li>
-            <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
-            <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
-            <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
-            <li><img src="/img/formats/csv.png" alt="CSV" width="161" height="200" loading="lazy" decoding="async" /></li>
-            <li><img src="/img/formats/pmtiles.png" alt="PMTiles" width="153" height="200" loading="lazy" decoding="async" /></li>
-          </ul>
+          <!-- GeoJSON leads because it is the only one of these that was born
+               open — an IETF spec, text, no vendor. Everything here is stored as
+               GeoJSON and every other format is generated from it on the way
+               out, so this is a statement of what the catalogue is, not a
+               feature list. Shapefile and KML began as Esri's and Keyhole's.
+
+               PMTiles is deliberately absent: it is a tile archive, not a
+               format a dataset converts into, and it has its own counter below. -->
+          <div class="fmt">
+            <img class="fmt-lead" src="/img/formats/geojson.png" alt="GeoJSON"
+                 width="158" height="200" decoding="async" />
+            <div class="fmt-copy">
+              <p class="fmt-claim">Everything as <em>GeoJSON</em></p>
+              <ul class="fmt-also" aria-label="Also available as">
+                <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
+                <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
+                <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
+                <li><img src="/img/formats/csv.png" alt="CSV" width="161" height="200" loading="lazy" decoding="async" /></li>
+              </ul>
+            </div>
+          </div>
         </div>
 
         <form class="search" @submit.prevent="run">
@@ -269,13 +278,22 @@ h1 em { font-style: normal; color: var(--accent); }
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
 
-/* Sized so the sub-labels under SHP and XLSX are comfortably readable rather
-   than only technically legible. The source PNGs are 200px tall, so 80px stays
-   sharp on a 2x display. */
-.formats { display: flex; align-items: flex-end; gap: 16px; list-style: none;
-  margin: 2px 0 0; padding: 0; flex-wrap: wrap; }
-.formats img { display: block; height: 80px; width: auto; }
-@media (max-width: 520px) { .formats img { height: 58px; } }
+/* GeoJSON at full size, the conversions at half. The hierarchy is the argument:
+   one open format is what this is, the rest are what your software wants. */
+.fmt { display: flex; align-items: center; gap: 18px; margin-top: 4px; }
+.fmt-lead { display: block; height: 104px; width: auto; flex: none; }
+.fmt-copy { display: grid; gap: 9px; }
+.fmt-claim { margin: 0; font-family: var(--mono); font-size: 15px; color: var(--ink);
+  letter-spacing: -.01em; }
+.fmt-claim em { font-style: normal; color: var(--accent); font-weight: 600; }
+.fmt-also { display: flex; align-items: flex-end; gap: 10px; list-style: none;
+  margin: 0; padding: 0; }
+.fmt-also img { display: block; height: 52px; width: auto; }
+@media (max-width: 520px) {
+  .fmt { gap: 13px; }
+  .fmt-lead { height: 78px; }
+  .fmt-also img { height: 40px; }
+}
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
