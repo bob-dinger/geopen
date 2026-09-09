@@ -129,6 +129,14 @@ async function arcgisService(url: string): Promise<Detection> {
 
 async function arcgisItem(itemId: string, portal: string): Promise<Detection> {
   const it = await grab(`${portal}/sharing/rest/content/items/${itemId}?f=json`)
+  // ArcGIS answers 200 with an error body for an id that does not exist, and a
+  // truncated id is the commonest way a pasted link goes wrong
+  if (it?.error || !it?.type) {
+    return { ok: false, kind: 'arcgis-item',
+             url: `${portal}/home/item.html?id=${itemId}`, licence_known: false,
+             error: it?.error?.message
+               || `no ArcGIS item with id ${itemId} — check it is the full 32 characters` }
+  }
   const lic = licenceOf(it.licenseInfo)
   if (it.url && /\/(Feature|Map)Server/i.test(it.url)) {
     const d = await arcgisService(it.url)
@@ -219,7 +227,17 @@ export async function detectSource(raw: string): Promise<Detection> {
                note: 'probably a shapefile — needs downloading to confirm' }
     }
 
-    // last resort: read the page and look for something we do understand
+    // last resort: read the page and look for something we do understand. Skip
+    // anything that is plainly not a document — a PDF scanned for links is a
+    // wasted megabyte and a misleading "no data found".
+    const head = await fetch(u, { method: 'HEAD', headers: { 'user-agent': UA },
+                                  redirect: 'follow' }).catch(() => null)
+    const ctype = head?.headers.get('content-type') || ''
+    if (ctype && !/text\/html|text\/plain|application\/(json|xml)|\+xml/i.test(ctype)) {
+      return { ok: false, kind: 'file', url: u.href, licence_known: false,
+               title: u.pathname.split('/').pop() || null,
+               note: `a ${ctype.split(';')[0]} file — not something this can read` }
+    }
     const html = await grab(u.href, 'text')
     const links = [...String(html).matchAll(/https?:\/\/[^"'\s<>]+/g)]
       .map((m) => m[0])
