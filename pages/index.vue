@@ -5,7 +5,7 @@
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <h1>The open library<br />of <em>geography</em></h1>
+          <h1>The open library of <em>geography</em></h1>
 
           <ul class="facts mono">
             <li v-if="stats?.sources">
@@ -24,6 +24,7 @@
             <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
             <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
             <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/csv.png" alt="CSV" width="161" height="200" loading="lazy" decoding="async" /></li>
             <li><img src="/img/formats/pmtiles.png" alt="PMTiles" width="153" height="200" loading="lazy" decoding="async" /></li>
           </ul>
         </div>
@@ -37,6 +38,17 @@
         <div class="egs mono">
           <span>Try</span>
           <button v-for="e in examples" :key="e" type="button" @click="q = e; run()">{{ e }}</button>
+        </div>
+
+        <!-- The publishers behind the biggest holdings, read from the live
+             sources endpoint rather than a list kept here, so it cannot drift
+             away from the catalogue. Links rather than buttons: search matches
+             titles and descriptions, not source hosts, so a chip that looked
+             like a filter would not be one. -->
+        <div class="egs srcs mono" v-if="topSources.length">
+          <span>From</span>
+          <NuxtLink v-for="s in topSources" :key="s.host" to="/sources">{{ s.host }}</NuxtLink>
+          <NuxtLink to="/sources" class="more">all {{ stats?.sources }} →</NuxtLink>
         </div>
       </section>
 
@@ -152,6 +164,12 @@ const datasets = ref<any[]>(first.value?.datasets || [])
 const total = ref<number>(first.value?.total || 0)
 const pending = ref(false)
 
+const { data: srcData } = await useFetch<any>('/api/sources', { default: () => null as any })
+// biggest first, and only ones carrying real weight — a source with two layers
+// is true but says nothing about what is here
+const topSources = computed(() =>
+  (srcData.value?.sources || []).filter((s: any) => s.layers >= 20).slice(0, 6))
+
 async function run() {
   pending.value = true
   try {
@@ -249,6 +267,12 @@ h1 em { font-style: normal; color: var(--accent); }
 .egs button { background: none; cursor: pointer; font-family: var(--mono); font-size: 12px;
   color: var(--ink-2); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; }
 .egs button:hover { border-color: var(--accent); color: var(--accent); }
+.egs a { font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px;
+  text-decoration: none; }
+.egs a:hover { border-color: var(--accent); color: var(--accent); }
+.srcs { margin-top: -4px; }
+.srcs .more { border-color: transparent; color: var(--ink-3); padding-left: 4px; }
 
 .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule);
   border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin-bottom: 52px; }
