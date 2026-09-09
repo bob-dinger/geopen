@@ -25,27 +25,17 @@
         <span class="count mono nums" v-if="q">{{ shown.length }} of {{ d.sources.length }}</span>
       </div>
 
-      <table class="src mono" v-if="d && shown.length">
-        <thead>
-          <tr>
-            <th>Publisher</th>
-            <th class="n">Datasets</th>
-            <th class="n">Features</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="s in shown" :key="s.host">
-            <td class="host">
-              <NuxtLink :to="`/source/${s.host}`">{{ s.host }}</NuxtLink>
-            </td>
-            <td class="n nums">
+      <ul class="grid" v-if="d && shown.length">
+        <li v-for="s in shown" :key="s.host">
+          <NuxtLink :to="`/source/${s.host}`">
+            <span class="host mono">{{ s.host }}</span>
+            <span class="n mono nums">
               {{ (s.layers + s.tilesets).toLocaleString() }}
-              <span class="sub" v-if="s.tilesets">({{ s.tilesets }} tiled)</span>
-            </td>
-            <td class="n nums">{{ s.features.toLocaleString() }}</td>
-          </tr>
-        </tbody>
-      </table>
+              {{ (s.layers + s.tilesets) === 1 ? 'dataset' : 'datasets' }}
+            </span>
+          </NuxtLink>
+        </li>
+      </ul>
 
       <p class="none mono" v-else-if="d">No publisher matches “{{ q }}”.</p>
 
@@ -111,19 +101,6 @@ h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: -.02em; margin: 0; }
 .tools .count { font-size: 11.5px; color: var(--ink-3); }
 
 /* the table scrolls inside itself so the page never scrolls sideways */
-.src { width: 100%; border-collapse: collapse; font-size: 12.5px; display: block;
-  overflow-x: auto; white-space: nowrap; }
-.src thead th { text-align: left; font-size: 10.5px; letter-spacing: .1em; font-weight: 600;
-  text-transform: uppercase; color: var(--ink-3); padding: 0 14px 8px 0;
-  border-bottom: 1px solid var(--rule); }
-.src th.n, .src td.n { text-align: right; }
-.src tbody td { padding: 8px 14px 8px 0; border-bottom: 1px solid var(--rule);
-  color: var(--ink-2); }
-.src tbody tr:hover td { background: var(--panel); }
-.src .host a { color: var(--ink); text-decoration: none; }
-.src .host a:hover { color: var(--accent); text-decoration: underline; }
-.src .sub { color: var(--ink-3); font-size: 11px; margin-left: 5px; }
-.nums { font-variant-numeric: tabular-nums; }
 
 .none { padding: 30px 0; color: var(--ink-3); font-size: 13px; }
 .note { margin: 26px 0 60px; padding-top: 18px; border-top: 1px solid var(--rule);
@@ -131,4 +108,39 @@ h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: -.02em; margin: 0; }
 .note p { font-size: 12.5px; color: var(--ink-3); line-height: 1.6; margin: 0; max-width: 68ch; }
 .note strong { color: var(--ink-2); }
 
+
+/* A grid of buttons rather than a table. A table asks to be read top to bottom;
+   this is a set of doors, and the point is that there are a lot of them.
+
+   The fill has to be set per mode: --accent is a dark green in light mode and a
+   bright one in dark, so white text on it would fail contrast in dark. Declared
+   under both the media query and the data-theme scope so the toggle wins either
+   way. */
+.grid { --btn-bg: var(--accent); --btn-fg: #FFFFFF; --btn-sub: rgba(255,255,255,.74);
+  --btn-edge: rgba(0,0,0,.18);
+  list-style: none; margin: 0 0 44px; padding: 0; display: grid; gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .grid { --btn-bg: #16362A; --btn-fg: #E8EDE9;
+    --btn-sub: var(--accent); --btn-edge: rgba(0,0,0,.5); }
+}
+:root[data-theme='dark'] .grid { --btn-bg: #16362A; --btn-fg: #E8EDE9;
+  --btn-sub: var(--accent); --btn-edge: rgba(0,0,0,.5); }
+:root[data-theme='light'] .grid { --btn-bg: var(--accent); --btn-fg: #FFFFFF;
+  --btn-sub: rgba(255,255,255,.74); --btn-edge: rgba(0,0,0,.18); }
+
+.grid a { display: flex; flex-direction: column; gap: 7px; height: 100%;
+  min-height: 92px; padding: 13px 14px; border-radius: 7px; text-decoration: none;
+  background: var(--btn-bg); color: var(--btn-fg);
+  box-shadow: 0 2px 0 var(--btn-edge); transition: transform .08s, box-shadow .08s; }
+.grid a:hover { transform: translateY(-2px); box-shadow: 0 4px 0 var(--btn-edge); }
+.grid a:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--btn-edge); }
+.grid a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.host { font-size: 12.5px; line-height: 1.35; word-break: break-word;
+  font-weight: 600; }
+.grid .n { margin-top: auto; font-size: 11.5px; color: var(--btn-sub);
+  letter-spacing: .02em; }
+
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 660px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
