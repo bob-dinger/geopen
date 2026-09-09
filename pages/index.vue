@@ -269,12 +269,13 @@ h1 em { font-style: normal; color: var(--accent); }
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
 
-/* Big enough that the sub-labels under SHP and XLSX are readable — below about
-   56px they are shapes you recognise rather than words you read. */
-.formats { display: flex; align-items: flex-end; gap: 14px; list-style: none;
+/* Sized so the sub-labels under SHP and XLSX are comfortably readable rather
+   than only technically legible. The source PNGs are 200px tall, so 80px stays
+   sharp on a 2x display. */
+.formats { display: flex; align-items: flex-end; gap: 16px; list-style: none;
   margin: 2px 0 0; padding: 0; flex-wrap: wrap; }
-.formats img { display: block; height: 58px; width: auto; }
-@media (max-width: 520px) { .formats img { height: 46px; } }
+.formats img { display: block; height: 80px; width: auto; }
+@media (max-width: 520px) { .formats img { height: 58px; } }
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
