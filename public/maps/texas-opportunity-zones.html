@@ -113,8 +113,8 @@
   <div class="pane" id="before"></div>
   <div class="pane" id="after"></div>
   <div id="swipe"><div id="grip">⇄</div></div>
-  <div class="era" id="eraL">2018–2026<span>designated</span></div>
-  <div class="era" id="eraR">2027–2036<span>nominated</span></div>
+  <div class="era" id="eraL">2018<span>designated</span></div>
+  <div class="era" id="eraR">2026<span>nominated</span></div>
 
   <div class="titlecard">
     <h1>Texas is replacing three quarters of its Opportunity Zones</h1>
@@ -125,13 +125,11 @@
     <span class="caret">▾</span><span id="pt-label">Hide legend</span>
   </button>
   <div class="panel" id="panel">
-    <h2>Today's zones · 628</h2>
-    <div class="row"><i style="background:#ff5f56"></i>Losing it in 2027<b>453</b></div>
-    <div class="row"><i style="background:#48e5c2"></i>Still nominated<b>175</b></div>
-    <h2>Nominated for 2027 · 605</h2>
-    <div class="row"><i style="background:#5aa9e6"></i>Ground that was never a zone<b>403</b></div>
-    <div class="row"><i style="background:#48e5c2"></i>Continuing<b>202</b></div>
-    <p class="hint">Click any tract for its number. Both maps move together.</p>
+    <h2>Opportunity Zones</h2>
+    <div class="row"><i style="background:#ff9f43"></i>Designated 2018<b>628</b></div>
+    <div class="row"><i style="background:#2f8fd6"></i>Nominated 2026<b>605</b></div>
+    <p class="hint">Drag the divider to compare. Both maps move together; click a
+      tract for its number.</p>
     <div class="controls">
       <h2>Basemap</h2>
       <div class="bases" id="bases"></div>
@@ -248,22 +246,21 @@ function addZones(map, url, id, colour, popup) {
   });
 }
 
-addZones(before, "/data/texas_oz_2018.geojson", "old",
-  ["case", ["==", ["get", "renominated"], true], "#48e5c2", "#ff5f56"],
+// one colour per era — the point of the swipe is which ground is covered, and
+// two palettes fighting across the divider obscured that
+addZones(before, "/data/texas_oz_2018.geojson", "old", "#ff9f43",
   (p) => `<b>Tract ${esc(p.tract)}</b><br>` +
-    `<span style="color:#9daebe">${esc(p.county)} County</span><br>` +
-    `<span style="color:${p.renominated ? "#48e5c2" : "#ff5f56"}">` +
-    `${p.renominated ? "Nominated again for 2027" : "Loses the designation after 2026"}</span><br>` +
-    `<span style="color:#6b7d8d">designated 2018</span>`);
+    `<span style="color:#9daebe">${esc(p.county)} County · designated 2018</span><br>` +
+    `<span style="color:#6b7d8d">${p.renominated
+      ? "Still covered by a 2026 nomination" : "Not nominated again — lapses after 2026"}</span>`);
 
-addZones(after, "/data/texas_oz_2027.geojson", "new",
-  ["case", ["==", ["get", "is_new_ground"], true], "#5aa9e6", "#48e5c2"],
+addZones(after, "/data/texas_oz_2027.geojson", "new", "#2f8fd6",
   (p) => `<b>Tract ${esc(p.tract)}</b><br>` +
-    `<span style="color:#9daebe">${esc(p.metro || "outside a metro area")}</span><br>` +
-    `<span style="color:${p.is_new_ground ? "#5aa9e6" : "#48e5c2"}">` +
-    `${p.is_new_ground ? "Not previously a zone" : "Continues an existing zone"}</span><br>` +
-    `<span style="color:#6b7d8d">${esc(p.rural)} · ` +
-    `${p.eligibility === "ELIGIBLE" ? "federally eligible" : "NOT federally eligible"}</span>`);
+    `<span style="color:#9daebe">${esc(p.metro || "outside a metro area")} · ` +
+    `${esc(p.rural)}</span><br>` +
+    `<span style="color:#6b7d8d">${p.is_new_ground
+      ? "Not a zone before" : "Continues an existing zone"}` +
+    `${p.eligibility === "ELIGIBLE" ? "" : " · NOT federally eligible"}</span>`);
 
 const A = (h, t) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
 document.getElementById("foot").innerHTML = `<details><summary>
