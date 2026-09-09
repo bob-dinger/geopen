@@ -13,7 +13,19 @@
             </li>
             <li>CC0 — public domain, no attribution required</li>
             <li>Downloadable, no account required</li>
-            <li>GeoJSON · Shapefile · Excel · CSV · KML</li>
+          </ul>
+
+          <!-- The formats, as the files they are. Each carries its own alt text,
+               so the row reads as a list of formats with images off or on a
+               screen reader — it is not decoration standing in for a fact. CSV
+               has no icon and is named instead rather than quietly dropped. -->
+          <ul class="formats" aria-label="Available download formats">
+            <li><img src="/img/formats/geojson.png" alt="GeoJSON" width="158" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/pmtiles.png" alt="PMTiles" width="153" height="200" loading="lazy" decoding="async" /></li>
+            <li class="txt">CSV</li>
           </ul>
         </div>
 
@@ -218,6 +230,14 @@ h1 em { font-style: normal; color: var(--accent); }
 .facts li::before { content: ""; width: 5px; height: 5px; border-radius: 50%;
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
+
+/* Small on purpose — these say "you get a file", they are not the argument. */
+.formats { display: flex; align-items: flex-end; gap: 12px; list-style: none;
+  margin: 2px 0 0; padding: 0; flex-wrap: wrap; }
+.formats img { display: block; height: 38px; width: auto; }
+.formats .txt { font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  border: 1px solid var(--rule); border-radius: 3px; padding: 4px 9px; }
+@media (max-width: 520px) { .formats img { height: 32px; } }
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
