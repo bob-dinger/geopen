@@ -174,15 +174,17 @@ const { data: srcData } = await useFetch<any>('/api/sources', { default: () => n
    provenance. And subdomains of one publisher are one publisher — census.gov and
    data.census.gov were showing as two separate chips. */
 const GENERIC = /^(services\d*\.arcgis\.com|tiles\.arcgis\.com|www\.arcgis\.com|s3[.-]|.*\.amazonaws\.com|.*\.blob\.core\.windows\.net|.*\.supabase\.co|drive\.google\.com|docs\.google\.com)$/i
-const registrable = (h: string) => h.split('.').slice(-2).join('.')
+// Only fold a host into one already shown when it is literally a subdomain of
+// it. Folding by registrable domain was too blunt: tea.texas.gov and
+// data.capitol.texas.gov are the Education Agency and the Legislature, and
+// merging them to "texas.gov" loses a real distinction.
+const samePublisher = (a: string, b: string) =>
+  a === b || a.endsWith('.' + b) || b.endsWith('.' + a)
 const topSources = computed(() => {
   const out: any[] = []
-  const seen = new Set<string>()
   for (const s of (srcData.value?.sources || [])) {
     if (s.layers < 20 || GENERIC.test(s.host)) continue
-    const key = registrable(s.host)
-    if (seen.has(key)) continue
-    seen.add(key)
+    if (out.some((o: any) => samePublisher(o.host, s.host))) continue
     out.push(s)
     if (out.length >= 6) break
   }
