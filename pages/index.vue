@@ -17,8 +17,16 @@
                a screen reader are a bad combination. -->
           <h1 aria-label="The open GeoJSON, KML, CSV and Excel library">
             The open
-            <em class="cycle" aria-hidden="true" :class="{ fade: fading }"
-                :style="{ width: slot }">{{ word }}</em>
+            <!-- The braces do not fade with the word. They are the slot; the
+                 format is what goes in it, which is the whole point of writing
+                 it as a placeholder. Holding them still leaves an empty {  }
+                 for 180ms mid-swap, which reads as the slot being refilled.
+                 No whitespace between these three or the browser inserts a
+                 space inside the braces. --><span
+              class="brace" aria-hidden="true">{</span><em
+              class="cycle" aria-hidden="true" :class="{ fade: fading }"
+              :style="{ width: slot }">{{ word }}</em><span
+              class="brace" aria-hidden="true">}</span>
             library
           </h1>
 
@@ -188,10 +196,15 @@ const FADE = 180
 // sized in exact character widths. Keep in step with `h1 { letter-spacing }`.
 const TRACKING = 0.035
 
+/* One fixed width for every word, so the closing brace and "library" never move
+ * — only the letters inside change. The slot is the widest word; every word here
+ * is an odd number of characters, so centring gives whole-character padding on
+ * both sides and the text stays on the monospace grid. */
+const WIDEST = Math.max(...WORDS.map((w) => w.length))
+const slot = `calc(${WIDEST}ch - ${(WIDEST * TRACKING).toFixed(3)}em)`
+
 const word = ref(WORDS[0])
-const chars = ref(WORDS[0].length)
 const fading = ref(false)
-const slot = computed(() => `calc(${chars.value}ch - ${(chars.value * TRACKING).toFixed(3)}em)`)
 let tick: ReturnType<typeof setInterval> | null = null
 let swap: ReturnType<typeof setTimeout> | null = null
 let i = 0
@@ -201,12 +214,10 @@ onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
 
   tick = setInterval(() => {
-    const next = WORDS[(i + 1) % WORDS.length]
     fading.value = true
-    chars.value = next.length // resize under cover of the fade
     swap = setTimeout(() => {
       i = (i + 1) % WORDS.length
-      word.value = next
+      word.value = WORDS[i]
       fading.value = false
     }, FADE)
   }, HOLD)
@@ -326,13 +337,20 @@ useHead({
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
      line-height: 1.24; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
-/* Width is animated alongside the fade so the rest of the line glides once
-   instead of snapping. No overflow:hidden — on an inline-block it moves the
-   baseline to the bottom margin edge and drops the word off the line. Nothing
-   here transforms; the baseline must not move. */
-.cycle { display: inline-block; white-space: nowrap; text-align: left;
-         transition: opacity 180ms ease, width 180ms ease; }
+/* The slot is a fixed width and the word is centred in it, so nothing after the
+   opening brace ever moves — only the letters change. No overflow:hidden: on an
+   inline-block it moves the baseline to the bottom margin edge and drops the
+   word off the line. Nothing here transforms; the baseline must not move. */
+.cycle { display: inline-block; white-space: nowrap; text-align: center;
+         transition: opacity 180ms ease; }
 .cycle.fade { opacity: 0; }
+/* Braces are recessive so the format name carries the line. The dark accent is
+   a lighter green on a near-black ground and needs more of itself to stay
+   legible, so all three theme states are set rather than only the default. */
+.brace { color: var(--accent); opacity: .38; }
+@media (prefers-color-scheme: dark) { .brace { opacity: .58; } }
+:root[data-theme="dark"] .brace { opacity: .58; }
+:root[data-theme="light"] .brace { opacity: .38; }
 @media (prefers-reduced-motion: reduce) {
   .cycle { transition: none; }
   .cycle.fade { opacity: 1; }
