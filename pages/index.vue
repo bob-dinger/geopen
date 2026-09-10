@@ -46,15 +46,6 @@
 
                PMTiles is deliberately absent: it is a tile archive, not a
                format a dataset converts into, and it has its own counter below. -->
-          <div class="fmt">
-            <ul class="fmt-row" aria-label="Available formats">
-              <li><img src="/img/formats/geojson.png" alt="GeoJSON" width="158" height="200" decoding="async" /></li>
-              <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
-              <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
-              <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
-              <li><img src="/img/formats/csv.png" alt="CSV" width="161" height="200" loading="lazy" decoding="async" /></li>
-            </ul>
-          </div>
         </div>
 
         <form class="search" @submit.prevent="run">
@@ -360,22 +351,6 @@ h1 em { font-style: normal; color: var(--accent); }
 .facts li::before { content: ""; width: 5px; height: 5px; border-radius: 50%;
   background: var(--accent); flex: none; transform: translateY(-1px); }
 .facts strong { color: var(--ink); font-weight: 600; }
-
-/* GeoJSON at full size, the conversions at half. The hierarchy is the argument:
-   one open format is what this is, the rest are what your software wants. */
-/* One height for all five. GeoJSON is what everything is stored as, but the
-   headline already says so — sizing it larger here argued the same point a
-   second time and made the other four look like an afterthought, which is the
-   opposite of what a reader who needs a shapefile should see. */
-.fmt { display: flex; align-items: center; gap: 18px; margin-top: 4px; }
-.fmt-row { display: flex; align-items: flex-end; gap: 12px; list-style: none;
-  margin: 0; padding: 0; }
-.fmt-row img { display: block; height: 64px; width: auto; }
-@media (max-width: 520px) {
-  .fmt { gap: 13px; }
-  .fmt-row { gap: 8px; }
-  .fmt-row img { height: 46px; }
-}
 
 .search { display: flex; max-width: 620px; margin-top: 4px; }
 .search input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 14px; padding: 14px 16px;
