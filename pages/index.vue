@@ -15,20 +15,24 @@
                The heading keeps a fixed accessible name and the span is hidden
                from assistive tech — a heading whose name changes every second and
                a screen reader are a bad combination. -->
-          <h1 aria-label="The open GeoJSON, KML, CSV and Excel library">
-            The open
-            <!-- The braces do not fade with the word. They are the slot; the
-                 format is what goes in it, which is the whole point of writing
-                 it as a placeholder. Holding them still leaves an empty {  }
-                 for 180ms mid-swap, which reads as the slot being refilled.
-                 No whitespace between these three or the browser inserts a
-                 space inside the braces. --><span
-              class="brace" aria-hidden="true">{</span><em
-              class="cycle" aria-hidden="true" :class="{ fade: fading }"
-              :style="{ width: slot }">{{ word }}</em><span
-              class="brace" aria-hidden="true">}</span>
-            library
+          <!-- No whitespace between the braces and the word, or the browser
+               inserts a space inside them. The aria-label carries the heading
+               so a screen reader is not read "left brace geojson right brace". -->
+          <h1 aria-label="The open GeoJSON library">
+            The open <span class="brace">{</span><em>geojson</em><span class="brace">}</span> library
           </h1>
+
+          <!-- All five at one height. The headline names GeoJSON; sizing it
+               larger here would argue the same point twice and make the other
+               four read as an afterthought, which is the opposite of what
+               somebody who came for a shapefile should see. -->
+          <ul class="fmt-row" aria-label="Available formats">
+            <li><img src="/img/formats/geojson.png" alt="GeoJSON" width="158" height="200" decoding="async" /></li>
+            <li><img src="/img/formats/shp.png" alt="Shapefile" width="162" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/kml.png" alt="KML" width="160" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/xlsx.png" alt="Excel" width="165" height="200" loading="lazy" decoding="async" /></li>
+            <li><img src="/img/formats/csv.png" alt="CSV" width="161" height="200" loading="lazy" decoding="async" /></li>
+          </ul>
 
           <ul class="facts mono">
             <li v-if="stats?.sources">
@@ -170,52 +174,6 @@
 </template>
 
 <script setup lang="ts">
-/* The headline reads "The open <format> library", cycling the format.
- *
- * GeoJSON is first and is what a reduced-motion visitor sees, because it is the
- * format everything is stored as and the only one here that was born open. The
- * others rotating through are the point: a GIS professional needs to see their
- * format named, not be told it does not matter. */
-const WORDS = ['geojson', 'kml', 'csv', 'excel']
-const HOLD = 1600
-const FADE = 180
-// The heading's letter-spacing, applied once per character, so the box can be
-// sized in exact character widths. Keep in step with `h1 { letter-spacing }`.
-const TRACKING = 0.035
-
-/* One fixed width for every word, so the closing brace and "library" never move
- * — only the letters inside change. The slot is the widest word; every word here
- * is an odd number of characters, so centring gives whole-character padding on
- * both sides and the text stays on the monospace grid. */
-const WIDEST = Math.max(...WORDS.map((w) => w.length))
-const slot = `calc(${WIDEST}ch - ${(WIDEST * TRACKING).toFixed(3)}em)`
-
-const word = ref(WORDS[0])
-const fading = ref(false)
-let tick: ReturnType<typeof setInterval> | null = null
-let swap: ReturnType<typeof setTimeout> | null = null
-let i = 0
-
-onMounted(() => {
-  // Respect the OS setting: no motion means the resting claim, immediately.
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-
-  tick = setInterval(() => {
-    fading.value = true
-    swap = setTimeout(() => {
-      i = (i + 1) % WORDS.length
-      word.value = WORDS[i]
-      fading.value = false
-    }, FADE)
-  }, HOLD)
-})
-
-onBeforeUnmount(() => {
-  if (tick) clearInterval(tick)
-  if (swap) clearTimeout(swap)
-  tick = swap = null
-})
-
 const q = ref('')
 const examples = ['parcels', 'zoning', 'aquifers', 'census tracts', 'crime']
 const PAGE = 24
@@ -324,13 +282,6 @@ useHead({
 h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
      line-height: 1.24; letter-spacing: -.035em; }
 h1 em { font-style: normal; color: var(--accent); }
-/* The slot is a fixed width and the word is centred in it, so nothing after the
-   opening brace ever moves — only the letters change. No overflow:hidden: on an
-   inline-block it moves the baseline to the bottom margin edge and drops the
-   word off the line. Nothing here transforms; the baseline must not move. */
-.cycle { display: inline-block; white-space: nowrap; text-align: center;
-         transition: opacity 180ms ease; }
-.cycle.fade { opacity: 0; }
 /* Braces are recessive so the format name carries the line. The dark accent is
    a lighter green on a near-black ground and needs more of itself to stay
    legible, so all three theme states are set rather than only the default. */
@@ -338,6 +289,14 @@ h1 em { font-style: normal; color: var(--accent); }
 @media (prefers-color-scheme: dark) { .brace { opacity: .58; } }
 :root[data-theme="dark"] .brace { opacity: .58; }
 :root[data-theme="light"] .brace { opacity: .38; }
+
+.fmt-row { display: flex; align-items: flex-end; gap: 12px; list-style: none;
+  margin: 0; padding: 0; }
+.fmt-row img { display: block; height: 64px; width: auto; }
+@media (max-width: 520px) {
+  .fmt-row { gap: 8px; }
+  .fmt-row img { height: 46px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .cycle { transition: none; }
   .cycle.fade { opacity: 1; }
@@ -369,7 +328,30 @@ h1 em { font-style: normal; color: var(--accent); }
   text-decoration: none; }
 .egs a:hover { border-color: var(--accent); color: var(--accent); }
 .srcs { margin-top: -4px; }
-.srcs .more { border-color: transparent; color: var(--ink-3); padding-left: 4px; }
+
+/* Source chips are filled in the same green as the /sources grid, so the two
+   pages agree about what a source looks like. The fill is set per mode because
+   --accent is a dark green in light and a light green in dark — using it as a
+   background in both would put light green behind white text. Same tokens as
+   pages/sources.vue; keep them in step. */
+.srcs { --chip-bg: var(--accent); --chip-fg: #FFFFFF; --chip-edge: rgba(0,0,0,.14); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .srcs { --chip-bg: #16362A; --chip-fg: #E8EDE9;
+    --chip-edge: rgba(0,0,0,.5); }
+}
+:root[data-theme='dark'] .srcs { --chip-bg: #16362A; --chip-fg: #E8EDE9;
+  --chip-edge: rgba(0,0,0,.5); }
+:root[data-theme='light'] .srcs { --chip-bg: var(--accent); --chip-fg: #FFFFFF;
+  --chip-edge: rgba(0,0,0,.14); }
+
+.srcs a { background: var(--chip-bg); color: var(--chip-fg);
+  border-color: var(--chip-edge); }
+.srcs a:hover { background: var(--chip-bg); color: var(--chip-fg);
+  border-color: var(--chip-edge); filter: brightness(1.12); }
+
+/* "all 256 →" is a way out of the row, not another source. */
+.srcs .more, .srcs .more:hover { background: none; border-color: transparent;
+  color: var(--ink-3); padding-left: 4px; filter: none; }
 
 .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule);
   border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin-bottom: 52px; }
