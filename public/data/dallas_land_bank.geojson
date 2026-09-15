@@ -1,0 +1,1952 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "title": "Dallas land bank properties offered for sale",
+  "source": "https://dallas-tx-publicity.tolemi.com/",
+  "joined_to": "DCAD 2026 certified roll",
+  "listed": 39,
+  "owned_by_land_bank_on_the_roll": 69,
+  "listed_but_not_land_bank_owned": 3,
+  "listed_but_not_vacant": 2,
+  "caveat": "The portal is the city's published inventory. DCAD is the appraisal roll. Where they disagree, both are reported."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.753760161,
+        32.754866616
+       ],
+       [
+        -96.753881804,
+        32.754764105
+       ],
+       [
+        -96.753567124,
+        32.754495192
+       ],
+       [
+        -96.753551287,
+        32.754481637
+       ],
+       [
+        -96.753429419,
+        32.754583951
+       ],
+       [
+        -96.753760161,
+        32.754866616
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2711 Lawrence St",
+    "dcad_account": "00000218524000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "08/09/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 76340,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.807348978,
+        32.747098651
+       ],
+       [
+        -96.807351347,
+        32.746837979
+       ],
+       [
+        -96.80719142,
+        32.746837798
+       ],
+       [
+        -96.807191162,
+        32.74709856
+       ],
+       [
+        -96.807348978,
+        32.747098651
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1125 E 11th St",
+    "dcad_account": "00000252454000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "11/20/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 55800,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.753827506,
+        32.740065255
+       ],
+       [
+        -96.754060244,
+        32.740262255
+       ],
+       [
+        -96.754117779,
+        32.740213112
+       ],
+       [
+        -96.754153608,
+        32.740182522
+       ],
+       [
+        -96.75417445,
+        32.740164726
+       ],
+       [
+        -96.75422143,
+        32.740124616
+       ],
+       [
+        -96.753983559,
+        32.739932218
+       ],
+       [
+        -96.753941409,
+        32.73996816
+       ],
+       [
+        -96.753913291,
+        32.739992124
+       ],
+       [
+        -96.753883846,
+        32.740017221
+       ],
+       [
+        -96.753827506,
+        32.740065255
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2527 Wells St",
+    "dcad_account": "00000222586000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "11/20/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 70160,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.705500079,
+        32.720556561
+       ],
+       [
+        -96.705501938,
+        32.720390566
+       ],
+       [
+        -96.70508234,
+        32.720384369
+       ],
+       [
+        -96.7050804,
+        32.720551132
+       ],
+       [
+        -96.705500079,
+        32.720556561
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "515 Woodmont Dr",
+    "dcad_account": "00000550084000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "12/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 70000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.757461267,
+        32.751092054
+       ],
+       [
+        -96.756927158,
+        32.75062769
+       ],
+       [
+        -96.756842344,
+        32.75069905
+       ],
+       [
+        -96.757138341,
+        32.750956587
+       ],
+       [
+        -96.757376061,
+        32.751163492
+       ],
+       [
+        -96.757461267,
+        32.751092054
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2418 Lawrence St",
+    "dcad_account": "00000220528000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "10/31/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 50000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.648378536,
+        32.716894505
+       ],
+       [
+        -96.648380155,
+        32.716721232
+       ],
+       [
+        -96.648298766,
+        32.716720536
+       ],
+       [
+        -96.647922679,
+        32.716717294
+       ],
+       [
+        -96.647890099,
+        32.716717013
+       ],
+       [
+        -96.647888981,
+        32.716890991
+       ],
+       [
+        -96.648378536,
+        32.716894505
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "322 N Masters Dr",
+    "dcad_account": "00000620581000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "07/31/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 50000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.805655154,
+        32.704894907
+       ],
+       [
+        -96.805874461,
+        32.704789689
+       ],
+       [
+        -96.805874284,
+        32.704710769
+       ],
+       [
+        -96.80576514,
+        32.704763126
+       ],
+       [
+        -96.805761889,
+        32.704764687
+       ],
+       [
+        -96.805757878,
+        32.704766611
+       ],
+       [
+        -96.805624308,
+        32.704830694
+       ],
+       [
+        -96.805620194,
+        32.704832668
+       ],
+       [
+        -96.805622299,
+        32.704836282
+       ],
+       [
+        -96.805655154,
+        32.704894907
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1308 Oakley Ave",
+    "dcad_account": "00000301987000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "06/30/2011",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 28500,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.703911701,
+        32.717536712
+       ],
+       [
+        -96.70375765,
+        32.717220038
+       ],
+       [
+        -96.70373578,
+        32.717227255
+       ],
+       [
+        -96.703709258,
+        32.71723619
+       ],
+       [
+        -96.703682829,
+        32.717245348
+       ],
+       [
+        -96.703681601,
+        32.717245789
+       ],
+       [
+        -96.703561688,
+        32.717288876
+       ],
+       [
+        -96.703714222,
+        32.717604951
+       ],
+       [
+        -96.703842314,
+        32.717560204
+       ],
+       [
+        -96.703842848,
+        32.717560018
+       ],
+       [
+        -96.703863111,
+        32.717552972
+       ],
+       [
+        -96.703888848,
+        32.717544244
+       ],
+       [
+        -96.703911701,
+        32.717536712
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "6833 Antler Ave",
+    "dcad_account": "00000555076000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "05/31/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 80000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.803892716,
+        32.754432853
+       ],
+       [
+        -96.803892384,
+        32.754409114
+       ],
+       [
+        -96.803505827,
+        32.754408715
+       ],
+       [
+        -96.803507279,
+        32.754526478
+       ],
+       [
+        -96.803847944,
+        32.754526847
+       ],
+       [
+        -96.803874879,
+        32.754526875
+       ],
+       [
+        -96.80389404,
+        32.75452689
+       ],
+       [
+        -96.803892716,
+        32.754432853
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "512 N Moore St",
+    "dcad_account": "00000762094000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "05/31/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 95000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.735777517,
+        32.783695138
+       ],
+       [
+        -96.735771306,
+        32.783464124
+       ],
+       [
+        -96.735565393,
+        32.783464281
+       ],
+       [
+        -96.735516069,
+        32.783507787
+       ],
+       [
+        -96.735521366,
+        32.783696425
+       ],
+       [
+        -96.735777517,
+        32.783695138
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3511 Forney Rd",
+    "dcad_account": "00000225328000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "07/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "COMMERCIAL SERVICE",
+    "land_value": 65130,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.738128942,
+        32.782602723
+       ],
+       [
+        -96.738263104,
+        32.782601915
+       ],
+       [
+        -96.738261904,
+        32.782350896
+       ],
+       [
+        -96.738172389,
+        32.782351524
+       ],
+       [
+        -96.738130375,
+        32.78235182
+       ],
+       [
+        -96.738128942,
+        32.782602723
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3330 Beall St",
+    "dcad_account": "00000224866000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "09/30/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 5K SQFT",
+    "land_value": 36000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.814945408,
+        32.717519604
+       ],
+       [
+        -96.815180043,
+        32.717522786
+       ],
+       [
+        -96.815172711,
+        32.717515071
+       ],
+       [
+        -96.815177856,
+        32.71724386
+       ],
+       [
+        -96.814910743,
+        32.717240238
+       ],
+       [
+        -96.814729946,
+        32.717237786
+       ],
+       [
+        -96.814686853,
+        32.717207237
+       ],
+       [
+        -96.814686096,
+        32.717251895
+       ],
+       [
+        -96.814945408,
+        32.717519604
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2515 S Marsalis Ave",
+    "dcad_account": "00000283297000000",
+    "owner_of_record": "DALLAS HOUSING AQUISITION & DEV CORP",
+    "deed_date": "03/03/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 63750,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.929325473,
+        32.732694789
+       ],
+       [
+        -96.929337158,
+        32.732681439
+       ],
+       [
+        -96.929351502,
+        32.732668589
+       ],
+       [
+        -96.929367638,
+        32.732657358
+       ],
+       [
+        -96.929385303,
+        32.732647904
+       ],
+       [
+        -96.929404203,
+        32.732640363
+       ],
+       [
+        -96.929424076,
+        32.732634869
+       ],
+       [
+        -96.929444594,
+        32.732631499
+       ],
+       [
+        -96.929465463,
+        32.732630306
+       ],
+       [
+        -96.92947512,
+        32.732630483
+       ],
+       [
+        -96.929501164,
+        32.732112478
+       ],
+       [
+        -96.929499187,
+        32.732113883
+       ],
+       [
+        -96.92906725,
+        32.732460001
+       ],
+       [
+        -96.929325473,
+        32.732694789
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "6164 Win Only Cir",
+    "dcad_account": "00000761491000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "12/28/2023",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 60000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.709466896,
+        32.72617071
+       ],
+       [
+        -96.709466746,
+        32.726307202
+       ],
+       [
+        -96.709490615,
+        32.726307378
+       ],
+       [
+        -96.709860973,
+        32.72631005
+       ],
+       [
+        -96.709860981,
+        32.726170889
+       ],
+       [
+        -96.709490639,
+        32.726170722
+       ],
+       [
+        -96.709466896,
+        32.72617071
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "750 Ezekial Ave",
+    "dcad_account": "00000552832000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "03/03/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 70000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.805460931,
+        32.744273974
+       ],
+       [
+        -96.805451375,
+        32.743999209
+       ],
+       [
+        -96.805318116,
+        32.744001873
+       ],
+       [
+        -96.805325329,
+        32.744274902
+       ],
+       [
+        -96.805460931,
+        32.744273974
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1222 Bliss St",
+    "dcad_account": "00000266662000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "09/30/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "LIGHT INDUSTRIAL DISTRICT",
+    "land_value": 17500,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.678549576,
+        32.722179339
+       ],
+       [
+        -96.678551244,
+        32.721931956
+       ],
+       [
+        -96.678099283,
+        32.721927581
+       ],
+       [
+        -96.678097612,
+        32.722174964
+       ],
+       [
+        -96.678549576,
+        32.722179339
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "612 Pleasant Dr",
+    "dcad_account": "00000569683000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "12/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 63250,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.777100494,
+        32.672063653
+       ],
+       [
+        -96.77710339,
+        32.672068015
+       ],
+       [
+        -96.777290235,
+        32.672349334
+       ],
+       [
+        -96.77742803,
+        32.672284992
+       ],
+       [
+        -96.777244146,
+        32.672000849
+       ],
+       [
+        -96.777241147,
+        32.671996215
+       ],
+       [
+        -96.777229467,
+        32.671978157
+       ],
+       [
+        -96.777127862,
+        32.672025355
+       ],
+       [
+        -96.777087494,
+        32.672044107
+       ],
+       [
+        -96.777100494,
+        32.672063653
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "6043 Plum Dale Rd",
+    "dcad_account": "00000642157000000",
+    "owner_of_record": "HOINVEST 400 LLC",
+    "deed_date": "06/20/2018",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 70000,
+    "land_bank_owned": false,
+    "programs": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.740449631,
+        32.764874381
+       ],
+       [
+        -96.740146259,
+        32.764620156
+       ],
+       [
+        -96.740138695,
+        32.764613817
+       ],
+       [
+        -96.740029611,
+        32.764709915
+       ],
+       [
+        -96.740336286,
+        32.76497532
+       ],
+       [
+        -96.740449631,
+        32.764874381
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3945 Hancock St",
+    "dcad_account": "00000324373000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION &",
+    "deed_date": "12/30/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 55420,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.802450792,
+        32.753022607
+       ],
+       [
+        -96.802767134,
+        32.753023368
+       ],
+       [
+        -96.802767305,
+        32.752912334
+       ],
+       [
+        -96.802446135,
+        32.752912123
+       ],
+       [
+        -96.802450792,
+        32.753022607
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "455 Hart St",
+    "dcad_account": "00000762409000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "12/09/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 76000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.762980787,
+        32.750227705
+       ],
+       [
+        -96.763091903,
+        32.750135293
+       ],
+       [
+        -96.762727585,
+        32.749853915
+       ],
+       [
+        -96.762614912,
+        32.749947708
+       ],
+       [
+        -96.762980787,
+        32.750227705
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1715 Bannock Ave",
+    "dcad_account": "00000169750000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "03/03/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 67500,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.753430736,
+        32.765733731
+       ],
+       [
+        -96.753541801,
+        32.76564146
+       ],
+       [
+        -96.753211,
+        32.765330657
+       ],
+       [
+        -96.753088834,
+        32.765430951
+       ],
+       [
+        -96.753430736,
+        32.765733731
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3300 Rutledge St",
+    "dcad_account": "00000176500000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "12/17/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 76760,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.777731865,
+        32.758157705
+       ],
+       [
+        -96.777629833,
+        32.758243355
+       ],
+       [
+        -96.777986796,
+        32.758540778
+       ],
+       [
+        -96.778085886,
+        32.758455828
+       ],
+       [
+        -96.777731865,
+        32.758157705
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1325 Pennsylvania Ave",
+    "dcad_account": "00000142225000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "07/01/2022",
+    "land_class": "COMMERCIAL - VACANT PLOTTED LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 103950,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.764123506,
+        32.749707626
+       ],
+       [
+        -96.764248219,
+        32.749803726
+       ],
+       [
+        -96.764369514,
+        32.749702146
+       ],
+       [
+        -96.764244716,
+        32.749605971
+       ],
+       [
+        -96.764123506,
+        32.749707626
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1640 Marburg St",
+    "dcad_account": "00000169528000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION &",
+    "deed_date": "07/03/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 25280,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.769201957,
+        32.754656403
+       ],
+       [
+        -96.769461983,
+        32.754438665
+       ],
+       [
+        -96.769352074,
+        32.754339073
+       ],
+       [
+        -96.769090098,
+        32.754558435
+       ],
+       [
+        -96.769201957,
+        32.754656403
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3818 Spence St",
+    "dcad_account": "00000146410000000",
+    "owner_of_record": "DALLAS CITY OF ET AL",
+    "deed_date": "03/10/2026",
+    "land_class": "SINGLE FAMILY RESIDENCES",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 51750,
+    "land_bank_owned": false,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.75834657,
+        32.749449081
+       ],
+       [
+        -96.75811291,
+        32.749245945
+       ],
+       [
+        -96.757996625,
+        32.749342926
+       ],
+       [
+        -96.758232852,
+        32.74954453
+       ],
+       [
+        -96.75834657,
+        32.749449081
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2254 Garden Dr",
+    "dcad_account": "00000207154000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "05/30/2025",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 50000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.772757239,
+        32.776536714
+       ],
+       [
+        -96.772642419,
+        32.776437031
+       ],
+       [
+        -96.772530128,
+        32.776339583
+       ],
+       [
+        -96.772190957,
+        32.776626523
+       ],
+       [
+        -96.772303777,
+        32.776723541
+       ],
+       [
+        -96.772419127,
+        32.776822735
+       ],
+       [
+        -96.772757239,
+        32.776536714
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2414 Meyers St",
+    "dcad_account": "00000129841000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "12/17/2024",
+    "land_class": "COMMERCIAL - VACANT PLOTTED LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 180000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.768167021,
+        32.75144018
+       ],
+       [
+        -96.76823708,
+        32.751380978
+       ],
+       [
+        -96.768007666,
+        32.751015504
+       ],
+       [
+        -96.767885839,
+        32.751118547
+       ],
+       [
+        -96.768167021,
+        32.75144018
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1603 Pine St",
+    "dcad_account": "00000162124000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "07/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 71550,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.746629371,
+        32.761616449
+       ],
+       [
+        -96.746884859,
+        32.7614018
+       ],
+       [
+        -96.746899315,
+        32.761389659
+       ],
+       [
+        -96.746800596,
+        32.761305849
+       ],
+       [
+        -96.746786045,
+        32.761317766
+       ],
+       [
+        -96.746539079,
+        32.76153919
+       ],
+       [
+        -96.746629371,
+        32.761616449
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "4635 Verdun Ave",
+    "dcad_account": "00000175588000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "07/31/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 45500,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.785736743,
+        32.700774076
+       ],
+       [
+        -96.785880151,
+        32.700703917
+       ],
+       [
+        -96.785648733,
+        32.700367889
+       ],
+       [
+        -96.785510416,
+        32.70043545
+       ],
+       [
+        -96.785736743,
+        32.700774076
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2250 Frank Henderson Jr Dr",
+    "dcad_account": "00000449671000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION &",
+    "deed_date": "04/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "SINGLE FAMILY 7500 SQFT",
+    "land_value": 80000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.768723981,
+        32.755596706
+       ],
+       [
+        -96.769076231,
+        32.755302866
+       ],
+       [
+        -96.768956763,
+        32.755199812
+       ],
+       [
+        -96.768607379,
+        32.755496637
+       ],
+       [
+        -96.768723981,
+        32.755596706
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3808 Colonial Ave",
+    "dcad_account": "00000144187000000",
+    "owner_of_record": "ESPINOZA ANCELMO TORRES",
+    "deed_date": "05/21/2026",
+    "land_class": "SINGLE FAMILY RESIDENCES",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 69300,
+    "land_bank_owned": false,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.751127991,
+        32.76205023
+       ],
+       [
+        -96.751074083,
+        32.762002023
+       ],
+       [
+        -96.750757583,
+        32.761719028
+       ],
+       [
+        -96.75069715,
+        32.761770823
+       ],
+       [
+        -96.750627682,
+        32.761830409
+       ],
+       [
+        -96.750947076,
+        32.762111903
+       ],
+       [
+        -96.751001284,
+        32.762159676
+       ],
+       [
+        -96.751127991,
+        32.76205023
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3206 Carpenter Ave",
+    "dcad_account": "00000175753000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "05/02/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 65000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.772254362,
+        32.758668112
+       ],
+       [
+        -96.772378536,
+        32.758774084
+       ],
+       [
+        -96.772499675,
+        32.758671603
+       ],
+       [
+        -96.772374466,
+        32.758565315
+       ],
+       [
+        -96.772254362,
+        32.758668112
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1710 Lenway St",
+    "dcad_account": "00000143386000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "09/29/2023",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 28630,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.772601626,
+        32.758585379
+       ],
+       [
+        -96.772477033,
+        32.758477532
+       ],
+       [
+        -96.772374466,
+        32.758565315
+       ],
+       [
+        -96.772499675,
+        32.758671603
+       ],
+       [
+        -96.772601626,
+        32.758585379
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "1708 Lenway St",
+    "dcad_account": "00000143392000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "09/29/2023",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 24400,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.750718803,
+        32.763117688
+       ],
+       [
+        -96.750413161,
+        32.762855889
+       ],
+       [
+        -96.750397163,
+        32.762842084
+       ],
+       [
+        -96.750265591,
+        32.762955668
+       ],
+       [
+        -96.750581033,
+        32.763232179
+       ],
+       [
+        -96.750718803,
+        32.763117688
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3303 Carpenter Ave",
+    "dcad_account": "00000175969000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "12/01/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 65000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.752573784,
+        32.763649928
+       ],
+       [
+        -96.752685428,
+        32.763553656
+       ],
+       [
+        -96.752360226,
+        32.763280633
+       ],
+       [
+        -96.75235254,
+        32.763274247
+       ],
+       [
+        -96.752328692,
+        32.7632947
+       ],
+       [
+        -96.752239072,
+        32.76337157
+       ],
+       [
+        -96.752246674,
+        32.763378033
+       ],
+       [
+        -96.752573784,
+        32.763649928
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "3218 Pine St",
+    "dcad_account": "00000176068000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "09/30/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 65000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.756547394,
+        32.752524947
+       ],
+       [
+        -96.756660078,
+        32.752436053
+       ],
+       [
+        -96.756366887,
+        32.752182816
+       ],
+       [
+        -96.756257052,
+        32.752272464
+       ],
+       [
+        -96.756547394,
+        32.752524947
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2511 Lawrence St",
+    "dcad_account": "00000188629000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION & DEV CORP",
+    "deed_date": "05/31/2022",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 50000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.76974887,
+        32.765669064
+       ],
+       [
+        -96.769802943,
+        32.765622645
+       ],
+       [
+        -96.769862109,
+        32.765571865
+       ],
+       [
+        -96.769571408,
+        32.765332
+       ],
+       [
+        -96.76951491,
+        32.765379378
+       ],
+       [
+        -96.769458047,
+        32.765427123
+       ],
+       [
+        -96.76974887,
+        32.765669064
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2525 Pennsylvania Ave",
+    "dcad_account": "00000148114000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "12/17/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 61000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.767321329,
+        32.758055544
+       ],
+       [
+        -96.767334652,
+        32.758044595
+       ],
+       [
+        -96.76740816,
+        32.75798415
+       ],
+       [
+        -96.767122873,
+        32.757756863
+       ],
+       [
+        -96.767047781,
+        32.757818606
+       ],
+       [
+        -96.76703667,
+        32.757827743
+       ],
+       [
+        -96.767321329,
+        32.758055544
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "2224 Jordan St",
+    "dcad_account": "00000170998000000",
+    "owner_of_record": "DALLAS HOUSING ACQUISITION &",
+    "deed_date": "07/31/2023",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "PLANNED DEVELOPMENT DISTRICT",
+    "land_value": 44030,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -96.758840757,
+        32.785321879
+       ],
+       [
+        -96.758919572,
+        32.785254337
+       ],
+       [
+        -96.758711344,
+        32.785074869
+       ],
+       [
+        -96.758671167,
+        32.785111121
+       ],
+       [
+        -96.758635092,
+        32.785145063
+       ],
+       [
+        -96.758840757,
+        32.785321879
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "address": "4520 Philip Ave",
+    "dcad_account": "00000152209000000",
+    "owner_of_record": "DHADC",
+    "deed_date": "12/17/2024",
+    "land_class": "SFR - VACANT LOTS/TRACTS",
+    "zoning": "CLUSTERED HOUSING DISTRICT",
+    "land_value": 44000,
+    "land_bank_owned": true,
+    "programs": "Dallas Land Bank Program"
+   }
+  }
+ ]
+}

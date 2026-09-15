@@ -1,0 +1,171 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Every lot the Dallas land bank is offering</title>
+<meta name="description" content="The Dallas land bank owns 69 parcels and lists 39 of them. Here is every one, joined to the appraisal roll.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-land-bank.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Every lot the Dallas land bank is offering">
+<meta property="og:description" content="39 lots listed, 69 owned. Two of the listings are not owned by the land bank, and two are not vacant.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-land-bank.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-land-bank-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-land-bank-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #101215; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+    --lot: #FF6B35;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 340px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 4px; }
+  .pop dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; }
+  .flag { color: #ffb54d; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Lots the Dallas land bank is offering</h1>
+  <p class="sub">The city buys tax-foreclosed lots and sells them cheaply to
+    developers who will build affordable housing. This is everything currently
+    listed, checked against the appraisal roll.</p>
+
+  <div class="stat">
+    <div><b>39</b><span>listed for sale</span></div>
+    <div><b>69</b><span>owned on the roll</span></div>
+    <div><b>33</b><span>held, not listed</span></div>
+  </div>
+
+  <p class="note">The 33 held back are not a backlog — <b>32 of them were acquired
+    since 2022</b>, and they cluster: four on Hart Street, three each on Colonial
+    and Carpenter, several deeded the same day. That reads as block assembly.</p>
+  <p class="note">Two checks the listing does not show. <b>Three listed lots are not
+    owned by the land bank</b> — one by a private individual, one by "Dallas City
+    of et al". And <b>two are not vacant</b>: the roll classes them as single family
+    residences.</p>
+  <p class="src">Listings scraped from the city's
+    <a href="https://dallas-tx-publicity.tolemi.com/" target="_blank" rel="noopener">land bank portal</a>,
+    which publishes no download, joined to the DCAD 2026 certified roll on the
+    account number. Owner names are matched by pattern: the land bank is spelled
+    five ways on the roll, two of them misspellings. ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/dallas_land_bank.geojson";
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  center: [-96.79, 32.74], zoom: 11.2,
+  attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const money = (n) => (n == null || n === "") ? "—" : "$" + Math.round(n).toLocaleString();
+
+map.on("load", async () => {
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.6 } });
+
+  const gj = await (await fetch(DATA)).json();
+  map.addSource("lots", { type: "geojson", data: gj });
+
+  map.addLayer({ id: "lots-fill", type: "fill", source: "lots",
+    paint: { "fill-color": "#FF6B35", "fill-opacity": 0.75 } });
+  map.addLayer({ id: "lots-line", type: "line", source: "lots",
+    paint: { "line-color": "#FF6B35", "line-width": 2 } });
+  // 39 lots across a whole city are invisible zoomed out, so a halo marks where
+  // to look before the polygons are legible.
+  map.addLayer({ id: "lots-dot", type: "circle", source: "lots", maxzoom: 14,
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 11],
+      "circle-color": "#FF6B35", "circle-opacity": 0.9,
+      "circle-stroke-color": "rgba(0,0,0,0.5)", "circle-stroke-width": 1,
+    } });
+
+  const b = new maplibregl.LngLatBounds();
+  gj.features.forEach((f) => {
+    if (!f.geometry) return;
+    const walk = (c) => {
+      if (typeof c[0] === "number") { b.extend(c); return; }
+      c.forEach(walk);
+    };
+    walk(f.geometry.coordinates);
+  });
+  if (!b.isEmpty()) map.fitBounds(b, { padding: { top: 60, bottom: 60, left: 380, right: 60 } });
+});
+
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "300px" });
+
+function show(e) {
+  const f = e.features && e.features[0];
+  if (!f) return;
+  const p = f.properties;
+  const flags = [];
+  // land_bank_owned arrives as a real boolean from GeoJSON, but guard the string
+  // form too — MapLibre stringifies some property types on the way through.
+  if (p.land_bank_owned === false || p.land_bank_owned === "false")
+    flags.push("listed, but the roll shows another owner");
+  if (p.land_class && !/VACANT/i.test(p.land_class))
+    flags.push("listed, but the roll does not class it vacant");
+  popup.setLngLat(e.lngLat).setHTML(
+    `<div class="pop"><b>${p.address || "(no address)"}</b>
+     <dl>
+       <dt>owner</dt><dd>${p.owner_of_record || "—"}</dd>
+       <dt>class</dt><dd>${p.land_class || "—"}</dd>
+       <dt>zoning</dt><dd>${p.zoning || "—"}</dd>
+       <dt>land value</dt><dd>${money(p.land_value)}</dd>
+       <dt>deeded</dt><dd>${p.deed_date || "—"}</dd>
+       <dt>account</dt><dd>${p.dcad_account || "—"}</dd>
+     </dl>
+     ${flags.length ? `<p class="flag" style="margin:7px 0 0">${flags.join("<br>")}</p>` : ""}
+     </div>`).addTo(map);
+}
+
+["lots-fill", "lots-dot"].forEach((id) => {
+  map.on("click", id, show);
+  map.on("mouseenter", id, () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; });
+});
+</script>

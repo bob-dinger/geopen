@@ -1,0 +1,168 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vacant land in Dallas County that could hold a home</title>
+<meta name="description" content="Dallas County has 127,091 acres of land classed vacant. Once floodplain, slivers and non-residential zoning come out, 34,471 acres are left.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-vacant-land.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Vacant land in Dallas County that could hold a home">
+<meta property="og:description" content="127,091 acres are classed vacant. 73,011 of them are in the floodplain. What is left is 34,471 acres — and a quarter of it is in the city of Dallas.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-vacant-land.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-vacant-land-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-vacant-land-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #101215; --panel: rgba(16,18,21,0.9); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+    --res: #4ABF82; --unk: #E0A458;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 340px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .funnel { margin: 0 0 12px; font-size: 0.74rem; line-height: 1.7; }
+  .funnel div { display: flex; justify-content: space-between; gap: 10px;
+    border-bottom: 1px solid var(--rule); padding: 3px 0; }
+  .funnel div:last-child { border-bottom: 0; font-weight: 700; color: var(--ink); }
+  .funnel span:first-child { color: var(--ink-2); }
+  .funnel span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .key { display: flex; gap: 14px; margin: 2px 0 10px; font-size: 0.72rem; color: var(--ink-2); }
+  .key i { width: 11px; height: 11px; border-radius: 2px; display: inline-block;
+    vertical-align: -1px; margin-right: 5px; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 4px; }
+  .pop dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Vacant land that could hold a home</h1>
+  <p class="sub">Dallas County. "Vacant" on the appraisal roll means nothing is built
+    on the land — not that anything could be. This is what survives once the land
+    that cannot take a house comes out.</p>
+
+  <div class="funnel">
+    <div><span>classed vacant by DCAD</span><span>58,468 · 127,091 ac</span></div>
+    <div><span>outside the 1% floodplain</span><span>49,342 · 54,080 ac</span></div>
+    <div><span>at least 2,000 sq ft</span><span>44,438 · 53,949 ac</span></div>
+    <div><span>zoning allows housing</span><span>34,589 · 34,471 ac</span></div>
+  </div>
+
+  <div class="key">
+    <span><i style="background:#4ABF82"></i>zoned residential</span>
+    <span><i style="background:#E0A458"></i>zoning unreadable</span>
+  </div>
+
+  <p class="note">The floodplain filter alone removes <b>73,011 acres</b> while dropping
+    only 9,126 parcels — a handful of enormous riverside tracts carry most of the
+    acreage. Within the city of Dallas, <b>76% of the vacant land the city itself
+    owns</b> sits in the floodplain.</p>
+  <p class="note"><b>19,356 parcels carry zoning that cannot be read</b> from the
+    appraisal roll, almost all Planned Development, which says nothing without its
+    ordinance. They are marked, not guessed at.</p>
+  <p class="src">DCAD 2026 certified roll joined to
+    <a href="https://www.dallascad.org/" target="_blank" rel="noopener">Dallas County</a>
+    parcel geometry, intersected with the FEMA National Flood Hazard Layer. Nothing
+    here says a parcel is for sale, serviced, or free of deed restriction. ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/dallas_buildable_vacant.pmtiles";
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      vacant: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.55 } }],
+  },
+  center: [-96.80, 32.72], zoom: 9.6,
+  attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const acres = (n) => (n == null) ? "—" : (n < 1 ? n.toFixed(2) : n.toFixed(1)) + " ac";
+const money = (n) => (n == null || n === "") ? "—" : "$" + Math.round(n).toLocaleString();
+
+map.on("load", () => {
+  map.addLayer({
+    id: "vacant", type: "fill", source: "vacant", "source-layer": "vacant",
+    paint: {
+      "fill-color": ["match", ["get", "zoning_class"],
+        "residential", "#4ABF82", "#E0A458"],
+      // Lots are tiny at county zoom; opacity carries density there and detail
+      // takes over as you go in.
+      "fill-opacity": ["interpolate", ["linear"], ["zoom"], 9, 0.95, 14, 0.75],
+    },
+  });
+  map.addLayer({
+    id: "vacant-line", type: "line", source: "vacant", "source-layer": "vacant",
+    minzoom: 14,
+    paint: { "line-color": "rgba(255,255,255,0.35)", "line-width": 0.6 },
+  });
+  map.addLayer({ id: "ref", type: "raster", source: "ref",
+    paint: { "raster-opacity": 0.85 } });
+});
+
+// Click for everyone, hover only as an enhancement — phones have no mousemove,
+// and a hover-only popup leaves a mobile reader with a dead map.
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
+
+function show(e) {
+  const f = e.features && e.features[0];
+  if (!f) return;
+  const p = f.properties;
+  const zc = p.zoning_class === "residential"
+    ? "zoned for housing"
+    : "zoning not readable from the roll";
+  popup.setLngLat(e.lngLat).setHTML(
+    `<div class="pop"><b>${p.address || "(no address on the roll)"}</b>
+     <dl>
+       <dt>size</dt><dd>${acres(+p.acres)}</dd>
+       <dt>city</dt><dd>${p.city || "—"}</dd>
+       <dt>owner</dt><dd>${p.owner || "—"}</dd>
+       <dt>land value</dt><dd>${money(p.land_value)}</dd>
+       <dt>class</dt><dd>${p.land_class || "—"}</dd>
+       <dt>zoning</dt><dd>${p.zoning || "—"}<br><span style="color:var(--ink-3)">${zc}</span></dd>
+       <dt>account</dt><dd>${p.dcad_account || "—"}</dd>
+     </dl></div>`).addTo(map);
+}
+
+map.on("click", "vacant", show);
+map.on("mouseenter", "vacant", () => { map.getCanvas().style.cursor = "pointer"; });
+map.on("mouseleave", "vacant", () => { map.getCanvas().style.cursor = ""; });
+</script>
