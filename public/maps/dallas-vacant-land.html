@@ -36,6 +36,12 @@
   .funnel div:last-child { border-bottom: 0; font-weight: 700; color: var(--ink); }
   .funnel span:first-child { color: var(--ink-2); }
   .funnel span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .scope { display: flex; gap: 6px; margin: 0 0 11px; }
+  .scope button { flex: 1; font: inherit; font-size: 0.72rem; padding: 6px 4px; cursor: pointer;
+    background: var(--panel-2); color: var(--ink-2); border: 1px solid var(--rule);
+    border-radius: 3px; }
+  .scope button[aria-pressed="true"] { background: #2a3a33; color: var(--ink);
+    border-color: #4ABF82; font-weight: 600; }
   .key { display: flex; gap: 14px; margin: 2px 0 10px; font-size: 0.72rem; color: var(--ink-2); }
   .key i { width: 11px; height: 11px; border-radius: 2px; display: inline-block;
     vertical-align: -1px; margin-right: 5px; }
@@ -67,6 +73,12 @@
     <div><span>less the 1% floodplain</span><span>&minus;3,200 · &minus;17,515 ac</span></div>
     <div><span>what is left</span><span>49,342 · 54,080 ac</span></div>
   </div>
+
+  <div class="scope">
+    <button id="s-county" aria-pressed="true">All Dallas County</button>
+    <button id="s-city" aria-pressed="false">City of Dallas only</button>
+  </div>
+  <div class="funnel" id="live" style="margin-bottom:11px"></div>
 
   <div class="key">
     <span><i style="background:#4ABF82"></i>privately owned</span>
@@ -139,6 +151,7 @@ map.on("load", () => {
   });
   map.addLayer({ id: "ref", type: "raster", source: "ref",
     paint: { "raster-opacity": 0.85 } });
+  setScope("county");
 });
 
 // Click for everyone, hover only as an enhancement — phones have no mousemove,
@@ -165,6 +178,29 @@ function show(e) {
        <dt>account</dt><dd>${p.dcad_account || "—"}</dd>
      </dl></div>`).addTo(map);
 }
+
+// Scope toggle. The filter runs on the tiles, so it is instant and needs no
+// second dataset; the counts are fixed figures because a vector-tile query only
+// sees what is rendered at the current viewport and zoom.
+const SCOPE = {
+  county: { label: "Dallas County", parcels: "49,342", acres: "54,080", filter: null },
+  city:   { label: "City of Dallas", parcels: "24,464", acres: "20,205",
+            filter: ["==", ["get", "city"], "DALLAS"] },
+};
+function setScope(which) {
+  const s = SCOPE[which];
+  ["vacant", "vacant-line"].forEach((id) => {
+    if (map.getLayer(id)) map.setFilter(id, s.filter);
+  });
+  document.getElementById("s-county").setAttribute("aria-pressed", which === "county");
+  document.getElementById("s-city").setAttribute("aria-pressed", which === "city");
+  document.getElementById("live").innerHTML =
+    `<div><span>${s.label}</span><span>${s.parcels} · ${s.acres} ac</span></div>`;
+  if (which === "city") map.flyTo({ center: [-96.78, 32.74], zoom: 10.2, duration: 700 });
+  else map.flyTo({ center: [-96.80, 32.72], zoom: 9.6, duration: 700 });
+}
+document.getElementById("s-county").addEventListener("click", () => setScope("county"));
+document.getElementById("s-city").addEventListener("click", () => setScope("city"));
 
 map.on("click", "vacant", show);
 map.on("mouseenter", "vacant", () => { map.getCanvas().style.cursor = "pointer"; });
