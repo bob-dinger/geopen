@@ -1,17 +1,17 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vacant land inside the city of Dallas</title>
-<meta name="description" content="The city of Dallas has 29,120 parcels its appraisal district classes as vacant. Take out the floodway and the 1% floodplain and 24,464 are left, on 20,205 acres — two-thirds of them smaller than a quarter of an acre.">
-<link rel="canonical" href="https://geopen.io/maps/dallas-vacant-land.html">
+<title>Vacant land in Dallas County, outside the city</title>
+<meta name="description" content="Outside the city limits, Dallas County holds 24,878 vacant parcels on 33,875 acres — as many parcels as the city and two-thirds more land. Grand Prairie, Irving, Mesquite and Garland lead on count; the southern county holds the acreage.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-county-vacant-land.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
-<meta property="og:title" content="Vacant land inside the city of Dallas">
-<meta property="og:description" content="24,464 vacant parcels survive the floodplain, on 20,205 acres — about 8% of the city. Two-thirds are smaller than a quarter-acre, and 61% sit south of I-30.">
-<meta property="og:url" content="https://geopen.io/maps/dallas-vacant-land.html">
-<meta property="og:image" content="https://geopen.io/maps/dallas-vacant-land-card.png">
+<meta property="og:title" content="Vacant land in Dallas County, outside the city">
+<meta property="og:description" content="The same number of vacant parcels as the city of Dallas, on two-thirds more land. 62% of that acreage sits in 1,302 tracts of five acres or more.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-county-vacant-land.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-county-vacant-land-card.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://geopen.io/maps/dallas-vacant-land-card.png">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-county-vacant-land-card.png">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
   :root {
@@ -36,16 +36,19 @@
   .funnel div:last-child { border-bottom: 0; font-weight: 700; color: var(--ink); }
   .funnel span:first-child { color: var(--ink-2); }
   .funnel span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .bars { margin: 0 0 12px; font-size: 0.71rem; }
-  .bars div { display: grid; grid-template-columns: 82px 1fr 58px; align-items: center;
-    gap: 7px; padding: 2px 0; }
-  .bars span:first-child { color: var(--ink-2); }
-  .bars i { display: block; height: 7px; background: var(--res); border-radius: 1px; }
-  .bars span:last-child { color: var(--ink-3); text-align: right;
+  table.places { width: 100%; border-collapse: collapse; font-size: 0.71rem;
+    margin: 0 0 11px; }
+  table.places th { text-align: right; font-weight: 500; color: var(--ink-3);
+    padding: 0 0 3px; border-bottom: 1px solid var(--rule); }
+  table.places th:first-child { text-align: left; }
+  table.places td { padding: 2.5px 0; color: var(--ink-2); text-align: right;
     font-variant-numeric: tabular-nums; }
+  table.places td:first-child { text-align: left; color: var(--ink); }
   .key { display: flex; gap: 14px; margin: 2px 0 10px; font-size: 0.72rem; color: var(--ink-2); }
   .key i { width: 11px; height: 11px; border-radius: 2px; display: inline-block;
     vertical-align: -1px; margin-right: 5px; }
+  .key .out { width: 13px; height: 0; border-top: 2px dashed rgba(255,255,255,0.6);
+    border-radius: 0; }
   .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
   .note b { color: var(--ink); }
   .also { margin: 11px 0 9px; padding: 8px 10px; background: var(--panel-2);
@@ -66,55 +69,66 @@
 <div id="map"></div>
 
 <div class="card">
-  <h1>Vacant land inside the city</h1>
-  <p class="sub">City of Dallas only. "Vacant" on the appraisal roll means nothing
-    is built on the land, not that anything could be. This takes out what the
-    water rules out, and shows what is left.</p>
+  <h1>Vacant land outside the city</h1>
+  <p class="sub">Dallas County beyond the Dallas city limits — 30 other towns and
+    the unincorporated remainder. Same appraisal class, same flood filter, and a
+    different kind of land.</p>
 
   <div class="funnel">
-    <div><span>classed vacant, city of Dallas</span><span>29,120 · 49,054 ac</span></div>
-    <div><span>less the floodway</span><span>&minus;1,456 · &minus;11,334 ac</span></div>
-    <div><span>less the 1% floodplain</span><span>&minus;3,200 · &minus;17,515 ac</span></div>
-    <div><span>what is left</span><span>24,464 · 20,205 ac</span></div>
+    <div><span>classed vacant, outside the city</span><span>29,348 · 78,037 ac</span></div>
+    <div><span>less the floodway</span><span>&minus;2,173 · &minus;23,247 ac</span></div>
+    <div><span>less the 1% floodplain</span><span>&minus;2,297 · &minus;20,916 ac</span></div>
+    <div><span>what is left</span><span>24,878 · 33,875 ac</span></div>
   </div>
 
   <div class="key">
     <span><i style="background:#4ABF82"></i>privately owned</span>
     <span><i style="background:#E0A458"></i>publicly owned</span>
+    <span><i class="out"></i>city limits</span>
   </div>
 
-  <p class="note">That is about <b>8% of the city</b>. Taking the water out costs
-    59% of the acreage but only 16% of the parcels — a few enormous riverside
-    tracts carry most of the land.</p>
+  <p class="note">That is <b>as many parcels as the city of Dallas</b> — 24,878
+    against 24,464 — on <b>two-thirds more land</b>. The difference is size, not
+    count.</p>
 
-  <p class="note">What is left is mostly <b>house-sized</b>. Two-thirds of it is
-    under a quarter of an acre:</p>
-  <div class="bars" id="bars"></div>
+  <p class="note">Out here <b>1,302 tracts of five acres or more hold 62% of the
+    acreage</b>. The city has 631 such tracts, holding 55% of its own. A fifth of
+    the parcels outside the city are over an acre, against one in nine inside it.</p>
 
-  <p class="note"><b>61% of it sits south of I-30</b> — 14,980 parcels on 15,425
-    acres, which is 76% of the city's vacant acreage. Before the floodplain is
-    taken out the figure is 62.8%, matching the "almost two-thirds" the Dallas
-    Morning News reported. The white line is I-30 itself.</p>
+  <table class="places">
+    <tr><th>place</th><th>parcels</th><th>acres</th><th>median</th></tr>
+    <tr><td>Grand Prairie</td><td>3,956</td><td>2,291</td><td>0.10</td></tr>
+    <tr><td>Irving</td><td>3,193</td><td>3,294</td><td>0.22</td></tr>
+    <tr><td>Mesquite</td><td>2,396</td><td>2,521</td><td>0.17</td></tr>
+    <tr><td>Garland</td><td>2,002</td><td>2,289</td><td>0.23</td></tr>
+    <tr><td>Cedar Hill</td><td>1,625</td><td>3,222</td><td>0.29</td></tr>
+    <tr><td>Lancaster</td><td>1,319</td><td>3,252</td><td>0.39</td></tr>
+    <tr><td>Rowlett</td><td>1,194</td><td>1,648</td><td>0.23</td></tr>
+    <tr><td>DeSoto</td><td>1,140</td><td>1,998</td><td>0.39</td></tr>
+    <tr><td>Seagoville</td><td>959</td><td>1,931</td><td>0.19</td></tr>
+    <tr><td>Balch Springs</td><td>930</td><td>1,024</td><td>0.28</td></tr>
+  </table>
 
-  <p class="note"><b>9.4% is publicly owned</b> by parcel — but 25% by acreage.
-    Public bodies hold the big pieces.</p>
+  <p class="note">The county splits in two. In the <b>inner ring</b> — Richardson,
+    Carrollton, Addison, Duncanville — vacant land is leftover infill, with under
+    40% of the acreage in large tracts. In the <b>southern county</b> it is
+    farmland waiting: Wilmer 85%, Hutchins 77%, Seagoville 76%, Lancaster 74%,
+    Sunnyvale 73%.</p>
 
-  <p class="note">Nearly half — <b>48.7%</b> — are classed commercial or
-    industrial vacant, not residential. Zoning is shown in the popup rather than filtered
-    out, because a Planned Development number says nothing without its ordinance.</p>
+  <p class="note"><b>9.1% is publicly owned</b> by parcel, 20% by acreage. The
+    unincorporated remainder, labelled "no town" on the roll, is 823 parcels on
+    2,444 acres.</p>
 
-  <p class="also">The county has just as much vacant land <i>outside</i> the city
-    — 24,878 parcels on 33,875 acres, and a different kind of land.
-    <a href="https://geopen.io/maps/dallas-county-vacant-land.html">See the rest of
-    the county →</a></p>
+  <p class="also">Inside the city limits the picture is different — 24,464 parcels
+    on 20,205 acres, two-thirds of them smaller than a quarter-acre.
+    <a href="https://geopen.io/maps/dallas-vacant-land.html">See the city of Dallas →</a></p>
 
   <p class="src">DCAD 2026 certified roll joined to
     <a href="https://www.dallascad.org/" target="_blank" rel="noopener">Dallas County</a>
     parcel geometry, intersected with the FEMA National Flood Hazard Layer. Acreage
     is measured from the geometry, not the roll's AREA_SIZE column, which repeats
-    shared tracts across accounts. Planned Development numbers come from the City
-    of Dallas zoning layer, because the appraisal roll does not record them. Nothing
-    here says a parcel is for sale, serviced, or free of deed restriction. ·
+    shared tracts across accounts. City limits from the Census TIGER place file.
+    Nothing here says a parcel is for sale, serviced, or free of deed restriction. ·
     <a href="https://geopen.io/">geopen.io</a></p>
 </div>
 
@@ -124,20 +138,8 @@
 const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/dallas_buildable_vacant.pmtiles";
 
 // One tile archive covers the whole county and serves both maps; this page
-// filters it to the city so each map answers exactly one question.
-const CITY = ["==", ["get", "city"], "DALLAS"];
-
-const SIZES = [
-  ["under 1/4 ac", 16282, 66.6],
-  ["1/4 - 1 ac", 5539, 22.6],
-  ["1 - 5 ac", 2012, 8.2],
-  ["5 - 25 ac", 540, 2.2],
-  ["25+ ac", 91, 0.4],
-];
-document.getElementById("bars").innerHTML = SIZES.map(
-  ([label, n, pct]) =>
-    `<div><span>${label}</span><i style="width:${Math.max(pct, 0.6)}%"></i>
-     <span>${n.toLocaleString()}</span></div>`).join("");
+// filters it to everything the roll does not label DALLAS.
+const OUTSIDE = ["!=", ["get", "city"], "DALLAS"];
 
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -153,11 +155,11 @@ const map = new maplibregl.Map({
       ref: { type: "raster", tileSize: 256,
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
       vacant: { type: "vector", url: "pmtiles://" + PM },
-      i30: { type: "geojson", data: "/data/i30_line.geojson" },
+      limits: { type: "geojson", data: "/data/dallas_city_limits.geojson" },
     },
     layers: [{ id: "base", type: "raster", source: "base", paint: { "raster-opacity": 0.55 } }],
   },
-  center: [-96.79, 32.755], zoom: 10.2,
+  center: [-96.80, 32.72], zoom: 9.5,
   attributionControl: { compact: true },
 });
 map.addControl(new maplibregl.NavigationControl(), "top-right");
@@ -169,24 +171,25 @@ const money = (n) => (n == null || n === "") ? "—" : "$" + Math.round(n).toLoc
 map.on("load", () => {
   map.addLayer({
     id: "vacant", type: "fill", source: "vacant", "source-layer": "vacant",
-    filter: CITY,
+    filter: OUTSIDE,
     paint: {
       "fill-color": ["case", ["==", ["get", "public"], true], "#E0A458", "#4ABF82"],
-      // Lots are tiny at city zoom; opacity carries density there and detail
+      // Lots are tiny at county zoom; opacity carries density there and detail
       // takes over as you go in.
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 9, 0.95, 14, 0.75],
     },
   });
   map.addLayer({
     id: "vacant-line", type: "line", source: "vacant", "source-layer": "vacant",
-    filter: CITY, minzoom: 14,
+    filter: OUTSIDE, minzoom: 14,
     paint: { "line-color": "rgba(255,255,255,0.35)", "line-width": 0.6 },
   });
-  // I-30 is the line the two-thirds claim is measured against, so it is drawn
-  // rather than described.
+  // The city limits are drawn because the shape of this map is a hole: without
+  // the outline the empty middle reads as missing data rather than the subject
+  // of the other map.
   map.addLayer({
-    id: "i30", type: "line", source: "i30",
-    paint: { "line-color": "rgba(255,255,255,0.75)", "line-width": 1.6,
+    id: "limits", type: "line", source: "limits",
+    paint: { "line-color": "rgba(255,255,255,0.6)", "line-width": 1.4,
              "line-dasharray": [3, 2] },
   });
   map.addLayer({ id: "ref", type: "raster", source: "ref",
@@ -201,18 +204,15 @@ function show(e) {
   const f = e.features && e.features[0];
   if (!f) return;
   const p = f.properties;
-  const pd = p.pd_num
-    ? `PD ${p.pd_num}${p.pd_name ? " — " + p.pd_name : ""}`
-    : (p.zone_dist || "—");
   popup.setLngLat(e.lngLat).setHTML(
     `<div class="pop"><b>${p.address || "(no address on the roll)"}</b>
      <dl>
        <dt>size</dt><dd>${acres(+p.acres)}</dd>
+       <dt>place</dt><dd>${(p.city || "—").replace(" (DALLAS CO)", "")}</dd>
        <dt>owner</dt><dd>${p.owner || "—"}</dd>
        <dt>land value</dt><dd>${money(p.land_value)}</dd>
        <dt>class</dt><dd>${p.land_class || "—"}</dd>
        <dt>on the roll</dt><dd>${p.zoning || "—"}</dd>
-       <dt>city zoning</dt><dd>${pd}</dd>
        <dt>account</dt><dd>${p.dcad_account || "—"}</dd>
      </dl></div>`).addTo(map);
 }
