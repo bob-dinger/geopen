@@ -1,13 +1,13 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vacant land in Dallas County that could hold a home</title>
-<meta name="description" content="Dallas County has 127,091 acres of land classed vacant. Once floodplain, slivers and non-residential zoning come out, 34,471 acres are left.">
+<title>Dallas County vacant land, once the water is taken out</title>
+<meta name="description" content="Dallas County classes 127,091 acres as vacant. Take out the floodway and the 1% floodplain and 54,080 acres are left — across 49,342 parcels with a median size of a fifth of an acre.">
 <link rel="canonical" href="https://geopen.io/maps/dallas-vacant-land.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="geopen.io">
-<meta property="og:title" content="Vacant land in Dallas County that could hold a home">
-<meta property="og:description" content="127,091 acres are classed vacant. 73,011 of them are in the floodplain. What is left is 34,471 acres — and a quarter of it is in the city of Dallas.">
+<meta property="og:title" content="Dallas County vacant land, once the water is taken out">
+<meta property="og:description" content="The acreage falls 57% when you remove the floodplain. The parcel count falls 16%. That gap is the whole story.">
 <meta property="og:url" content="https://geopen.io/maps/dallas-vacant-land.html">
 <meta property="og:image" content="https://geopen.io/maps/dallas-vacant-land-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -56,34 +56,38 @@
 <div id="map"></div>
 
 <div class="card">
-  <h1>Vacant land that could hold a home</h1>
-  <p class="sub">Dallas County. "Vacant" on the appraisal roll means nothing is built
-    on the land — not that anything could be. This is what survives once the land
-    that cannot take a house comes out.</p>
+  <h1>Vacant land, once the water is out</h1>
+  <p class="sub">Dallas County. "Vacant" on the appraisal roll means nothing is
+    built on the land, not that anything could be. This removes what the water
+    rules out, and shows what is left.</p>
 
   <div class="funnel">
-    <div><span>classed vacant by DCAD</span><span>58,468 · 127,091 ac</span></div>
-    <div><span>outside the 1% floodplain</span><span>49,342 · 54,080 ac</span></div>
-    <div><span>at least 2,000 sq ft</span><span>44,438 · 53,949 ac</span></div>
-    <div><span>zoning allows housing</span><span>34,589 · 34,471 ac</span></div>
+    <div><span>classed vacant, Dallas County</span><span>58,468 · 127,091 ac</span></div>
+    <div><span>less the floodway</span><span>&minus;1,456 · &minus;11,334 ac</span></div>
+    <div><span>less the 1% floodplain</span><span>&minus;3,200 · &minus;17,515 ac</span></div>
+    <div><span>what is left</span><span>49,342 · 54,080 ac</span></div>
   </div>
 
   <div class="key">
-    <span><i style="background:#4ABF82"></i>zoned residential</span>
-    <span><i style="background:#E0A458"></i>zoning unreadable</span>
+    <span><i style="background:#4ABF82"></i>privately owned</span>
+    <span><i style="background:#E0A458"></i>publicly owned</span>
   </div>
 
-  <p class="note">The floodplain filter alone removes <b>73,011 acres</b> while dropping
-    only 9,126 parcels — a handful of enormous riverside tracts carry most of the
-    acreage. Within the city of Dallas, <b>76% of the vacant land the city itself
-    owns</b> sits in the floodplain.</p>
-  <p class="note"><b>19,356 parcels carry zoning that cannot be read</b> from the
-    appraisal roll, almost all Planned Development, which says nothing without its
-    ordinance. They are marked, not guessed at.</p>
+  <p class="note">Removing the water takes <b>57% of the acreage but only 16% of the
+    parcels</b> — a few enormous riverside tracts carry most of the land. What remains
+    has a <b>median size of 0.19 acres</b>. A residential lot.</p>
+  <p class="note">Half of it is inside the city of Dallas: <b>24,464 parcels, 20,205
+    acres</b> — about 8% of the city. Then Grand Prairie, Irving, Mesquite, Garland.</p>
+  <p class="note">The floodway is the channel and the ground that must stay clear to
+    carry a flood; building there is effectively barred. The <b>1% floodplain is not
+    unbuildable</b> — it requires elevation and flood insurance. Both are removed here,
+    so this is the conservative set.</p>
   <p class="src">DCAD 2026 certified roll joined to
     <a href="https://www.dallascad.org/" target="_blank" rel="noopener">Dallas County</a>
-    parcel geometry, intersected with the FEMA National Flood Hazard Layer. Nothing
-    here says a parcel is for sale, serviced, or free of deed restriction. ·
+    parcel geometry, intersected with the FEMA National Flood Hazard Layer. Planned
+    Development numbers come from the City of Dallas zoning layer, because the
+    appraisal roll does not record them. Nothing here says a parcel is for sale,
+    serviced, or free of deed restriction. ·
     <a href="https://geopen.io/">geopen.io</a></p>
 </div>
 
@@ -122,8 +126,7 @@ map.on("load", () => {
   map.addLayer({
     id: "vacant", type: "fill", source: "vacant", "source-layer": "vacant",
     paint: {
-      "fill-color": ["match", ["get", "zoning_class"],
-        "residential", "#4ABF82", "#E0A458"],
+      "fill-color": ["case", ["==", ["get", "public"], true], "#E0A458", "#4ABF82"],
       // Lots are tiny at county zoom; opacity carries density there and detail
       // takes over as you go in.
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 9, 0.95, 14, 0.75],
@@ -146,9 +149,9 @@ function show(e) {
   const f = e.features && e.features[0];
   if (!f) return;
   const p = f.properties;
-  const zc = p.zoning_class === "residential"
-    ? "zoned for housing"
-    : "zoning not readable from the roll";
+  const pd = p.pd_num
+    ? `PD ${p.pd_num}${p.pd_name ? " — " + p.pd_name : ""}`
+    : (p.zone_dist || "—");
   popup.setLngLat(e.lngLat).setHTML(
     `<div class="pop"><b>${p.address || "(no address on the roll)"}</b>
      <dl>
@@ -157,7 +160,8 @@ function show(e) {
        <dt>owner</dt><dd>${p.owner || "—"}</dd>
        <dt>land value</dt><dd>${money(p.land_value)}</dd>
        <dt>class</dt><dd>${p.land_class || "—"}</dd>
-       <dt>zoning</dt><dd>${p.zoning || "—"}<br><span style="color:var(--ink-3)">${zc}</span></dd>
+       <dt>on the roll</dt><dd>${p.zoning || "—"}</dd>
+       <dt>city zoning</dt><dd>${pd}</dd>
        <dt>account</dt><dd>${p.dcad_account || "—"}</dd>
      </dl></div>`).addTo(map);
 }
