@@ -109,7 +109,7 @@ const map = new maplibregl.Map({
       base: { type: "raster", tileSize: 256, attribution: "© Esri",
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] },
       ref: { type: "raster", tileSize: 256,
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"] },
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"] },
     },
     layers: [{ id: "base", type: "raster", source: "base" }],
   },
