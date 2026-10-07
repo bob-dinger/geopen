@@ -18,7 +18,7 @@
     --ground: #101215; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
     --rule: rgba(226,232,240,0.15);
     --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
-    --lot: #d95926; --garage: #9085e9;
+    --lot: #d95926; --city: #1baf7a; --garage: #9085e9;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
@@ -71,13 +71,16 @@
   </div>
 
   <div class="key">
-    <div><i style="background:var(--lot)"></i><span>Surface parking lot</span><em>237 · 137 ac</em></div>
+    <div><i style="background:var(--lot)"></i><span>Surface lot, privately owned</span><em>225 · 111 ac</em></div>
+    <div><i style="background:var(--city)"></i><span>Surface lot owned by the City of Dallas</span><em>12 · 26 ac</em></div>
     <div><i style="background:var(--garage)"></i><span>Parking garage</span><em>36 · 27 ac</em></div>
     <div class="ring"><i></i><span>Downtown freeway loop</span><em></em></div>
   </div>
 
   <p class="note">Surface lots cover <b>22% of the parcel land</b> inside the loop,
-    carrying $600 million of appraised land value. Sixteen lots, 27 acres, are publicly owned.</p>
+    carrying $600 million of appraised land value. The <b>City of Dallas owns 12 of the lots</b>, 26 acres and roughly 2,900 spaces,
+    most of them around Reunion and the convention center. As city property they pay no
+    property tax.</p>
   <p class="note">The 2011 Downtown 360 Plan counted about 17,000 surface spaces on 125 acres,
     so the total has barely moved in fifteen years.</p>
   <p class="src">DCAD 2026 certified roll; lots traced by the Parking Reform Network,
@@ -92,7 +95,7 @@
 <script>
 const DATA = "/data/dallas_surface_parking.geojson";
 const LOOP = "/data/dallas_surface_parking_loop.geojson";
-const COLOR = { lot: "#d95926", garage: "#9085e9" };
+const COLOR = { lot: "#d95926", city: "#1baf7a", garage: "#9085e9" };
 
 const map = new maplibregl.Map({
   container: "map",
@@ -114,7 +117,7 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 
 const money = (n) => (n == null || n === "") ? "—" : "$" + Math.round(n).toLocaleString();
 const title = (s) => (s || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
-const color = ["match", ["get", "group"], "lot", COLOR.lot, COLOR.garage];
+const color = ["match", ["get", "group"], "lot", COLOR.lot, "city", COLOR.city, COLOR.garage];
 
 map.on("load", () => {
   map.addSource("lots", { type: "geojson", data: DATA });
@@ -131,10 +134,10 @@ const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "300px" });
 
 map.on("click", "lots-fill", (e) => {
   const p = e.features[0].properties;
-  const lot = p.group === "lot";
+  const lot = p.group !== "garage";
   popup.setLngLat(e.lngLat).setHTML(
     `<div class="pop"><b>${title(p.address) || "(no address on the roll)"}</b>
-     <div class="what">${lot ? "Surface parking lot" : "Parking garage"}${p.public ? " · publicly owned" : ""}</div>
+     <div class="what">${lot ? "Surface parking lot" : "Parking garage"}${p.group === "city" ? " · owned by the City of Dallas" : p.public ? " · publicly owned" : ""}</div>
      <dl>
        <dt>owner</dt><dd>${title(p.owner) || "—"}</dd>
        <dt>size</dt><dd>${p.acres} ac</dd>
