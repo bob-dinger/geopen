@@ -100,8 +100,8 @@
   </div>
 
   <p class="note">This mile holds <b>7% of Dallas County's appraised value on under 1% of
-    its land</b>. The peaks are the newer towers of Uptown, Victory Park and the Arts
-    District; the low ground in between is surface parking, rail yards, the Trinity
+    its land</b>. The peaks are the towers of downtown, Uptown and Victory
+    Park; the low ground in between is surface parking, rail yards, the Trinity
     levees, and older low-rise blocks. Drag with right-click or two fingers to tilt and turn.</p>
   <p class="src">DCAD 2026 certified roll: total market value of land and improvements,
     divided by each parcel's mapped area. Condo units are summed onto their building;
@@ -140,6 +140,8 @@ const map = new maplibregl.Map({
   attributionControl: { compact: true },
 });
 window.__map = map;
+// Keep the area clear of the card on wide screens.
+if (window.innerWidth > 560) map.setPadding({ left: 380, top: 0, right: 0, bottom: 0 });
 map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
 
