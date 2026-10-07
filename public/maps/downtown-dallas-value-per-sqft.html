@@ -82,7 +82,7 @@
 
   <div class="ramp" aria-label="Legend: appraised value per square foot of land">
     <div class="bar" id="bar"></div>
-    <div class="ticks"><span></span><span>$20</span><span>$40</span><span>$80</span><span>$160</span><span>$320</span><span>$640</span><span>$1,280</span><span>$2,500</span></div>
+    <div class="ticks"><span></span><span>$20</span><span>$40</span><span>$80</span><span>$160</span><span>$320</span><span>$640</span><span>$1.3k</span><span>$2.5k</span></div>
     <div class="cap">Total appraised value per square foot of land</div>
   </div>
 
@@ -136,7 +136,7 @@ const map = new maplibregl.Map({
     },
     layers: [{ id: "base", type: "raster", source: "base" }],
   },
-  center: [-96.800, 32.784], zoom: 13.6, pitch: 58, bearing: -25,
+  center: [-96.797, 32.790], zoom: 13.1, pitch: 55, bearing: -20,
   attributionControl: { compact: true },
 });
 window.__map = map;
@@ -157,7 +157,7 @@ map.on("load", () => {
     paint: { "fill-color": fill, "fill-opacity": 0.9, "fill-outline-color": "rgba(255,255,255,0.6)" } });
   map.addLayer({ id: "tall", type: "fill-extrusion", source: "parcels",
     paint: { "fill-extrusion-color": fill, "fill-extrusion-opacity": 0.95,
-             "fill-extrusion-height": ["min", ["*", ["get", "vp"], 0.35], 2500] } });
+             "fill-extrusion-height": ["min", ["*", ["get", "vp"], 0.12], 900] } });
 
   const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
   const show = (e) => {
@@ -190,7 +190,7 @@ function view(tall) {
   document.getElementById("tall").setAttribute("aria-pressed", tall);
   map.setLayoutProperty("tall", "visibility", tall ? "visible" : "none");
   map.setLayoutProperty("flat", "visibility", tall ? "none" : "visible");
-  map.easeTo(tall ? { pitch: 58, bearing: -25, duration: 1000 } : { pitch: 0, bearing: 0, duration: 800 });
+  map.easeTo(tall ? { pitch: 55, bearing: -20, duration: 1000 } : { pitch: 0, bearing: 0, duration: 800 });
 }
 document.getElementById("flat").onclick = () => view(false);
 document.getElementById("tall").onclick = () => view(true);
