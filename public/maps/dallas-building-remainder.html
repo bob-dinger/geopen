@@ -135,7 +135,9 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 const money = (n) => n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : "$" + Math.round(n).toLocaleString();
 const title = (s) => (s || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
 
-fetch(DATA).then((r) => r.json()).then((fc) => {
+// Wait for both the map and the data; whichever arrives last draws the layers.
+const ready = new Promise((res) => map.once("load", res));
+Promise.all([fetch(DATA).then((r) => r.json()), ready]).then(([fc]) => {
   const n = {};
   fc.features.forEach((f) => { n[f.properties.kind] = (n[f.properties.kind] || 0) + 1; });
   document.getElementById("key").innerHTML = KINDS.map((d) =>
@@ -162,7 +164,7 @@ fetch(DATA).then((r) => r.json()).then((fc) => {
       map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; });
     });
   };
-  map.loaded() ? go() : map.on("load", go);
+  go();
 });
 
 const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "310px" });
