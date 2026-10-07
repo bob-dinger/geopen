@@ -1,0 +1,171 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What the land is worth in Dallas County</title>
+<meta name="description" content="Every parcel in Dallas County shaded by what the appraisal district says its land alone is worth per square foot, from cents in the south of the county to $350 in Highland Park.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-land-rates.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="What the land is worth in Dallas County">
+<meta property="og:description" content="DCAD's value for the land alone, per square foot, on 647,488 parcels. Highland Park runs $275–350; three of every four parcels are priced as a flat amount per lot, whatever its size.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-land-rates.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-land-rates-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-land-rates-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e8e9e6; --panel: rgba(255,255,255,0.95); --panel-2: #ffffff;
+    --rule: rgba(16,24,32,0.14);
+    --ink: #11161c; --ink-2: #444c56; --ink-3: #6b737d;
+    --link: #1c5cab;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 350px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-2); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .ramp { margin: 0 0 12px; }
+  .ramp .bar { display: grid; grid-template-columns: repeat(9, 1fr); height: 12px; border-radius: 2px; overflow: hidden; }
+  .ramp .ticks { display: grid; grid-template-columns: repeat(9, 1fr); font-size: 0.64rem; color: var(--ink-3);
+    font-variant-numeric: tabular-nums; margin-top: 3px; }
+  .ramp .ticks span { transform: translateX(-50%); white-space: nowrap; }
+  .ramp .ticks span:first-child { transform: none; }
+  .ramp .cap { font-size: 0.68rem; color: var(--ink-3); margin-top: 4px; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: var(--link); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 2px; }
+  .pop .psf { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 2px 0 6px; }
+  .pop .psf span { font-size: 0.72rem; font-weight: 400; color: var(--ink-3); }
+  .pop dl { margin: 0 0 7px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .pop .how { background: #eef3fa; border-radius: 3px; padding: 6px 8px; margin: 0 0 7px; color: var(--ink-2); }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>What the land is worth in Dallas County</h1>
+  <p class="sub">Every parcel shaded by what the appraisal district says its land alone is
+    worth per square foot, before counting any building on it.</p>
+
+  <div class="stat">
+    <div><b>647,488</b><span>parcels with a land value</span></div>
+    <div><b>$175.5B</b><span>of land</span></div>
+    <div><b>5,283</b><span>DCAD neighbourhoods</span></div>
+  </div>
+
+  <div class="ramp" aria-label="Legend: land value per square foot">
+    <div class="bar" id="bar"></div>
+    <div class="ticks"><span></span><span>$1</span><span>$3</span><span>$6</span><span>$10</span><span>$20</span><span>$40</span><span>$80</span><span>$160</span></div>
+    <div class="cap">Land value per square foot of lot</div>
+  </div>
+
+  <p class="note">DCAD doesn't value land parcel by parcel. It splits the county into
+    neighbourhoods and gives each one <b>a rate</b>: either dollars per square foot, or,
+    for three of every four parcels, mostly homes, <b>one flat price per lot, whatever its size</b>. In one
+    Dallas neighbourhood, 1,877 lots from 3,611 to 16,919 sq ft all start at $160,000.
+    That is why small lots in a subdivision can show darker than the big ones beside them.</p>
+  <p class="note">The top of the county is Highland Park, at <b>$275–350 a square foot</b>.
+    Downtown Dallas runs $95–120. The bottom includes farmland, floodplain, and a
+    never-built Grand Prairie subdivision whose 1,511 platted lots are valued at
+    <b>$500 each</b>.</p>
+  <p class="src">DCAD 2026 certified roll, land value only, divided by each parcel's mapped
+    area. Condo units' land is summed onto their building. Values are appraisals for
+    1 January 2026, not sale prices. Click any parcel to see how it was priced. ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+<script>
+const PM = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pmtiles/dallas_land_rates_2026.pmtiles";
+// One-hue blue, light to dark. Breaks are roughly doubling because values run from cents to $350.
+const BREAKS = [1, 3, 6, 10, 20, 40, 80, 160];
+const RAMP = ["#cde2fb", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#256abf", "#184f95", "#0d366b"];
+
+document.getElementById("bar").innerHTML = RAMP.map((c) => `<i style="background:${c}"></i>`).join("");
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      parcels: { type: "vector", url: "pmtiles://" + PM },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  center: [-96.78, 32.80], zoom: 10.3,
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const fill = ["step", ["get", "lp"], RAMP[0]];
+BREAKS.forEach((b, i) => fill.push(b, RAMP[i + 1]));
+
+const money = (n) => (n == null) ? "—" : "$" + Math.round(n).toLocaleString();
+const psf = (n) => n >= 10 ? "$" + Math.round(n).toLocaleString() : "$" + n.toFixed(2);
+
+function how(p) {
+  const adj = p.j ? ` then adjusted ${p.j > 0 ? "+" : ""}${Math.round(p.j * 100)}%` : "";
+  if (p.m === "F") return `Priced as <b>one flat amount per lot</b>: ${money(p.b)}${adj}, whatever the lot's size.`;
+  if (p.m === "S" && p.u === "ACRE") return `Priced <b>per acre</b> at ${money(p.b)}${adj}.`;
+  if (p.m === "S") return `Priced <b>per square foot</b> at $${p.b}${adj}.`;
+  if (p.m === "FF") return `Priced <b>per foot of street frontage</b> at ${money(p.b)}${adj}.`;
+  return "Pricing method not recorded on the roll.";
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "parcels", type: "fill", source: "parcels", "source-layer": "parcels",
+    paint: { "fill-color": fill, "fill-opacity": 0.85 } });
+  map.addLayer({ id: "parcel-line", type: "line", source: "parcels", "source-layer": "parcels",
+    minzoom: 15, paint: { "line-color": "rgba(255,255,255,0.7)", "line-width": 0.5 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref" });
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
+  map.on("click", "parcels", (e) => {
+    const p = e.features[0].properties;
+    const ac = p.sf / 43560;
+    const size = ac >= 1 ? ac.toFixed(2) + " acres" : Math.round(p.sf).toLocaleString() + " sq ft";
+    const sv = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${e.lngLat.lat.toFixed(6)},${e.lngLat.lng.toFixed(6)}`;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${p.a || "(no address on the roll)"}</b>
+       <div style="color:var(--ink-3)">${p.c || ""}${p.k ? " · " + p.k.toLowerCase() : ""}</div>
+       <div class="psf">${psf(p.lp)}<span> of land per sq ft</span></div>
+       <div class="how">${how(p)}</div>
+       <dl>
+         <dt>land value</dt><dd>${money(p.lv)}</dd>
+         <dt>lot size</dt><dd>${size}</dd>
+         <dt>neighbourhood</dt><dd>${p.nb || "—"}</dd>
+       </dl>
+       <a href="${sv}" target="_blank" rel="noopener">Open in Street View ↗</a></div>`).addTo(map);
+  });
+  map.on("mouseenter", "parcels", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "parcels", () => { map.getCanvas().style.cursor = ""; });
+});
+</script>
