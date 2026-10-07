@@ -54,7 +54,7 @@
   .pop .psf span { font-size: 0.72rem; font-weight: 400; color: var(--ink-3); }
   .pop dl { margin: 0 0 7px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
   .pop dt { color: var(--ink-3); } .pop dd { margin: 0; font-variant-numeric: tabular-nums; }
-  .pop .how { background: #eef3fa; border-radius: 3px; padding: 6px 8px; margin: 0 0 7px; color: var(--ink-2); }
+  .pop .how { background: #f6f1e7; border-radius: 3px; padding: 6px 8px; margin: 0 0 7px; color: var(--ink-2); }
   @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
 </style>
 
@@ -101,9 +101,9 @@ const NB = "https://eazzqlyfcnnlplobgaas.supabase.co/storage/v1/object/public/pm
 // DCAD sets rates by neighbourhood, so zoomed out the map shows neighbourhoods
 // (median lot); from zoom 13 it shows every parcel.
 const SWITCH = 13;
-// One-hue blue, light to dark. Breaks are roughly doubling because values run from cents to $350.
+// Warm ramp, pale yellow through red to deep plum: hotter is dearer. Breaks are roughly doubling because values run from cents to $350.
 const BREAKS = [1, 3, 6, 10, 20, 40, 80, 160];
-const RAMP = ["#cde2fb", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#256abf", "#184f95", "#0d366b"];
+const RAMP = ["#fff3b0", "#fde08a", "#fcc25c", "#f99e3e", "#f0762f", "#dc4d2c", "#b8302f", "#8a1e3f", "#551447"];
 
 document.getElementById("bar").innerHTML = RAMP.map((c) => `<i style="background:${c}"></i>`).join("");
 
