@@ -1,0 +1,197 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Downtown Dallas, value per square foot</title>
+<meta name="description" content="Total appraised value per square foot of land for 7,464 parcels in downtown Dallas and the mile around it: $37.3 billion on 4,240 acres.">
+<link rel="canonical" href="https://geopen.io/maps/downtown-dallas-value-per-sqft.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Downtown Dallas, value per square foot">
+<meta property="og:description" content="Downtown Dallas and one mile around it: $37.3 billion of appraised value on 4,240 acres, $202 a square foot against $26 for the county.">
+<meta property="og:url" content="https://geopen.io/maps/downtown-dallas-value-per-sqft.html">
+<meta property="og:image" content="https://geopen.io/maps/downtown-dallas-value-per-sqft-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/downtown-dallas-value-per-sqft-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e8e9e6; --panel: rgba(255,255,255,0.95); --panel-2: #ffffff;
+    --rule: rgba(16,24,32,0.14);
+    --ink: #11161c; --ink-2: #444c56; --ink-3: #6b737d;
+    --link: #1c5cab;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 360px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-2); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .ramp { margin: 0 0 12px; }
+  .ramp .bar { display: grid; grid-template-columns: repeat(9, 1fr); height: 12px; border-radius: 2px; overflow: hidden; }
+  .ramp .ticks { display: grid; grid-template-columns: repeat(9, 1fr); font-size: 0.64rem; color: var(--ink-3);
+    font-variant-numeric: tabular-nums; margin-top: 3px; }
+  .ramp .ticks span { transform: translateX(-50%); white-space: nowrap; }
+  .ramp .ticks span:first-child { transform: none; }
+  .ramp .cap { font-size: 0.68rem; color: var(--ink-3); margin-top: 4px; }
+  .conc { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin: 0 0 12px;
+    font-variant-numeric: tabular-nums; }
+  .conc td { padding: 2px 0; color: var(--ink-2); border-bottom: 1px solid var(--rule); }
+  .conc td:last-child { text-align: right; color: var(--ink); font-weight: 600; }
+  .conc caption { text-align: left; font-size: 0.68rem; color: var(--ink-3); padding-bottom: 3px; }
+  .toggle { display: flex; gap: 6px; margin: 0 0 12px; }
+  .toggle button { font: inherit; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink-2); cursor: pointer; }
+  .toggle button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: var(--link); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 2px; }
+  .pop .what { color: var(--ink-3); margin-bottom: 4px; }
+  .pop .big { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: 2px 0 6px; }
+  .pop .big span { font-size: 0.72rem; font-weight: 400; color: var(--ink-3); }
+  .pop dl { margin: 0 0 7px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Downtown Dallas, value per square foot</h1>
+  <p class="sub">Every parcel within a mile of the downtown freeway loop, raised and coloured
+    by its total appraised value, land and buildings together, per square foot of land.</p>
+
+  <div class="stat">
+    <div><b>$37.3B</b><span>of appraised value</span></div>
+    <div><b>$202</b><span>per sq ft of land, vs $26 for the county</span></div>
+    <div><b>7,464</b><span>parcels on 4,240 acres</span></div>
+  </div>
+
+  <div class="ramp" aria-label="Legend: appraised value per square foot of land">
+    <div class="bar" id="bar"></div>
+    <div class="ticks"><span></span><span>$20</span><span>$40</span><span>$80</span><span>$160</span><span>$320</span><span>$640</span><span>$1,280</span><span>$2,500</span></div>
+    <div class="cap">Total appraised value per square foot of land</div>
+  </div>
+
+  <table class="conc">
+    <caption>Even here it is concentrated. Share of the area's value on its densest land</caption>
+    <tr><td>Densest 1% of land</td><td>17.6%</td></tr>
+    <tr><td>Densest 5%</td><td>46.9%</td></tr>
+    <tr><td>Densest 10%</td><td>62.9%</td></tr>
+    <tr><td>Densest 50%</td><td>95.7%</td></tr>
+  </table>
+
+  <div class="toggle" role="group" aria-label="View">
+    <button id="flat" aria-pressed="false">Flat</button>
+    <button id="tall" aria-pressed="true">3D: height is value per sq ft</button>
+  </div>
+
+  <p class="note">This mile holds <b>7% of Dallas County's appraised value on under 1% of
+    its land</b>. The peaks are the newer towers of Uptown, Victory Park and the Arts
+    District; the low ground in between is surface parking, rail yards, the Trinity
+    levees, and older low-rise blocks. Drag with right-click or two fingers to tilt and turn.</p>
+  <p class="src">DCAD 2026 certified roll: total market value of land and improvements,
+    divided by each parcel's mapped area. Condo units are summed onto their building;
+    exempt property is included at its appraised value; business equipment and inventory
+    are left out. The inner line is the freeway loop, the outer line one mile beyond it.
+    A few parcels look extreme where DCAD draws a large account on a small piece of land.
+    Values are appraisals for 1 January 2026, not sale prices. ·
+    <a href="https://geopen.io/data/downtown_dallas_value_density.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/downtown_dallas_value_density.geojson";
+const OUTLINE = "/data/downtown_dallas_value_density_outline.geojson";
+// Warm ramp, pale yellow through red to deep plum: hotter is denser. Breaks roughly double.
+const BREAKS = [20, 40, 80, 160, 320, 640, 1280, 2500];
+const RAMP = ["#fff3b0", "#fde08a", "#fcc25c", "#f99e3e", "#f0762f", "#dc4d2c", "#b8302f", "#8a1e3f", "#551447"];
+document.getElementById("bar").innerHTML = RAMP.map((c) => `<i style="background:${c}"></i>`).join("");
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 16, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 16,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      parcels: { type: "geojson", data: DATA },
+      outline: { type: "geojson", data: OUTLINE },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  center: [-96.800, 32.784], zoom: 13.6, pitch: 58, bearing: -25,
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const fill = ["step", ["get", "vp"], RAMP[0]];
+BREAKS.forEach((b, i) => fill.push(b, RAMP[i + 1]));
+const money = (n) => n >= 1e9 ? "$" + (n / 1e9).toFixed(2) + "B" : n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : "$" + Math.round(n).toLocaleString();
+const psf = (n) => n >= 10 ? "$" + Math.round(n).toLocaleString() : "$" + n.toFixed(2);
+
+map.on("load", () => {
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+  map.addLayer({ id: "outline", type: "line", source: "outline",
+    paint: { "line-color": "#11161c", "line-width": ["match", ["get", "kind"], "loop", 1.6, 1.2],
+             "line-dasharray": [3, 2], "line-opacity": 0.6 } });
+  map.addLayer({ id: "flat", type: "fill", source: "parcels", layout: { visibility: "none" },
+    paint: { "fill-color": fill, "fill-opacity": 0.9, "fill-outline-color": "rgba(255,255,255,0.6)" } });
+  map.addLayer({ id: "tall", type: "fill-extrusion", source: "parcels",
+    paint: { "fill-extrusion-color": fill, "fill-extrusion-opacity": 0.95,
+             "fill-extrusion-height": ["min", ["*", ["get", "vp"], 0.35], 2500] } });
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
+  const show = (e) => {
+    const p = e.features[0].properties;
+    const ac = p.sf / 43560;
+    const size = ac >= 1 ? ac.toFixed(2) + " acres" : Math.round(p.sf).toLocaleString() + " sq ft";
+    const sv = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${e.lngLat.lat.toFixed(6)},${e.lngLat.lng.toFixed(6)}`;
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${p.nm || p.a || "(no address on the roll)"}</b>
+       <div class="what">${p.nm ? p.a + " · " : ""}${p.c || ""}</div>
+       <div class="big">${psf(p.vp)}<span> of value per sq ft of land</span></div>
+       <dl>
+         <dt>total value</dt><dd>${money(p.tv)}</dd>
+         <dt>land</dt><dd>${money(p.lv)}</dd>
+         <dt>buildings</dt><dd>${money(p.iv)}</dd>
+         <dt>land area</dt><dd>${size}</dd>
+         ${p.u > 1 ? `<dt>accounts</dt><dd>${p.u} (condos or units) summed</dd>` : ""}
+       </dl>
+       <a href="${sv}" target="_blank" rel="noopener">Open in Street View ↗</a></div>`).addTo(map);
+  };
+  ["flat", "tall"].forEach((id) => {
+    map.on("click", id, show);
+    map.on("mouseenter", id, () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; });
+  });
+});
+
+function view(tall) {
+  document.getElementById("flat").setAttribute("aria-pressed", !tall);
+  document.getElementById("tall").setAttribute("aria-pressed", tall);
+  map.setLayoutProperty("tall", "visibility", tall ? "visible" : "none");
+  map.setLayoutProperty("flat", "visibility", tall ? "none" : "visible");
+  map.easeTo(tall ? { pitch: 58, bearing: -25, duration: 1000 } : { pitch: 0, bearing: 0, duration: 800 });
+}
+document.getElementById("flat").onclick = () => view(false);
+document.getElementById("tall").onclick = () => view(true);
+</script>
