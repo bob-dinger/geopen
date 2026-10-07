@@ -1,0 +1,151 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Downtown Dallas surface parking</title>
+<meta name="description" content="237 surface parking lots inside the downtown Dallas freeway loop: 137 acres and an estimated 16,000 spaces, from the DCAD 2026 roll.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-surface-parking.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Downtown Dallas surface parking">
+<meta property="og:description" content="237 surface lots inside the freeway loop: 137 acres and an estimated 16,000 spaces.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-surface-parking.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-surface-parking-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-surface-parking-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #101215; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+    --lot: #d95926; --garage: #9085e9;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 340px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .key { display: grid; gap: 5px; margin: 0 0 12px; }
+  .key div { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center;
+    font-size: 0.74rem; color: var(--ink-2); }
+  .key i { width: 14px; height: 14px; border-radius: 2px; }
+  .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .key .ring i { border: 1.5px solid rgba(255,255,255,0.7); background: none; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-popup-close-button { color: var(--ink-2); }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 2px; }
+  .pop .what { color: var(--ink-3); margin-bottom: 6px; }
+  .pop dl { margin: 0 0 7px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Downtown Dallas surface parking</h1>
+  <p class="sub">Every surface parking lot inside the downtown freeway loop, from the
+    appraisal district's 2026 roll and three independent tracings of the lots.</p>
+
+  <div class="stat">
+    <div><b>237</b><span>surface lots</span></div>
+    <div><b>137</b><span>acres</span></div>
+    <div><b>~16,000</b><span>parking spaces, estimated</span></div>
+  </div>
+
+  <div class="key">
+    <div><i style="background:var(--lot)"></i><span>Surface parking lot</span><em>237 · 137 ac</em></div>
+    <div><i style="background:var(--garage)"></i><span>Parking garage</span><em>36 · 27 ac</em></div>
+    <div class="ring"><i></i><span>Downtown freeway loop</span><em></em></div>
+  </div>
+
+  <p class="note">Surface lots cover <b>22% of the parcel land</b> inside the loop,
+    carrying $600 million of appraised land value. Sixteen lots, 27 acres, are publicly owned.</p>
+  <p class="note">The 2011 Downtown 360 Plan counted about 17,000 surface spaces on 125 acres,
+    so the total has barely moved in fifteen years.</p>
+  <p class="src">DCAD 2026 certified roll; lots traced by the Parking Reform Network,
+    OpenStreetMap and geopen. Spaces are estimated at 320 sq ft each, aisles included,
+    over the paved part of each lot. Garages are parcels whose building is at least 85%
+    parking by floor area. Values are appraisals, not sale prices. ·
+    <a href="https://geopen.io/data/dallas_surface_parking.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/dallas_surface_parking.geojson";
+const LOOP = "/data/dallas_surface_parking_loop.geojson";
+const COLOR = { lot: "#d95926", garage: "#9085e9" };
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  bounds: [[-96.8125, 32.7690], [-96.7830, 32.7945]],
+  fitBoundsOptions: { padding: { top: 40, bottom: 40, left: window.innerWidth > 560 ? 380 : 20, right: 40 } },
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const money = (n) => (n == null || n === "") ? "—" : "$" + Math.round(n).toLocaleString();
+const title = (s) => (s || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
+const color = ["match", ["get", "group"], "lot", COLOR.lot, COLOR.garage];
+
+map.on("load", () => {
+  map.addSource("lots", { type: "geojson", data: DATA });
+  map.addSource("loop", { type: "geojson", data: LOOP });
+  map.addLayer({ id: "lots-fill", type: "fill", source: "lots",
+    paint: { "fill-color": color, "fill-opacity": 0.72 } });
+  map.addLayer({ id: "lots-line", type: "line", source: "lots",
+    paint: { "line-color": color, "line-width": 1.2 } });
+  map.addLayer({ id: "loop", type: "line", source: "loop",
+    paint: { "line-color": "rgba(255,255,255,0.7)", "line-width": 1.6 } });
+});
+
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "300px" });
+
+map.on("click", "lots-fill", (e) => {
+  const p = e.features[0].properties;
+  const lot = p.group === "lot";
+  popup.setLngLat(e.lngLat).setHTML(
+    `<div class="pop"><b>${title(p.address) || "(no address on the roll)"}</b>
+     <div class="what">${lot ? "Surface parking lot" : "Parking garage"}${p.public ? " · publicly owned" : ""}</div>
+     <dl>
+       <dt>owner</dt><dd>${title(p.owner) || "—"}</dd>
+       <dt>size</dt><dd>${p.acres} ac</dd>
+       ${lot && p.stalls ? `<dt>spaces</dt><dd>~${Number(p.stalls).toLocaleString()} (estimated)</dd>` : ""}
+       <dt>land</dt><dd>${money(p.land_value)}</dd>
+       <dt>${lot ? "paving etc." : "building"}</dt><dd>${money(p.improvement_value)}</dd>
+       <dt>last deed</dt><dd>${p.deed_date || "—"}</dd>
+     </dl>
+     <a href="${p.street_view}" target="_blank" rel="noopener">Open in Street View ↗</a>
+     </div>`).addTo(map);
+});
+map.on("mouseenter", "lots-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+map.on("mouseleave", "lots-fill", () => { map.getCanvas().style.cursor = ""; });
+</script>
