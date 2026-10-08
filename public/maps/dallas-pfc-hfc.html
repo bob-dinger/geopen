@@ -1,0 +1,170 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFC and HFC property in Dallas County</title>
+<meta name="description" content="369 Dallas County property accounts titled to public facility corporations and housing finance corporations: $6.0 billion and about 32,700 apartment units, from the DCAD 2026 roll.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-pfc-hfc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="PFC and HFC property in Dallas County">
+<meta property="og:description" content="$6.0 billion and about 32,700 units titled to public facility and housing finance corporations. Dallas's own deals are exempt; most held by HFCs from Pecos, La Villa and elsewhere are on the 2026 roll as taxable.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-pfc-hfc.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-pfc-hfc-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-pfc-hfc-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e8e9e6; --panel: rgba(255,255,255,0.95); --panel-2: #ffffff;
+    --rule: rgba(16,24,32,0.14);
+    --ink: #11161c; --ink-2: #444c56; --ink-3: #6b737d;
+    --link: #1c5cab;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 370px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-2); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  table.key { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin: 0 0 6px;
+    font-variant-numeric: tabular-nums; }
+  table.key th { font-weight: 500; color: var(--ink-3); font-size: 0.66rem; text-align: right; padding: 0 0 3px 6px; }
+  table.key th:first-child { text-align: left; padding-left: 0; }
+  table.key td { padding: 3px 0 3px 6px; border-top: 1px solid var(--rule); text-align: right; color: var(--ink-2); }
+  table.key td:first-child { text-align: left; padding-left: 0; }
+  table.key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .how { display: flex; gap: 14px; font-size: 0.68rem; color: var(--ink-3); margin: 0 0 12px; }
+  .how span { display: flex; align-items: center; gap: 5px; }
+  .how i { width: 13px; height: 11px; border-radius: 2px; display: inline-block; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: var(--link); }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 2px; }
+  .pop .what { color: var(--ink-3); margin-bottom: 6px; }
+  .pop .tag { display: inline-block; border-radius: 3px; padding: 0 6px; font-size: 0.68rem; font-weight: 600; margin-bottom: 6px; }
+  .pop dl { margin: 0 0 7px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+  .pop dt { color: var(--ink-3); } .pop dd { margin: 0; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>PFC and HFC property in Dallas County</h1>
+  <p class="sub">Property titled to a public facility corporation (PFC) or a housing finance
+    corporation (HFC): public bodies that partner with private developers on apartments,
+    in exchange for setting aside some units as affordable. Public title usually brings
+    an exemption from property tax.</p>
+
+  <div class="stat">
+    <div><b>$6.0B</b><span>appraised value</span></div>
+    <div><b>32,700</b><span>apartment units, about</span></div>
+    <div><b>$3.2B</b><span>of it exempt from property tax</span></div>
+  </div>
+
+  <table class="key">
+    <tr><th>Title holder</th><th>accounts</th><th>value</th><th>exempt</th></tr>
+    <tr><td><i style="background:#2a78d6"></i>Dallas Public Facility Corp</td><td>52</td><td>$688M</td><td>all</td></tr>
+    <tr><td><i style="background:#eb6834"></i>Dallas Housing Finance Corp</td><td>45</td><td>$1.27B</td><td>33</td></tr>
+    <tr><td><i style="background:#1baf7a"></i>Other Dallas County PFC or HFC</td><td>74</td><td>$1.31B</td><td>61</td></tr>
+    <tr><td><i style="background:#4a3aa7"></i>HFC from outside the county</td><td>195</td><td>$2.68B</td><td>7</td></tr>
+    <tr><td><i style="background:#eda100"></i>Private landowner LLC, public exemption</td><td>3</td><td>$25M</td><td>all</td></tr>
+  </table>
+  <div class="how">
+    <span><i style="background:#8a9099"></i>exempt</span>
+    <span><i style="background:rgba(138,144,153,0.2);border:1.5px dashed #6b737d"></i>on the roll as taxable</span>
+  </div>
+
+  <p class="note">Dallas's own corporations hold title to about 7,600 units, most of them exempt.
+    The largest single group, though, is <b>HFCs from towns far from Dallas</b>: Pecos, La
+    Villa in the Rio Grande Valley, Cameron County and Pleasanton together hold 195 accounts
+    and nearly 17,800 units here, and DCAD lists all but 7 as taxable for 2026.</p>
+  <p class="src">DCAD 2026 certified roll, found by owner name: DCAD has no exemption code
+    for these deals, and spells some owners loosely ("Dallas Puplic Facility"). Units are
+    from DCAD's commercial records and may undercount multi-building complexes. Accounts
+    still under protest at certification are not on this roll. Values are appraisals for
+    1 January 2026. ·
+    <a href="https://geopen.io/data/dallas_pfc_hfc.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/dallas_pfc_hfc.geojson";
+// Categorical slots in fixed order (validated: scripts/validate_palette.js, light mode).
+const COLOR = { dallas_pfc: "#2a78d6", dallas_hfc: "#eb6834", local: "#1baf7a",
+                outside: "#4a3aa7", deal_llc: "#eda100" };
+const color = ["match", ["get", "sponsor"], ...Object.entries(COLOR).flat(), "#8a9099"];
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 16, attribution: "© Esri",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 16,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      pfc: { type: "geojson", data: DATA },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  center: [-96.80, 32.84], zoom: 10.3,
+  attributionControl: { compact: true },
+});
+window.__map = map;
+if (window.innerWidth > 560) map.setPadding({ left: 390, top: 0, right: 0, bottom: 0 });
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const money = (n) => n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : "$" + Math.round(n).toLocaleString();
+const title = (s) => (s || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
+
+map.on("load", () => {
+  map.addLayer({ id: "ref", type: "raster", source: "ref" });
+  // Exempt parcels filled; taxable ones a light fill with a dashed edge.
+  map.addLayer({ id: "fill", type: "fill", source: "pfc",
+    paint: { "fill-color": color, "fill-opacity": ["case", ["get", "exempt"], 0.75, 0.18] } });
+  map.addLayer({ id: "edge-exempt", type: "line", source: "pfc", filter: ["get", "exempt"],
+    paint: { "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 9, 3.5, 13, 2, 16, 1.5] } });
+  map.addLayer({ id: "edge-taxable", type: "line", source: "pfc", filter: ["!", ["get", "exempt"]],
+    paint: { "line-color": color, "line-dasharray": [2, 1.2],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 9, 3.5, 13, 2.2, 16, 1.8] } });
+
+  const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "300px" });
+  map.on("click", "fill", (e) => {
+    const p = e.features[0].properties;
+    const c = COLOR[p.sponsor] || "#8a9099";
+    const nm = p.name && !/^(VACANT|LAND ONLY)$/i.test(p.name) ? title(p.name.replace(/\(.*?\)/g, "").trim()) : "";
+    pop.setLngLat(e.lngLat).setHTML(
+      `<div class="pop"><b>${nm || title(p.address)}</b>
+       <div class="what">${nm ? title(p.address) + " · " : ""}${title(p.city)}</div>
+       <span class="tag" style="background:${c}22;color:${c}">${p.sponsor_label}</span>
+       <dl>
+         <dt>owner</dt><dd>${title(p.owner)}</dd>
+         <dt>appraised</dt><dd>${money(p.value)}</dd>
+         <dt>property tax</dt><dd>${p.exempt ? "exempt (" + title(p.exemption) + ")" : "on the roll as taxable"}</dd>
+         ${p.units ? `<dt>units</dt><dd>${p.units.toLocaleString()}</dd>` : ""}
+         ${p.year_built ? `<dt>built</dt><dd>${p.year_built}</dd>` : ""}
+         <dt>last deed</dt><dd>${p.deed_date || "—"}</dd>
+         ${p.accounts > 1 ? `<dt>accounts</dt><dd>${p.accounts} on this parcel</dd>` : ""}
+       </dl>
+       <a href="${p.street_view}" target="_blank" rel="noopener">Open in Street View ↗</a></div>`).addTo(map);
+  });
+  map.on("mouseenter", "fill", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "fill", () => { map.getCanvas().style.cursor = ""; });
+});
+</script>
