@@ -84,6 +84,9 @@
     <div class="bar" id="bar"></div>
     <div class="ticks"><span></span><span>$20</span><span>$40</span><span>$80</span><span>$160</span><span>$320</span><span>$640</span><span>$1.3k</span><span>$2.5k</span></div>
     <div class="cap">Total appraised value per square foot of land</div>
+    <div class="cap" style="display:flex;align-items:center;gap:6px;margin-top:6px">
+      <i style="width:14px;height:12px;border-radius:2px;background:#2a78d6;display:inline-block"></i>
+      Pays no property tax: 933 parcels, $6.0B, 39% of the land</div>
   </div>
 
   <table class="conc">
@@ -102,7 +105,10 @@
   <p class="note">This mile holds <b>7% of Dallas County's appraised value on under 1% of
     its land</b>. The peaks are the towers of downtown, Uptown and Victory
     Park; the low ground in between is surface parking, rail yards, the Trinity
-    levees, and older low-rise blocks. Drag with right-click or two fingers to tilt and turn.</p>
+    levees, and older low-rise blocks. In blue is property that pays no property tax: parks, the
+    Trinity floodway, government buildings, churches, hospitals, the American Airlines
+    Center and the Omni, plus apartments on public title. It is <b>39% of the land here
+    and 16% of the value</b>. Drag with right-click or two fingers to tilt and turn.</p>
   <p class="src">DCAD 2026 certified roll: total market value of land and improvements,
     divided by each parcel's mapped area. Condo units are summed onto their building;
     exempt property is included at its appraised value; business equipment and inventory
@@ -147,6 +153,9 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 
 const fill = ["step", ["get", "vp"], RAMP[0]];
 BREAKS.forEach((b, i) => fill.push(b, RAMP[i + 1]));
+// Parcels that pay no property tax are blue, so the taxable value stands out.
+const EXEMPT = "#2a78d6";
+const paint = ["case", ["==", ["get", "ex"], 1], EXEMPT, fill];
 const money = (n) => n >= 1e9 ? "$" + (n / 1e9).toFixed(2) + "B" : n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : "$" + Math.round(n).toLocaleString();
 const psf = (n) => n >= 10 ? "$" + Math.round(n).toLocaleString() : "$" + n.toFixed(2);
 
@@ -156,9 +165,9 @@ map.on("load", () => {
     paint: { "line-color": "#11161c", "line-width": ["match", ["get", "kind"], "loop", 1.6, 1.2],
              "line-dasharray": [3, 2], "line-opacity": 0.6 } });
   map.addLayer({ id: "flat", type: "fill", source: "parcels", layout: { visibility: "none" },
-    paint: { "fill-color": fill, "fill-opacity": 0.9, "fill-outline-color": "rgba(255,255,255,0.6)" } });
+    paint: { "fill-color": paint, "fill-opacity": 0.9, "fill-outline-color": "rgba(255,255,255,0.6)" } });
   map.addLayer({ id: "tall", type: "fill-extrusion", source: "parcels",
-    paint: { "fill-extrusion-color": fill, "fill-extrusion-opacity": 0.95,
+    paint: { "fill-extrusion-color": paint, "fill-extrusion-opacity": 0.95,
              "fill-extrusion-height": ["min", ["*", ["get", "vp"], 0.12], 900] } });
 
   const pop = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
@@ -176,6 +185,7 @@ map.on("load", () => {
          <dt>land</dt><dd>${money(p.lv)}</dd>
          <dt>buildings</dt><dd>${money(p.iv)}</dd>
          <dt>land area</dt><dd>${size}</dd>
+         ${p.ex == 1 ? `<dt>tax</dt><dd>exempt, pays no property tax</dd>` : ""}
          ${p.u > 1 ? `<dt>accounts</dt><dd>${p.u} (condos or units) summed</dd>` : ""}
        </dl>
        <a href="${sv}" target="_blank" rel="noopener">Open in Street View ↗</a></div>`).addTo(map);
