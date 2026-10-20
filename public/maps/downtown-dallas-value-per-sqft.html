@@ -51,6 +51,9 @@
   .toggle button { font: inherit; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px;
     border: 1px solid var(--rule); background: #fff; color: var(--ink-2); cursor: pointer; }
   .toggle button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .exempt-key { display: none; align-items: center; gap: 6px; margin: -4px 0 12px; font-size: 0.68rem; color: var(--ink-3); }
+  .exempt-key i { width: 14px; height: 12px; border-radius: 2px; background: #2a78d6; display: inline-block; flex: none; }
+  body.show-exempt .exempt-key { display: flex; }
   .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
   .note b { color: var(--ink); }
   .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
@@ -98,6 +101,13 @@
     <button id="flat" aria-pressed="false">Flat</button>
     <button id="tall" aria-pressed="true">3D: height is value per sq ft</button>
   </div>
+  <div class="toggle" role="group" aria-label="Tax-exempt property">
+    <button id="exempt" aria-pressed="false">Show property that pays no tax</button>
+  </div>
+  <div class="exempt-key"><i></i><span><b>Pays no property tax:</b> 933 parcels, $6.0B of value on
+    1,646 acres, 39% of the land here and 16% of the value. Parks, the Trinity floodway,
+    government, churches, hospitals, the American Airlines Center, the Omni and apartments on
+    public title. Height still shows value.</span></div>
 
   <p class="note">This mile holds <b>7% of Dallas County's appraised value on under 1% of
     its land</b>. The peaks are the towers of downtown, Uptown and Victory
@@ -105,7 +115,8 @@
     levees, and older low-rise blocks. Drag with right-click or two fingers to tilt and turn.</p>
   <p class="src">DCAD 2026 certified roll: total market value of land and improvements,
     divided by each parcel's mapped area. Condo units are summed onto their building;
-    exempt property is included at its appraised value; business equipment and inventory
+    exempt property is included at its appraised value, and "pays no property tax" means
+    exempt accounts carry 95% or more of a parcel's value; business equipment and inventory
     are left out. The inner line is the freeway loop, the outer line one mile beyond it.
     A few parcels look extreme where DCAD draws a large account on a small piece of land.
     Values are appraisals for 1 January 2026, not sale prices. ·
@@ -147,6 +158,10 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 
 const fill = ["step", ["get", "vp"], RAMP[0]];
 BREAKS.forEach((b, i) => fill.push(b, RAMP[i + 1]));
+// Off by default: the map is about value. On, parcels that pay no property tax turn blue
+// but keep their height, so the exempt towers (AAC, the Omni, El Centro) still stand out.
+const EXEMPT = "#2a78d6";
+const withExempt = ["case", ["==", ["get", "ex"], 1], EXEMPT, fill];
 const money = (n) => n >= 1e9 ? "$" + (n / 1e9).toFixed(2) + "B" : n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : "$" + Math.round(n).toLocaleString();
 const psf = (n) => n >= 10 ? "$" + Math.round(n).toLocaleString() : "$" + n.toFixed(2);
 
@@ -176,6 +191,7 @@ map.on("load", () => {
          <dt>land</dt><dd>${money(p.lv)}</dd>
          <dt>buildings</dt><dd>${money(p.iv)}</dd>
          <dt>land area</dt><dd>${size}</dd>
+         ${p.ex == 1 ? `<dt>tax</dt><dd>exempt, pays no property tax</dd>` : ""}
          ${p.u > 1 ? `<dt>accounts</dt><dd>${p.u} (condos or units) summed</dd>` : ""}
        </dl>
        <a href="${sv}" target="_blank" rel="noopener">Open in Street View ↗</a></div>`).addTo(map);
@@ -194,6 +210,13 @@ function view(tall) {
   map.setLayoutProperty("flat", "visibility", tall ? "none" : "visible");
   map.easeTo(tall ? { pitch: 55, bearing: -20, duration: 1000 } : { pitch: 0, bearing: 0, duration: 800 });
 }
+function exempt(onOff) {
+  document.getElementById("exempt").setAttribute("aria-pressed", onOff);
+  document.body.classList.toggle("show-exempt", onOff);
+  map.setPaintProperty("flat", "fill-color", onOff ? withExempt : fill);
+  map.setPaintProperty("tall", "fill-extrusion-color", onOff ? withExempt : fill);
+}
+document.getElementById("exempt").onclick = (e) => exempt(e.currentTarget.getAttribute("aria-pressed") !== "true");
 document.getElementById("flat").onclick = () => view(false);
 document.getElementById("tall").onclick = () => view(true);
 </script>
