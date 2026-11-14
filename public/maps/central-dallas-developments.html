@@ -38,10 +38,9 @@
   .key button { all: unset; cursor: pointer; display: grid; grid-template-columns: 14px 1fr auto;
     gap: 8px; align-items: center; font-size: 0.74rem; color: var(--ink-2); padding: 2px 0; }
   .key button.off { opacity: 0.35; }
-  .key i { width: 11px; height: 11px; border-radius: 50%; justify-self: center; border: 1.5px solid #fff; }
+  .key i { width: 12px; height: 10px; border-radius: 2px; justify-self: center; }
+  .key i.dot { width: 8px; height: 8px; border-radius: 50%; }
   .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-  .sizes { display: flex; align-items: center; gap: 12px; font-size: 0.68rem; color: var(--ink-3); margin: 0 0 12px; }
-  .sizes i { display: inline-block; border-radius: 50%; background: #8a929a; margin-right: 4px; vertical-align: middle; }
   .hint { font-size: 0.66rem; color: var(--ink-3); margin: -4px 0 10px; }
   .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
   .note b { color: var(--ink); }
@@ -84,10 +83,8 @@
   </div>
 
   <div class="key" id="key"></div>
-  <p class="hint" style="margin:-2px 0 8px"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;border:2.5px solid #e46f1f;background:#fff;vertical-align:middle;margin-right:5px"></i>Hollow, with a dashed outline: listed as under construction, but the land had no building on it in January 2026.</p>
-  <div class="sizes"><span><i style="width:16px;height:16px"></i>tower or $100M+</span>
-    <span><i style="width:10px;height:10px"></i>mid-size</span><span><i style="width:6px;height:6px"></i>small</span></div>
-  <p class="hint">Click a line in the key to hide or show it. Click a circle for the project.</p>
+  <p class="hint" style="margin:-2px 0 10px"><i style="display:inline-block;width:12px;height:9px;border:2px dashed #e46f1f;vertical-align:middle;margin-right:5px"></i>Dashed outline: listed as under construction, but the land had no building on it in January 2026.</p>
+  <p class="hint">Click a line in the key to hide or show it. Click a site for the project; zoning cases, which have no exact parcel, are dots.</p>
 
   <p class="note">Statuses come from the most recent source for each project. Appraisal
     district records give percent complete as of 1 January 2026, so a tower shown under
@@ -140,6 +137,7 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 const filt = (kind) => ["all", ["==", ["get", "kind"], kind], ["in", groupExpr, ["literal", [...shown]]]];
 const unconf = () => ["all", filt("site"), ["boolean", ["get", "unconfirmed"], false]];
 const solid = () => ["all", filt("site"), ["!", ["boolean", ["get", "unconfirmed"], false]]];
+const zoningDots = () => ["all", filt("marker"), ["==", groupExpr, "zoning"]];
 const fillColor = ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"];
 map.on("load", async () => {
   map.addSource("area", { type: "geojson", data: AREA });
@@ -169,32 +167,22 @@ map.on("load", async () => {
   map.addLayer({ id: "site-line-dash", type: "line", source: "d", filter: unconf(),
     paint: { "line-color": fillColor, "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1.5, 17, 3],
              "line-dasharray": [2, 1.5] } });
-  map.addLayer({ id: "dev", type: "circle", source: "d", filter: filt("marker"),
-    layout: { "circle-sort-key": ["match", ["get", "scale_class"], "large", 3, "mid", 2, 1] },
-    paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"],
-        13, ["match", ["get", "scale_class"], "large", 8, "mid", 5, 3],
-        17, ["match", ["get", "scale_class"], "large", 18, "mid", 11, 6]],
-      "circle-color": ["case", ["boolean", ["get", "unconfirmed"], false], "#ffffff",
-        ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"]],
-      "circle-stroke-color": ["case", ["boolean", ["get", "unconfirmed"], false], COLOR.construction, "#ffffff"],
-      "circle-stroke-width": ["case", ["boolean", ["get", "unconfirmed"], false], 3, 1.5],
-      // markers give way to the parcel shapes as you zoom in, except zoning cases, which have no parcel
-      "circle-opacity": ["interpolate", ["linear"], ["zoom"],
-        15, ["case", ["==", groupExpr, "zoning"], 0.75, 0.9], 16.5, ["case", ["==", groupExpr, "zoning"], 0.75, 0]],
-      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"],
-        15, 1, 16.5, ["case", ["==", groupExpr, "zoning"], 1, 0]] } });
+  // zoning cases are placed from a written location, not a parcel, so they stay dots
+  map.addLayer({ id: "dev", type: "circle", source: "d", filter: zoningDots(),
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 3, 17, 6],
+             "circle-color": COLOR.zoning, "circle-opacity": 0.85,
+             "circle-stroke-color": "#ffffff", "circle-stroke-width": 1 } });
 });
 
 const key = document.getElementById("key");
 for (const [id, label, color] of STATUSES) {
   const b = document.createElement("button");
   b.dataset.id = id;
-  b.innerHTML = `<i style="background:${color}"></i><span>${label}</span><em></em>`;
+  b.innerHTML = `<i class="${id === "zoning" ? "dot" : ""}" style="background:${color}"></i><span>${label}</span><em></em>`;
   b.onclick = () => {
     shown.has(id) ? shown.delete(id) : shown.add(id);
     b.classList.toggle("off", !shown.has(id));
-    map.setFilter("dev", filt("marker")); map.setFilter("site-fill", filt("site")); map.setFilter("site-line", solid()); map.setFilter("site-line-dash", unconf());
+    map.setFilter("dev", zoningDots()); map.setFilter("site-fill", filt("site")); map.setFilter("site-line", solid()); map.setFilter("site-line-dash", unconf());
   };
   key.appendChild(b);
 }
