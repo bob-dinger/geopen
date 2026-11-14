@@ -80,7 +80,7 @@
   </div>
 
   <div class="key" id="key"></div>
-  <p class="hint" style="margin:-2px 0 8px"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;border:2.5px solid #e46f1f;background:#fff;vertical-align:middle;margin-right:5px"></i>Hollow: listed as under construction, but the land had no building on it in January 2026.</p>
+  <p class="hint" style="margin:-2px 0 8px"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;border:2.5px solid #e46f1f;background:#fff;vertical-align:middle;margin-right:5px"></i>Hollow, with a dashed outline: listed as under construction, but the land had no building on it in January 2026.</p>
   <div class="sizes"><span><i style="width:16px;height:16px"></i>tower or $100M+</span>
     <span><i style="width:10px;height:10px"></i>mid-size</span><span><i style="width:6px;height:6px"></i>small</span></div>
   <p class="hint">Click a line in the key to hide or show it. Click a circle for the project.</p>
@@ -118,9 +118,9 @@ const map = new maplibregl.Map({
   style: {
     version: 8,
     sources: {
-      base: { type: "raster", tileSize: 256, attribution: "© Esri · DCAD · TDLR · City of Dallas",
+      base: { type: "raster", tileSize: 256, maxzoom: 16, attribution: "© Esri · DCAD · TDLR · City of Dallas",
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
-      ref: { type: "raster", tileSize: 256,
+      ref: { type: "raster", tileSize: 256, maxzoom: 16,
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
     },
     layers: [{ id: "base", type: "raster", source: "base" }],
@@ -133,23 +133,39 @@ window.__map = map;
 map.addControl(new maplibregl.NavigationControl(), "top-right");
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
 
-const filt = () => ["in", groupExpr, ["literal", [...shown]]];
+const filt = (kind) => ["all", ["==", ["get", "kind"], kind], ["in", groupExpr, ["literal", [...shown]]]];
+const unconf = () => ["all", filt("site"), ["boolean", ["get", "unconfirmed"], false]];
+const solid = () => ["all", filt("site"), ["!", ["boolean", ["get", "unconfirmed"], false]]];
+const fillColor = ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"];
 map.on("load", async () => {
   map.addSource("area", { type: "geojson", data: AREA });
   map.addLayer({ id: "area", type: "line", source: "area",
     paint: { "line-color": "#3f454c", "line-width": 1.2, "line-dasharray": [3, 2], "line-opacity": 0.6 } });
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
   const data = await (await fetch(DATA)).json();
-  const n = s => data.features.filter(f => f.properties.status === s && f.properties.type !== "Zoning case").length;
+  const markers = data.features.filter(f => f.properties.kind === "marker");
+  const n = s => markers.filter(f => f.properties.status === s && f.properties.type !== "Zoning case").length;
   document.getElementById("n-done").textContent = n("completed");
   document.getElementById("n-build").textContent = n("construction");
   document.getElementById("n-prop").textContent = n("proposed");
   for (const s of STATUSES) {
-    const c = data.features.filter(f => (f.properties.type === "Zoning case" ? "zoning" : f.properties.status) === s[0]).length;
+    const c = markers.filter(f => (f.properties.type === "Zoning case" ? "zoning" : f.properties.status) === s[0]).length;
     document.querySelector(`[data-id="${s[0]}"] em`).textContent = c;
   }
   map.addSource("d", { type: "geojson", data });
-  map.addLayer({ id: "dev", type: "circle", source: "d", filter: filt(),
+  // parcel footprints: hatched-light fill, solid outline; unconfirmed construction gets a dashed outline
+  map.addLayer({ id: "site-fill", type: "fill", source: "d", filter: filt("site"),
+    paint: { "fill-color": fillColor,
+             "fill-opacity": ["interpolate", ["linear"], ["zoom"],
+               13, ["case", ["boolean", ["get", "unconfirmed"], false], 0.12, 0.45],
+               17, ["case", ["boolean", ["get", "unconfirmed"], false], 0.12, 0.3]] } });
+  map.addLayer({ id: "site-line", type: "line", source: "d", filter: solid(),
+    paint: { "line-color": fillColor, "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1, 17, 2.5],
+             "line-dasharray": [1, 0] } });
+  map.addLayer({ id: "site-line-dash", type: "line", source: "d", filter: unconf(),
+    paint: { "line-color": fillColor, "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1.5, 17, 3],
+             "line-dasharray": [2, 1.5] } });
+  map.addLayer({ id: "dev", type: "circle", source: "d", filter: filt("marker"),
     layout: { "circle-sort-key": ["match", ["get", "scale_class"], "large", 3, "mid", 2, 1] },
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"],
@@ -157,9 +173,13 @@ map.on("load", async () => {
         17, ["match", ["get", "scale_class"], "large", 18, "mid", 11, 6]],
       "circle-color": ["case", ["boolean", ["get", "unconfirmed"], false], "#ffffff",
         ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"]],
-      "circle-opacity": ["case", ["==", groupExpr, "zoning"], 0.75, 0.9],
       "circle-stroke-color": ["case", ["boolean", ["get", "unconfirmed"], false], COLOR.construction, "#ffffff"],
-      "circle-stroke-width": ["case", ["boolean", ["get", "unconfirmed"], false], 3, 1.5] } });
+      "circle-stroke-width": ["case", ["boolean", ["get", "unconfirmed"], false], 3, 1.5],
+      // markers give way to the parcel shapes as you zoom in, except zoning cases, which have no parcel
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"],
+        15, ["case", ["==", groupExpr, "zoning"], 0.75, 0.9], 16.5, ["case", ["==", groupExpr, "zoning"], 0.75, 0]],
+      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"],
+        15, 1, 16.5, ["case", ["==", groupExpr, "zoning"], 1, 0]] } });
 });
 
 const key = document.getElementById("key");
@@ -170,7 +190,7 @@ for (const [id, label, color] of STATUSES) {
   b.onclick = () => {
     shown.has(id) ? shown.delete(id) : shown.add(id);
     b.classList.toggle("off", !shown.has(id));
-    map.setFilter("dev", filt());
+    map.setFilter("dev", filt("marker")); map.setFilter("site-fill", filt("site")); map.setFilter("site-line", solid()); map.setFilter("site-line-dash", unconf());
   };
   key.appendChild(b);
 }
@@ -178,7 +198,7 @@ for (const [id, label, color] of STATUSES) {
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const money = v => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v / 1e3)}K`;
 const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "310px" });
-map.on("click", "dev", (e) => {
+function onPick(e) {
   const p = e.features[0].properties;
   const j = k => { try { return JSON.parse(p[k] || "[]"); } catch { return []; } };
   const grp = p.type === "Zoning case" ? "zoning" : p.status;
@@ -186,7 +206,8 @@ map.on("click", "dev", (e) => {
     ["Scale", p.scale], ["Stories", p.stories], ["Units", p.units],
     ["Floor area", p.sqft ? `${Number(p.sqft).toLocaleString("en-US")} sf` : ""],
     ["Filed cost", p.cost ? money(Number(p.cost)) : ""], ["Developer", p.developer],
-    ["Year", p.year],
+    ["Year", p.year], ["Land owner", p.land_owner],
+    ["Site", p.acres ? `${p.acres} acres${Number(p.parcels) > 1 ? `, ${p.parcels} parcels` : ""}` : ""],
   ].filter(r => r[1] && r[1] !== "null").map(r => `<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join("");
   const links = [
     ...j("tabs").filter(t => t.number).slice(0, 2).map(t => `<a href="https://www.tdlr.texas.gov/TABS/Search/Project/${t.number}" target="_blank" rel="noopener">TABS ${t.number}</a>`),
@@ -202,7 +223,13 @@ map.on("click", "dev", (e) => {
     ${desc ? `<div class="desc">${esc(desc)}</div>` : ""}
     ${links ? `<div>${links}</div>` : ""}
     <div class="basis">Status from: ${esc(p.status_basis)}</div></div>`).addTo(map);
+}
+map.on("click", (e) => {
+  const f = map.queryRenderedFeatures(e.point, { layers: ["dev", "site-fill"] });
+  if (f.length) onPick({ lngLat: e.lngLat, features: [f.find(x => x.layer.id === "dev") || f[0]] });
 });
-map.on("mouseenter", "dev", () => { map.getCanvas().style.cursor = "pointer"; });
-map.on("mouseleave", "dev", () => { map.getCanvas().style.cursor = ""; });
+for (const l of ["dev", "site-fill"]) {
+  map.on("mouseenter", l, () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", l, () => { map.getCanvas().style.cursor = ""; });
+}
 </script>
