@@ -133,8 +133,8 @@ map.on("load", () => {
   map.addSource("b", { type: "geojson", data: DATA });
   map.addLayer({ id: "sharrow", type: "line", source: "b",
     filter: ["all", ["==", ["get", "kind"], "existing"], ["==", ["get", "group"], "sharrow"]],
-    paint: { "line-color": "#7d848c", "line-opacity": 0.6, "line-dasharray": [2, 2],
-             "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.8, 15, 2] } });
+    paint: { "line-color": "#5f666e", "line-opacity": 0.85, "line-dasharray": [2, 1.5],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.2, 15, 2.6] } });
   map.addLayer({ id: "lane", type: "line", source: "b",
     filter: ["all", ["==", ["get", "kind"], "existing"], ["==", ["get", "group"], "lane"]],
     layout: { "line-cap": "round" },
@@ -159,7 +159,7 @@ const rows = [...STATUSES.map(s => [s[0], s[1], s[2], `${s[3]} · ${s[4].toFixed
 for (const [id, label, color, n] of rows) {
   const b = document.createElement("button");
   const sw = color === "dash"
-    ? "background:repeating-linear-gradient(90deg,#9aa0a6 0 4px,transparent 4px 7px);height:2px"
+    ? "background:repeating-linear-gradient(90deg,#aeb4ba 0 4px,transparent 4px 7px);height:3px"
     : `background:${color}`;
   b.innerHTML = `<i style="${sw}"></i><span>${label}</span><em>${n}</em>`;
   b.onclick = () => {
