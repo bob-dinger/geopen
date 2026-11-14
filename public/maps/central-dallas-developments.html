@@ -1,0 +1,205 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Uptown and Oak Lawn developments</title>
+<meta name="description" content="New development in Uptown, Oak Lawn, Turtle Creek, Victory Park, Knox-Henderson and the Design District: what has opened since 2023, what is under construction, and what is approved or proposed.">
+<link rel="canonical" href="https://geopen.io/maps/central-dallas-developments.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Uptown and Oak Lawn developments">
+<meta property="og:description" content="Every new building opened since 2023, under construction, or in the pipeline in Uptown, Oak Lawn, Turtle Creek and around them.">
+<meta property="og:url" content="https://geopen.io/maps/central-dallas-developments.html">
+<meta property="og:image" content="https://geopen.io/maps/central-dallas-developments-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/central-dallas-developments-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e9e9e6; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 350px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .key { display: grid; gap: 3px; margin: 0 0 8px; }
+  .key button { all: unset; cursor: pointer; display: grid; grid-template-columns: 14px 1fr auto;
+    gap: 8px; align-items: center; font-size: 0.74rem; color: var(--ink-2); padding: 2px 0; }
+  .key button.off { opacity: 0.35; }
+  .key i { width: 11px; height: 11px; border-radius: 50%; justify-self: center; border: 1.5px solid #fff; }
+  .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .sizes { display: flex; align-items: center; gap: 12px; font-size: 0.68rem; color: var(--ink-3); margin: 0 0 12px; }
+  .sizes i { display: inline-block; border-radius: 50%; background: #8a929a; margin-right: 4px; vertical-align: middle; }
+  .hint { font-size: 0.66rem; color: var(--ink-3); margin: -4px 0 10px; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.5; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-popup-close-button { color: var(--ink-2); }
+  .pop b.t { display: block; font-size: 0.86rem; margin-bottom: 1px; padding-right: 12px; }
+  .pop .addr { color: var(--ink-3); font-size: 0.7rem; margin-bottom: 6px; }
+  .pop .st { display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 1px 6px;
+    border-radius: 3px; margin: 0 4px 6px 0; color: #fff; }
+  .pop .ty { display: inline-block; font-size: 0.68rem; color: var(--ink-2); border: 1px solid var(--rule);
+    padding: 0 5px; border-radius: 3px; }
+  .pop table { border-collapse: collapse; font-size: 0.72rem; margin: 2px 0 6px; }
+  .pop td { padding: 0 10px 0 0; color: var(--ink-3); vertical-align: top; }
+  .pop td + td { color: var(--ink); }
+  .pop .desc { color: var(--ink-2); font-size: 0.72rem; margin: 0 0 6px; max-height: 7.5em; overflow-y: auto; }
+  .pop .basis { color: var(--ink-3); font-size: 0.66rem; margin-top: 4px; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Uptown and Oak Lawn developments</h1>
+  <p class="sub">New buildings in Uptown, Oak Lawn, Turtle Creek, Victory Park, Knox–Henderson
+    and the Design District: opened since 2023, under construction, or in the pipeline.</p>
+
+  <div class="stat">
+    <div><b id="n-done">–</b><span>opened since 2023</span></div>
+    <div><b id="n-build">–</b><span>under construction</span></div>
+    <div><b id="n-prop">–</b><span>approved or proposed</span></div>
+  </div>
+
+  <div class="key" id="key"></div>
+  <div class="sizes"><span><i style="width:16px;height:16px"></i>tower or $100M+</span>
+    <span><i style="width:10px;height:10px"></i>mid-size</span><span><i style="width:6px;height:6px"></i>small</span></div>
+  <p class="hint">Click a line in the key to hide or show it. Click a circle for the project.</p>
+
+  <p class="note">Statuses come from the most recent source for each project. Appraisal
+    district records give percent complete as of 1 January 2026, so a tower shown under
+    construction may have topped out since. Projects known only from a state filing are
+    marked as not confirmed on site.</p>
+  <p class="src">Dallas Central Appraisal District commercial records (2027 working roll,
+    July 2026); Texas Department of Licensing and Regulation TABS filings registered since
+    2023; City Plan Commission zoning cases, October 2022 to August 2026; and a curated list
+    of announced projects from February 2026. Matched by parcel and address; small tenant
+    fit-outs excluded. ·
+    <a href="https://geopen.io/data/central_dallas_developments.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/central_dallas_developments.geojson";
+const AREA = "/data/central_dallas_developments_area.geojson";
+const STATUSES = [
+  ["completed", "Opened since 2023", "#2f7f87"],
+  ["construction", "Under construction", "#e46f1f"],
+  ["proposed", "Approved or proposed", "#7a4fc0"],
+  ["zoning", "Early-stage zoning case", "#b9a3e3"],
+];
+const COLOR = Object.fromEntries(STATUSES.map(s => [s[0], s[2]]));
+const LABEL = Object.fromEntries(STATUSES.map(s => [s[0], s[1]]));
+const shown = new Set(STATUSES.map(s => s[0]));
+const groupExpr = ["case", ["==", ["get", "type"], "Zoning case"], "zoning", ["get", "status"]];
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri · DCAD · TDLR · City of Dallas",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  bounds: [[-96.846, 32.776], [-96.771, 32.837]],
+  fitBoundsOptions: { padding: { top: 30, bottom: 30, left: window.innerWidth > 560 ? 380 : 20, right: 30 } },
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const filt = () => ["in", groupExpr, ["literal", [...shown]]];
+map.on("load", async () => {
+  map.addSource("area", { type: "geojson", data: AREA });
+  map.addLayer({ id: "area", type: "line", source: "area",
+    paint: { "line-color": "#3f454c", "line-width": 1.2, "line-dasharray": [3, 2], "line-opacity": 0.6 } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+  const data = await (await fetch(DATA)).json();
+  const n = s => data.features.filter(f => f.properties.status === s && f.properties.type !== "Zoning case").length;
+  document.getElementById("n-done").textContent = n("completed");
+  document.getElementById("n-build").textContent = n("construction");
+  document.getElementById("n-prop").textContent = n("proposed");
+  for (const s of STATUSES) {
+    const c = data.features.filter(f => (f.properties.type === "Zoning case" ? "zoning" : f.properties.status) === s[0]).length;
+    document.querySelector(`[data-id="${s[0]}"] em`).textContent = c;
+  }
+  map.addSource("d", { type: "geojson", data });
+  map.addLayer({ id: "dev", type: "circle", source: "d", filter: filt(),
+    layout: { "circle-sort-key": ["match", ["get", "scale_class"], "large", 3, "mid", 2, 1] },
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"],
+        13, ["match", ["get", "scale_class"], "large", 8, "mid", 5, 3],
+        17, ["match", ["get", "scale_class"], "large", 18, "mid", 11, 6]],
+      "circle-color": ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"],
+      "circle-opacity": ["case", ["==", groupExpr, "zoning"], 0.75, 0.9],
+      "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5 } });
+});
+
+const key = document.getElementById("key");
+for (const [id, label, color] of STATUSES) {
+  const b = document.createElement("button");
+  b.dataset.id = id;
+  b.innerHTML = `<i style="background:${color}"></i><span>${label}</span><em></em>`;
+  b.onclick = () => {
+    shown.has(id) ? shown.delete(id) : shown.add(id);
+    b.classList.toggle("off", !shown.has(id));
+    map.setFilter("dev", filt());
+  };
+  key.appendChild(b);
+}
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = v => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v / 1e3)}K`;
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "310px" });
+map.on("click", "dev", (e) => {
+  const p = e.features[0].properties;
+  const j = k => { try { return JSON.parse(p[k] || "[]"); } catch { return []; } };
+  const grp = p.type === "Zoning case" ? "zoning" : p.status;
+  const rows = [
+    ["Scale", p.scale], ["Stories", p.stories], ["Units", p.units],
+    ["Floor area", p.sqft ? `${Number(p.sqft).toLocaleString("en-US")} sf` : ""],
+    ["Filed cost", p.cost ? money(Number(p.cost)) : ""], ["Developer", p.developer],
+    ["Year", p.year],
+  ].filter(r => r[1] && r[1] !== "null").map(r => `<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join("");
+  const links = [
+    ...j("tabs").filter(t => t.number).slice(0, 2).map(t => `<a href="https://www.tdlr.texas.gov/TABS/Search/Project/${t.number}" target="_blank" rel="noopener">TABS ${t.number}</a>`),
+    ...j("zoning_cases").filter(z => z.pdf).slice(0, 2).map(z => `<a href="${z.pdf}" target="_blank" rel="noopener">Zoning case ${esc(z.case)}</a>`),
+    ...j("dcad_accounts").slice(0, 1).map(a => `<a href="https://www.dallascad.org/AcctDetailCom.aspx?ID=${a}" target="_blank" rel="noopener">DCAD record</a>`),
+  ].join(" · ");
+  const zc = j("zoning_cases")[0];
+  const desc = p.description || (zc ? zc.request : "");
+  popup.setLngLat(e.lngLat).setHTML(`<div class="pop">
+    <b class="t">${esc(p.name)}</b><div class="addr">${esc(p.address)}</div>
+    <span class="st" style="background:${COLOR[grp]}">${LABEL[grp]}</span><span class="ty">${esc(p.type)}</span>
+    <table>${rows}</table>
+    ${desc ? `<div class="desc">${esc(desc)}</div>` : ""}
+    ${links ? `<div>${links}</div>` : ""}
+    <div class="basis">Status from: ${esc(p.status_basis)}</div></div>`).addTo(map);
+});
+map.on("mouseenter", "dev", () => { map.getCanvas().style.cursor = "pointer"; });
+map.on("mouseleave", "dev", () => { map.getCanvas().style.cursor = ""; });
+</script>
