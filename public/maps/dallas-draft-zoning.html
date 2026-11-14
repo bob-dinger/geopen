@@ -1,0 +1,195 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dallas draft zoning map</title>
+<meta name="description" content="Today's Dallas zoning, converted to the districts in the November 2026 draft development code using the draft's own conversion table. Forty percent of the city's zoned land becomes R-1, R-2 or R-3, where two homes per lot are allowed.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-draft-zoning.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas draft zoning map">
+<meta property="og:description" content="What every Dallas zoning district becomes under Public Draft 1 of the new development code.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-draft-zoning.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-draft-zoning-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-draft-zoning-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e9e9e6; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 360px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .group { font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3);
+    margin: 8px 0 2px; }
+  .key { display: grid; gap: 1px; margin: 0 0 12px; }
+  .key button { all: unset; cursor: pointer; display: grid; grid-template-columns: 14px 78px 1fr auto;
+    gap: 7px; align-items: center; font-size: 0.72rem; color: var(--ink-2); padding: 2px 0; }
+  .key button.off { opacity: 0.35; }
+  .key i { width: 13px; height: 11px; border-radius: 2px; justify-self: center; }
+  .key b { color: var(--ink); font-weight: 600; }
+  .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .hint { font-size: 0.66rem; color: var(--ink-3); margin: -6px 0 10px; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-popup-close-button { color: var(--ink-2); }
+  .pop .chg { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+  .pop .chg span { color: var(--ink-3); font-weight: 400; margin: 0 4px; }
+  .pop .what { color: var(--ink-2); margin: 4px 0 6px; }
+  .pop .meta { color: var(--ink-3); font-size: 0.7rem; }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Dallas draft zoning map</h1>
+  <p class="sub">Today's zoning, converted to the districts in Public Draft 1 of the new
+    Dallas Development Code, using the draft's own conversion table (Table 4-1). Click any
+    area to see what it is today and what it becomes.</p>
+
+  <div class="stat">
+    <div><b>40%</b><span>of zoned land becomes R-1, R-2 or R-3, where two homes per lot are allowed</span></div>
+    <div><b>18%</b><span>is a planned development, which keeps its own rules</span></div>
+    <div><b>717</b><span>acres downtown become MX-4, with no height limit</span></div>
+  </div>
+
+  <div class="key" id="key"></div>
+  <p class="hint">Click a district in the key to hide or show it.</p>
+
+  <p class="note">The conversion is mostly a renaming of what is already there:
+    <b>R-7.5(A)</b>, the city's most common district at 63,700 acres, becomes <b>R-2</b>.
+    What changes is what the new districts allow. R-1 to R-3 permit a second unit on any
+    lot and small apartment buildings on corner lots with alleys; office and retail
+    districts become mixed-use districts that allow housing.</p>
+  <p class="note"><b>Planned developments</b> (grey) stay in force. Where a PD ordinance
+    refers to an old district, the same table translates it, and where a PD is silent the
+    new code applies.</p>
+  <p class="src">City of Dallas base zoning, downloaded 14 November 2026 (3,827 areas).
+    Dallas Development Code Public Draft 1, 29 October 2026, Table 4-1 and the executive
+    summary. This is a projection, not an adopted map: the draft is open for comment and
+    the city may also rezone areas into districts the table never assigns (INST, OSR, RL).
+    WMU-3 becomes MX-1 or MX-2 depending on an overlay the layer does not record; two
+    small areas (O-2, PFD) are not in the table. ·
+    <a href="https://geopen.io/data/dallas_draft_zoning.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/dallas_draft_zoning.geojson";
+// [district, group, colour, acres, what it allows (draft executive summary)]
+const DISTRICTS = [
+  ["R-1", "Residential", "#fff1a8", 23427, "Houses, two units or a duplex on 10,000 sf lots; small apartment buildings on corner lots with alleys (45 ft). 36 ft height."],
+  ["R-2", "Residential", "#fbd968", 70756, "Houses, two units or a duplex on 5,000 sf lots; small apartment buildings on corner lots with alleys (45 ft). 36 ft height."],
+  ["R-3", "Residential", "#f2b544", 4640, "Houses, attached houses and duplexes on lots as small as 1,000 sf; small apartment buildings on corner lots with alleys. 36 ft height."],
+  ["RX-1", "Residential", "#e98e4f", 235, "Mixed residential: houses through small apartment buildings, lots up to 10,000 sf. 45 ft height."],
+  ["RX-2", "Residential", "#cf6a2e", 9618, "Mixed residential: all housing types, plus small neighbourhood shops on the same lot. 45 ft height."],
+  ["RMH", "Residential", "#c9a27e", 583, "Manufactured home parks and neighbourhoods."],
+  ["FR", "Residential", "#cfe0b4", 37866, "Farm and Ranch: agriculture and houses on 3-acre lots."],
+  ["MX-1", "Mixed use", "#f5b8c4", 726, "Neighbourhood-scale mixed use. 45 ft height."],
+  ["MX-1 or MX-2", "Mixed use", "#ee9fb0", 61, "Former WMU-3: MX-1 or MX-2 depending on a shopfront overlay."],
+  ["MX-2", "Mixed use", "#e47791", 9632, "Walkable mixed-use corridors. 70 ft height, 120 ft with the mixed-income housing bonus."],
+  ["MX-3", "Mixed use", "#c2405f", 5236, "Major commercial centres and corridors. 300 ft height, unlimited with the mixed-income housing bonus."],
+  ["MX-4", "Mixed use", "#741b3d", 716, "Urban core. Unlimited height; new surface parking lots prohibited, only garages."],
+  ["BC", "Industrial", "#b7a8d8", 4207, "Business Commercial: business, service and light industrial uses. 45 ft height."],
+  ["FC", "Industrial", "#8c79c0", 2923, "Flex Commercial: artisan and light industrial uses with retail, entertainment and some housing. 80 ft height."],
+  ["GI", "Industrial", "#5b4889", 31850, "General Industrial: heavy industry. 55 to 200 ft height depending on distance from homes."],
+  ["PD", "Kept as is", "#a7adb3", 45022, "Planned development: the PD ordinance keeps governing. Where it is silent, the new code applies."],
+  ["CD", "Kept as is", "#7fb59c", 2018, "Conservation district, retained with minor changes; updated in a separate process."],
+  ["P overlay", "Kept as is", "#55595e", 53, "Parking district, becomes a P overlay that allows a parking lot next to or across from the use it serves."],
+  ["Not in table", "Kept as is", "#ffffff", 5, "The draft's conversion table does not list this district."],
+];
+const COLOR = Object.fromEntries(DISTRICTS.map(d => [d[0], d[2]]));
+const WHAT = Object.fromEntries(DISTRICTS.map(d => [d[0], d[4]]));
+const shown = new Set(DISTRICTS.map(d => d[0]));
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri · City of Dallas",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }],
+  },
+  bounds: [[-97.0, 32.62], [-96.55, 33.02]],
+  fitBoundsOptions: { padding: { top: 30, bottom: 30, left: window.innerWidth > 560 ? 390 : 20, right: 30 } },
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const filt = () => ["in", ["get", "new"], ["literal", [...shown]]];
+map.on("load", () => {
+  map.addSource("z", { type: "geojson", data: DATA });
+  map.addLayer({ id: "fill", type: "fill", source: "z", filter: filt(),
+    paint: { "fill-color": ["match", ["get", "new"], ...DISTRICTS.flatMap(d => [d[0], d[2]]), "#ffffff"],
+             "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.8, 15, 0.6] } });
+  map.addLayer({ id: "line", type: "line", source: "z", filter: filt(),
+    paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.2, 14, 1] } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+  map.addLayer({ id: "labels", type: "symbol", source: "z", filter: filt(), minzoom: 13.5,
+    layout: { "text-field": ["case", ["==", ["get", "new"], "PD"], ["concat", "PD ", ["get", "pd"]], ["get", "new"]],
+              "text-font": ["Noto Sans Regular"], "text-size": 11 },
+    paint: { "text-color": "#1b1f24", "text-halo-color": "rgba(255,255,255,0.85)", "text-halo-width": 1.4 } });
+});
+
+// key, grouped
+const key = document.getElementById("key");
+let lastGroup = "";
+for (const [id, group, color, acres] of DISTRICTS) {
+  if (group !== lastGroup) {
+    const h = document.createElement("div"); h.className = "group"; h.textContent = group; key.appendChild(h);
+    lastGroup = group;
+  }
+  const b = document.createElement("button");
+  const border = id === "Not in table" ? "border:1px solid #9aa0a6;" : "";
+  b.innerHTML = `<i style="background:${color};${border}"></i><b>${id.replace(" or ", "/")}</b><span></span><em>${acres.toLocaleString("en-US")} ac</em>`;
+  b.onclick = () => {
+    shown.has(id) ? shown.delete(id) : shown.add(id);
+    b.classList.toggle("off", !shown.has(id));
+    for (const l of ["fill", "line", "labels"]) map.setFilter(l, filt());
+  };
+  key.appendChild(b);
+}
+
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "290px" });
+map.on("click", "fill", (e) => {
+  const p = e.features[0].properties;
+  const today = p.new === "PD" ? (p.long || `PD ${p.pd}`) : p.old;
+  const next = p.new === "PD" ? "stays a PD" : p.new;
+  const meta = [p.name, p.ord ? `Ordinance ${p.ord}` : "", `${Number(p.acres).toLocaleString("en-US")} acres`].filter(Boolean).join(" · ");
+  popup.setLngLat(e.lngLat).setHTML(`<div class="pop">
+    <div class="chg">${today}<span>→</span>${next}</div>
+    <div class="what">${WHAT[p.new] || ""}</div>
+    <div class="meta">${meta}</div></div>`).addTo(map);
+});
+map.on("mouseenter", "fill", () => { map.getCanvas().style.cursor = "pointer"; });
+map.on("mouseleave", "fill", () => { map.getCanvas().style.cursor = ""; });
+</script>
