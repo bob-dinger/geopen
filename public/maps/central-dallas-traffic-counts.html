@@ -1,0 +1,220 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central Dallas traffic counts</title>
+<meta name="description" content="TxDOT's traffic count stations in central Dallas: vehicles per day in 2025, change since 2019, and each station's history back to 2013. Harry Hines carries 15,000 to 27,000 vehicles a day, down at five of its six annual stations.">
+<link rel="canonical" href="https://geopen.io/maps/central-dallas-traffic-counts.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Central Dallas traffic counts">
+<meta property="og:description" content="Vehicles per day at TxDOT's count stations in central Dallas, and how each changed between 2019 and 2025.">
+<meta property="og:url" content="https://geopen.io/maps/central-dallas-traffic-counts.html">
+<meta property="og:image" content="https://geopen.io/maps/central-dallas-traffic-counts-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/central-dallas-traffic-counts-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e9e9e6; --panel: rgba(16,18,21,0.92); --panel-2: #1b1f24;
+    --rule: rgba(226,232,240,0.15);
+    --ink: #eef2f6; --ink-2: #a3adb8; --ink-3: #6f7a85;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .card { position: absolute; left: 18px; top: 16px; z-index: 5; width: 350px;
+    max-width: calc(100vw - 36px); background: var(--panel); backdrop-filter: blur(8px);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 15px 17px;
+    max-height: calc(100vh - 32px); overflow-y: auto; }
+  h1 { margin: 0 0 3px; font-size: 1.0rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 12px; font-size: 0.74rem; color: var(--ink-3); line-height: 1.5; }
+  .stat { display: flex; gap: 16px; margin: 0 0 12px; }
+  .stat div { flex: 1; }
+  .stat b { display: block; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.68rem; color: var(--ink-3); line-height: 1.35; display: block; }
+  .key { display: grid; gap: 3px; margin: 0 0 12px; }
+  .key button { all: unset; cursor: pointer; display: grid; grid-template-columns: 14px 1fr auto;
+    gap: 8px; align-items: center; font-size: 0.74rem; color: var(--ink-2); padding: 2px 0; }
+  .key button.off { opacity: 0.35; }
+  .key i { width: 11px; height: 11px; border-radius: 50%; justify-self: center;
+    border: 1.5px solid #fff; }
+  .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .hint { font-size: 0.66rem; color: var(--ink-3); margin: -6px 0 10px; }
+  .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
+  .note b { color: var(--ink); }
+  .go { all: unset; cursor: pointer; display: inline-block; font-size: 0.72rem; color: #8fc7ff;
+    border: 1px solid rgba(143,199,255,0.4); border-radius: 3px; padding: 3px 8px; margin: 0 0 10px; }
+  .src { margin: 0; font-size: 0.68rem; color: var(--ink-3); line-height: 1.55; }
+  a { color: #8fc7ff; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px;
+    font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.55; }
+  .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
+  .maplibregl-popup-close-button { color: var(--ink-2); }
+  .pop b { display: block; font-size: 0.84rem; margin-bottom: 2px; }
+  .pop .what { color: var(--ink-2); margin-bottom: 6px; }
+  .pop .big { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pop svg { display: block; margin: 6px 0 4px; }
+  .pop table { border-collapse: collapse; font-variant-numeric: tabular-nums; margin: 2px 0 6px; }
+  .pop td { padding: 0 10px 0 0; color: var(--ink-2); font-size: 0.7rem; }
+  .pop td:last-child { text-align: right; color: var(--ink); }
+  @media (max-width: 560px) { .card { width: auto; right: 18px; max-height: 46vh; } }
+</style>
+
+<div id="map"></div>
+
+<div class="card">
+  <h1>Central Dallas traffic counts</h1>
+  <p class="sub">Vehicles per day at TxDOT's count stations, from Love Field to the Cedars.
+    Circle size is 2025 traffic; colour is the change since 2019, the last count before
+    the pandemic.</p>
+
+  <div class="stat">
+    <div><b>184</b><span>stations counted every year</span></div>
+    <div><b>−7%</b><span>median change, 2019 to 2025</span></div>
+    <div><b>75</b><span>down more than 5%, against 29 up</span></div>
+  </div>
+
+  <div class="key" id="key"></div>
+  <p class="hint">Click a line in the key to hide or show it. Click a circle for its history.</p>
+
+  <button class="go" id="hh">Zoom to Harry Hines</button>
+  <p class="hint" style="margin:-4px 0 8px">Harry Hines stations have a black ring and their count shown.</p>
+  <p class="note"><b>Harry Hines</b> carries 15,000 to 27,000 vehicles a day, against
+    200,000 to 263,000 on Stemmons a few blocks east. Five of its six annual stations are
+    lower than in 2019. The steepest drop is at the downtown end near Harwood, from 29,500
+    to 14,600: a single 2025 count, which a lane closure could also explain.</p>
+  <p class="note">The grey dots are TxDOT's rotating counts, taken at each place once every
+    few years. They add coverage on smaller streets but have no road name in TxDOT's file
+    and no comparable 2019 figure.</p>
+  <p class="src">TxDOT Transportation Planning and Programming, AADT annual and 5-year
+    count services, November 2026. AADT is annual average daily traffic, both directions.
+    Where a station's 2022 figure exactly repeats 2019, TxDOT carried it forward instead of
+    counting, so it is left out; some 2019 figures repeat 2018 the same way. ·
+    <a href="https://geopen.io/data/central_dallas_traffic_counts.geojson">download the data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/central_dallas_traffic_counts.geojson";
+// change since 2019, as [id, label, colour, test]
+const BINS = [
+  ["down25", "Down more than 25%", "#1f4e99"],
+  ["down", "Down 5–25%", "#7fa6d6"],
+  ["flat", "Within 5%", "#b5b5b0"],
+  ["up", "Up 5–25%", "#f0a46a"],
+  ["up25", "Up more than 25%", "#c8571b"],
+  ["none", "No 2019 count to compare", "rgba(255,255,255,0.55)"],
+];
+const binExpr = ["case",
+  ["!", ["has", "chg"]], "none", ["==", ["get", "chg"], null], "none",
+  ["<", ["get", "chg"], -25], "down25", ["<", ["get", "chg"], -5], "down",
+  ["<=", ["get", "chg"], 5], "flat", ["<=", ["get", "chg"], 25], "up", "up25"];
+const shown = new Set([...BINS.map(b => b[0]), "fiveyear"]);
+const radius = (k) => ["*", k, ["sqrt", ["get", "aadt"]]];
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, attribution: "© Esri · TxDOT",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" },
+             { id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } }],
+  },
+  bounds: [[-96.88, 32.74], [-96.745, 32.85]],
+  fitBoundsOptions: { padding: { top: 30, bottom: 30, left: window.innerWidth > 560 ? 380 : 20, right: 30 } },
+  attributionControl: { compact: true },
+});
+window.__map = map;
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+
+const annualFilter = () => ["all", ["==", ["get", "program"], "annual"], ["in", binExpr, ["literal", [...shown]]]];
+
+map.on("load", () => {
+  map.addSource("s", { type: "geojson", data: DATA });
+  map.addLayer({ id: "five", type: "circle", source: "s", filter: ["==", ["get", "program"], "fiveyear"],
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, radius(0.025), 16, radius(0.06)],
+             "circle-color": "#5b6168", "circle-opacity": 0.45,
+             "circle-stroke-color": "#ffffff", "circle-stroke-width": 0.75 } });
+  map.addLayer({ id: "annual", type: "circle", source: "s", filter: annualFilter(),
+    layout: { "circle-sort-key": ["-", 0, ["get", "aadt"]] },
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, radius(0.04), 16, radius(0.09)],
+             "circle-color": ["match", binExpr, ...BINS.flatMap(b => [b[0], b[2]]), "#999"],
+             "circle-stroke-color": ["case", ["get", "hh"], "#111418", ["==", binExpr, "none"], "#9aa0a6", "#ffffff"],
+             "circle-stroke-width": ["case", ["get", "hh"], 2.5, ["==", binExpr, "none"], 1, 1.5] } });
+  map.addLayer({ id: "labels", type: "symbol", source: "s",
+    filter: ["all", ["==", ["get", "program"], "annual"], ["any", ["get", "hh"], [">=", ["zoom"], 14.5]]],
+    layout: { "text-field": ["number-format", ["get", "aadt"], { locale: "en-US" }],
+              "text-font": ["Noto Sans Regular"], "text-size": 11.5, "text-offset": [0, 1.4],
+              "text-anchor": "top", "text-allow-overlap": false },
+    paint: { "text-color": "#1b1f24", "text-halo-color": "#ffffff", "text-halo-width": 1.6 } });
+});
+
+// key
+const key = document.getElementById("key");
+const rows = [...BINS.map(b => [b[0], b[1], b[2]]), ["fiveyear", "Rotating count, latest year (2022 or 2024)", "rgba(91,97,104,0.6)"]];
+for (const [id, label, color] of rows) {
+  const b = document.createElement("button");
+  const border = id === "none" ? "border-color:#9aa0a6;border-width:1px" : "";
+  b.innerHTML = `<i style="background:${id === "none" ? "#ffffff" : color};${border}"></i><span>${label}</span><em></em>`;
+  b.onclick = () => {
+    shown.has(id) ? shown.delete(id) : shown.add(id);
+    b.classList.toggle("off", !shown.has(id));
+    if (id === "fiveyear") map.setLayoutProperty("five", "visibility", shown.has(id) ? "visible" : "none");
+    else map.setFilter("annual", annualFilter());
+  };
+  key.appendChild(b);
+}
+document.getElementById("hh").onclick = () =>
+  map.fitBounds([[-96.872, 32.788], [-96.8, 32.844]], { padding: { top: 40, bottom: 40, left: window.innerWidth > 560 ? 390 : 20, right: 40 } });
+
+const fmt = (n) => n.toLocaleString("en-US");
+function spark(hist) {
+  if (hist.length < 2) return "";
+  const W = 230, H = 54, y0 = Math.min(...hist.map(h => h[0])), y1 = Math.max(...hist.map(h => h[0]));
+  const vmax = Math.max(...hist.map(h => h[1])) * 1.08;
+  const x = (y) => 6 + (W - 12) * (y - y0) / Math.max(1, y1 - y0);
+  const y = (v) => H - 4 - (H - 10) * v / vmax;
+  const pts = hist.map(h => `${x(h[0]).toFixed(1)},${y(h[1]).toFixed(1)}`);
+  return `<svg width="${W}" height="${H + 12}" viewBox="0 0 ${W} ${H + 12}">
+    <line x1="0" x2="${W}" y1="${H - 4}" y2="${H - 4}" stroke="rgba(226,232,240,0.2)"/>
+    <polyline points="${pts.join(" ")}" fill="none" stroke="#8fc7ff" stroke-width="2"/>
+    ${hist.map(h => `<circle cx="${x(h[0]).toFixed(1)}" cy="${y(h[1]).toFixed(1)}" r="3" fill="#8fc7ff" stroke="#1b1f24" stroke-width="1.5"/>`).join("")}
+    <text x="2" y="${H + 10}" fill="#6f7a85" font-size="10">${y0}</text>
+    <text x="${W - 2}" y="${H + 10}" fill="#6f7a85" font-size="10" text-anchor="end">${y1}</text></svg>`;
+}
+const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "280px" });
+function onClick(e) {
+  const p = e.features[0].properties;
+  const hist = JSON.parse(p.hist);
+  const chg = p.chg === null || p.chg === undefined || p.chg === "null" ? "" :
+    ` · ${p.chg > 0 ? "+" : ""}${p.chg}% since 2019`;
+  const road = p.program === "annual" ? p.road : "Road not named in TxDOT's file";
+  const what = p.program === "annual" ? "Annual count station" : "Rotating count station";
+  const rowsHtml = hist.slice().reverse().map(h => `<tr><td>${h[0]}</td><td>${fmt(h[1])}</td></tr>`).join("");
+  popup.setLngLat(e.lngLat).setHTML(`<div class="pop"><b>${road}</b>
+    <div class="what">${what} ${p.id}</div>
+    <div><span class="big">${fmt(p.aadt)}</span> vehicles a day in ${p.year}${chg}</div>
+    ${spark(hist)}
+    <table>${rowsHtml}</table>
+    <a href="${p.sv}" target="_blank" rel="noopener">Street View ↗</a></div>`).addTo(map);
+}
+for (const l of ["annual", "five"]) {
+  map.on("click", l, (e) => {
+    if (l === "five" && map.queryRenderedFeatures(e.point, { layers: ["annual"] }).length) return;
+    onClick(e);
+  });
+  map.on("mouseenter", l, () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", l, () => { map.getCanvas().style.cursor = ""; });
+}
+</script>
