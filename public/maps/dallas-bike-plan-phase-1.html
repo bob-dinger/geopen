@@ -82,6 +82,9 @@
   <p class="note">The plan proposes 543 miles in all. Its 20-year Phase 2 assumes
     <b>$2.5 million a year</b> from the General Fund; the transfer was $2 million in fiscal
     2025-26 and is <b>$1.25 million</b> in 2026-27. The city says Phase 1 stays on schedule.</p>
+  <p class="note">Of the 88 miles the city layer lists as existing, <b>51 are sharrow
+    routes</b>: bike symbols painted in a shared travel lane, which the plan calls the
+    least-preferred facility and proposes to upgrade or remove almost everywhere.</p>
   <p class="src">City of Dallas Transportation and Public Works: Phase 1 Funded Dallas Bike
     Plan Projects (updated 21 October 2026) for status, and the city's bike facilities GIS
     layer (edited 13 November 2026) for the lines. Zang Boulevard north of Plowman Avenue is
@@ -103,7 +106,7 @@ const STATUSES = [
 ];
 const COLOR = Object.fromEntries(STATUSES.map(s => [s[0], s[2]]));
 const LABEL = Object.fromEntries(STATUSES.map(s => [s[0], s[1]]));
-const shown = new Set([...STATUSES.map(s => s[0]), "existing"]);
+const shown = new Set([...STATUSES.map(s => s[0]), "lane", "sharrow"]);
 
 const map = new maplibregl.Map({
   container: "map",
@@ -128,10 +131,15 @@ map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right"
 const phaseFilter = () => ["all", ["==", ["get", "kind"], "phase1"], ["in", ["get", "status"], ["literal", [...shown]]]];
 map.on("load", () => {
   map.addSource("b", { type: "geojson", data: DATA });
-  map.addLayer({ id: "existing", type: "line", source: "b", filter: ["==", ["get", "kind"], "existing"],
+  map.addLayer({ id: "sharrow", type: "line", source: "b",
+    filter: ["all", ["==", ["get", "kind"], "existing"], ["==", ["get", "group"], "sharrow"]],
+    paint: { "line-color": "#7d848c", "line-opacity": 0.6, "line-dasharray": [2, 2],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.8, 15, 2] } });
+  map.addLayer({ id: "lane", type: "line", source: "b",
+    filter: ["all", ["==", ["get", "kind"], "existing"], ["==", ["get", "group"], "lane"]],
     layout: { "line-cap": "round" },
-    paint: { "line-color": "#5b6168", "line-opacity": 0.55,
-             "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 15, 2.5] } });
+    paint: { "line-color": "#3f454c", "line-opacity": 0.75,
+             "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.4, 15, 3] } });
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
   // white casing so each project reads against streets and the existing network
   map.addLayer({ id: "casing", type: "line", source: "b", filter: phaseFilter(),
@@ -146,14 +154,18 @@ map.on("load", () => {
 
 const key = document.getElementById("key");
 const rows = [...STATUSES.map(s => [s[0], s[1], s[2], `${s[3]} · ${s[4].toFixed(1)} mi`]),
-              ["existing", "Existing bike lanes (city layer)", "rgba(91,97,104,0.7)", "88 mi"]];
+              ["lane", "Existing lanes, paths and trails", "rgba(63,69,76,0.85)", "37 mi"],
+              ["sharrow", "Existing sharrow routes (markings in the travel lane)", "dash", "51 mi"]];
 for (const [id, label, color, n] of rows) {
   const b = document.createElement("button");
-  b.innerHTML = `<i style="background:${color}"></i><span>${label}</span><em>${n}</em>`;
+  const sw = color === "dash"
+    ? "background:repeating-linear-gradient(90deg,#9aa0a6 0 4px,transparent 4px 7px);height:2px"
+    : `background:${color}`;
+  b.innerHTML = `<i style="${sw}"></i><span>${label}</span><em>${n}</em>`;
   b.onclick = () => {
     shown.has(id) ? shown.delete(id) : shown.add(id);
     b.classList.toggle("off", !shown.has(id));
-    if (id === "existing") map.setLayoutProperty("existing", "visibility", shown.has(id) ? "visible" : "none");
+    if (id === "lane" || id === "sharrow") map.setLayoutProperty(id, "visibility", shown.has(id) ? "visible" : "none");
     else for (const l of ["casing", "phase1"]) map.setFilter(l, phaseFilter());
   };
   key.appendChild(b);
@@ -169,13 +181,19 @@ map.on("click", "phase1", (e) => {
     <span class="st" style="background:${COLOR[p.status]}">${LABEL[p.status]}</span>
     <table>${rowsHtml}</table>${p.note ? `<div class="nb">${p.note}</div>` : ""}</div>`).addTo(map);
 });
-map.on("click", "existing", (e) => {
+const FAC = { "Bike Route": "Sharrow route: shared-lane markings and signs", "Visually Separated": "Painted bike lane",
+              "Physically Separated": "Physically separated bike lane", "Neighborhood Bikeway": "Neighborhood bikeway", "Trail": "Trail" };
+map.on("click", (e) => {
   if (map.queryRenderedFeatures(e.point, { layers: ["phase1"] }).length) return;
-  const p = e.features[0].properties;
+  const f = map.queryRenderedFeatures(e.point, { layers: ["lane", "sharrow"] })[0];
+  if (!f) return;
+  const p = f.properties;
+  const flag = p.flag === "upgrade" ? "The plan proposes upgrading it." : p.flag === "remove" ? "The plan proposes removing it." : "";
   popup.setLngLat(e.lngLat).setHTML(`<div class="pop"><b>${p.name}</b><div class="lim">${p.limits || ""}</div>
-    <table><tr><td>Existing</td><td>${p.facility || ""}</td></tr>${p.year ? `<tr><td>Built</td><td>${p.year}</td></tr>` : ""}</table></div>`).addTo(map);
+    <table><tr><td>Existing</td><td>${FAC[p.facility] || p.facility || ""}</td></tr>${p.year ? `<tr><td>Built</td><td>${p.year}</td></tr>` : ""}</table>
+    ${flag ? `<div class="nb">${flag}</div>` : ""}</div>`).addTo(map);
 });
-for (const l of ["phase1", "existing"]) {
+for (const l of ["phase1", "lane", "sharrow"]) {
   map.on("mouseenter", l, () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", l, () => { map.getCanvas().style.cursor = ""; });
 }
