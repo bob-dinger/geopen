@@ -80,6 +80,7 @@
   </div>
 
   <div class="key" id="key"></div>
+  <p class="hint" style="margin:-2px 0 8px"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;border:2.5px solid #e46f1f;background:#fff;vertical-align:middle;margin-right:5px"></i>Hollow: listed as under construction, but the land had no building on it in January 2026.</p>
   <div class="sizes"><span><i style="width:16px;height:16px"></i>tower or $100M+</span>
     <span><i style="width:10px;height:10px"></i>mid-size</span><span><i style="width:6px;height:6px"></i>small</span></div>
   <p class="hint">Click a line in the key to hide or show it. Click a circle for the project.</p>
@@ -154,9 +155,11 @@ map.on("load", async () => {
       "circle-radius": ["interpolate", ["linear"], ["zoom"],
         13, ["match", ["get", "scale_class"], "large", 8, "mid", 5, 3],
         17, ["match", ["get", "scale_class"], "large", 18, "mid", 11, 6]],
-      "circle-color": ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"],
+      "circle-color": ["case", ["boolean", ["get", "unconfirmed"], false], "#ffffff",
+        ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"]],
       "circle-opacity": ["case", ["==", groupExpr, "zoning"], 0.75, 0.9],
-      "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5 } });
+      "circle-stroke-color": ["case", ["boolean", ["get", "unconfirmed"], false], COLOR.construction, "#ffffff"],
+      "circle-stroke-width": ["case", ["boolean", ["get", "unconfirmed"], false], 3, 1.5] } });
 });
 
 const key = document.getElementById("key");
