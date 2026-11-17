@@ -9,6 +9,7 @@
 <meta property="og:title" content="Dallas zoning, today and drafted">
 <meta property="og:description" content="Swipe between today's Dallas zoning and the districts in the November 2026 draft code.">
 <meta property="og:url" content="https://geopen.io/maps/dallas-zoning-slider.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-zoning-slider-card.png">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
   :root {
@@ -52,7 +53,10 @@
   .pop .chg { font-size: 0.95rem; font-weight: 700; }
   .pop .chg span { color: var(--ink-3); font-weight: 400; margin: 0 4px; }
   .pop .meta { color: var(--ink-3); font-size: 0.7rem; margin-top: 3px; }
-  button.tog { display: none; }
+  @media (max-height: 780px) and (min-width: 701px) {
+    #intro .src { display: none; }
+    .card.key { max-height: calc(100vh - 300px); }
+  }
   @media (max-width: 700px) {
     #intro { right: 14px; width: auto; top: 50px; }
     #intro .src, #intro .sub + .sub { display: none; }
