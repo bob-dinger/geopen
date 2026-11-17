@@ -1,0 +1,244 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dallas zoning, today and drafted</title>
+<meta name="description" content="Swipe between Dallas zoning today and the same land under Public Draft 1 of the new development code, converted with the draft's own table. The boundaries stay; the rulebook changes.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-zoning-slider.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas zoning, today and drafted">
+<meta property="og:description" content="Swipe between today's Dallas zoning and the districts in the November 2026 draft code.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-zoning-slider.html">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #e9e9e6; --panel: rgba(255,255,255,0.95); --panel-2: #ffffff;
+    --rule: rgba(20,24,28,0.14);
+    --ink: #15191d; --ink-2: #3d4650; --ink-3: #6b7580;
+    --handle: #15191d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  .map { position: absolute; inset: 0; }
+  #after { clip-path: inset(0 0 0 50%); }
+  #bar { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; z-index: 4; pointer-events: none; }
+  #bar::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: var(--handle); }
+  #grip { position: absolute; top: 50%; left: -20px; width: 40px; height: 40px; margin-top: -20px;
+    border-radius: 50%; background: var(--handle); color: #fff; display: grid; place-items: center;
+    font-size: 15px; pointer-events: auto; cursor: ew-resize; touch-action: none;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3); user-select: none; }
+  .side { position: absolute; top: 14px; z-index: 5; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 9px; border-radius: 3px;
+    background: var(--panel); border: 1px solid var(--rule); pointer-events: none; }
+  #lab-l { right: calc(50% + 14px); } #lab-r { left: calc(50% + 14px); }
+  .card { position: absolute; z-index: 6; background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 12px 14px; max-height: calc(100vh - 90px); overflow-y: auto; width: 250px; }
+  #intro { left: 14px; top: 56px; width: 300px; }
+  #key-l { left: 14px; bottom: 28px; } #key-r { right: 14px; bottom: 28px; width: 290px; }
+  h1 { margin: 0 0 4px; font-size: 0.98rem; font-weight: 700; letter-spacing: -0.015em; }
+  .sub { margin: 0 0 8px; font-size: 0.73rem; color: var(--ink-2); line-height: 1.5; }
+  .src { margin: 0; font-size: 0.66rem; color: var(--ink-3); line-height: 1.5; }
+  h2 { margin: 0 0 6px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .row { display: grid; grid-template-columns: 13px 1fr auto; gap: 7px; align-items: center;
+    font-size: 0.71rem; color: var(--ink-2); padding: 1.5px 0; }
+  .row i { width: 13px; height: 11px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.12); }
+  .row b { color: var(--ink); font-weight: 600; }
+  .row small { color: var(--ink-3); font-size: 0.64rem; }
+  .row em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  a { color: #1d63b8; }
+  .maplibregl-popup-content { background: var(--panel-2); color: var(--ink); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 10px 12px; font-size: 0.75rem; line-height: 1.5; }
+  .pop .chg { font-size: 0.95rem; font-weight: 700; }
+  .pop .chg span { color: var(--ink-3); font-weight: 400; margin: 0 4px; }
+  .pop .meta { color: var(--ink-3); font-size: 0.7rem; margin-top: 3px; }
+  button.tog { display: none; }
+  @media (max-width: 700px) {
+    #intro { right: 14px; width: auto; top: 50px; }
+    #intro .src, #intro .sub + .sub { display: none; }
+    #key-l, #key-r { width: calc(50% - 21px); max-height: 30vh; padding: 9px 10px; bottom: 24px; }
+    .row { font-size: 0.64rem; gap: 5px; }
+    .row small { color: var(--ink-3); font-size: 0.64rem; }
+  .row em { display: none; }
+  }
+</style>
+
+<div id="before" class="map"></div>
+<div id="after" class="map"></div>
+<div id="bar"><div id="grip" aria-label="Drag to compare" role="slider" tabindex="0">⇆</div></div>
+<div class="side" id="lab-l">Today</div>
+<div class="side" id="lab-r">Draft code</div>
+
+<div class="card" id="intro">
+  <h1>Dallas zoning, today and drafted</h1>
+  <p class="sub">Drag the handle. The left is the zoning in force today. The right is the same land
+    under Public Draft 1 of the new Dallas Development Code, converted with the draft's own table
+    (Table 4-1).</p>
+  <p class="sub">The boundaries do not move. Every district gets a new name and new rules: R-7.5(A),
+    the city's most common district, becomes R-2, where two homes and a backyard unit are allowed
+    on a lot.</p>
+  <p class="src">City of Dallas base zoning, downloaded 14 November 2026 (3,827 areas). Draft code,
+    November 2026. A projection, not an adopted map: the draft is open for comment and may change.
+    Planned developments (grey) keep their own ordinances on both sides. ·
+    <a href="https://geopen.io/data/dallas_draft_zoning.geojson">data</a> ·
+    <a href="https://geopen.io/">geopen.io</a></p>
+</div>
+<div class="card key" id="key-l"><h2>Today</h2></div>
+<div class="card key" id="key-r"><h2>Draft code</h2></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const DATA = "/data/dallas_draft_zoning.geojson";
+
+// Today: old codes grouped into families, conventional zoning colours
+const OLD = [
+  ["Agricultural", "#d4e3b5", ["A(A)"]],
+  ["Large-lot houses", "#fff4b8", ["R-1ac(A)", "R-1/2ac(A)", "R-16(A)", "R-13(A)", "R-10(A)"]],
+  ["Houses, R-7.5 and R-5", "#f6d743", ["R-7.5(A)", "R-5(A)"]],
+  ["Duplex and townhouse", "#e9a93a", ["D(A)", "TH-1(A)", "TH-2(A)", "TH-3(A)"]],
+  ["Apartments", "#b86b2a", ["MF-1(A)", "MF-1(A)(SAH)", "MF-2(A)", "MF-2(A)(SAH)", "MF-2", "MF-3(A)", "MF-4(A)", "CH"]],
+  ["Manufactured homes", "#c9ab8a", ["MH(A)"]],
+  ["Office", "#f2a3b3", ["NO(A)", "LO-1", "LO-2", "LO-3", "GO(A)", "MO-1", "MO-2"]],
+  ["Retail", "#e0473f", ["NS(A)", "CR", "RR", "GR"]],
+  ["Commercial service", "#a8322e", ["CS"]],
+  ["Mixed use", "#c75a9a", ["MU-1", "MU-1(SAH)", "MU-2", "MU-2(SAH)", "MU-3", "MU-3(SAH)", "MC-1", "MC-2", "MC-3", "MC-4",
+    "UC-2", "WMU-3", "WMU-5", "WMU-8", "WR-3", "WR-5", "WR-20"]],
+  ["Central area", "#6e1f2e", ["CA-1(A)", "CA-2(A)"]],
+  ["Industrial", "#9b86c9", ["LI", "IR", "IM"]],
+  ["Planned development", "#b4b8bd", ["PD"]],
+  ["Conservation district", "#8fb8a4", ["CD"]],
+  ["Other", "#ffffff", ["P(A)", "PFD", "O-2"]],
+];
+// Draft code: new districts, a blue/teal/slate palette distinct from today's
+const NEW = [
+  ["FR", "Farm and ranch", "#d6eeec"],
+  ["R-1", "Houses, 2 units, 10,000 sf lots", "#b9d4f0"],
+  ["R-2", "Houses, 2 units, 5,000 sf lots", "#5d97d6"],
+  ["R-3", "Houses, attached, duplexes", "#2f68b0"],
+  ["RX-1", "Mixed residential, small", "#22488a"],
+  ["RX-2", "Mixed residential", "#172f63"],
+  ["RMH", "Manufactured homes", "#9db3c9"],
+  ["MX-1", "Mixed use, 45 ft", "#a6e3d4"],
+  ["MX-1 or MX-2", "Former WMU-3", "#7fd1bf"],
+  ["MX-2", "Mixed use, 70 ft", "#35b39b"],
+  ["MX-3", "Mixed use, 300 ft", "#14806f"],
+  ["MX-4", "Urban core, no height limit", "#084a43"],
+  ["BC", "Business commercial", "#a9a6c2"],
+  ["FC", "Flex commercial", "#7d7aa0"],
+  ["GI", "General industrial", "#4f4c70"],
+  ["PD", "Planned development, kept", "#b4b8bd"],
+  ["CD", "Conservation district, kept", "#8fb8a4"],
+  ["P overlay", "Parking overlay", "#ffffff"],
+  ["Not in table", "Not in the draft's table", "#ffffff"],
+];
+const oldColor = ["match", ["get", "old"]];
+for (const [, c, codes] of OLD) oldColor.push(codes, c);
+oldColor.push("#ffffff");
+const newColor = ["match", ["get", "new"], ...NEW.flatMap(d => [d[0], d[2]]), "#ffffff"];
+
+function style() {
+  return { version: 8, glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: 16, attribution: "© Esri · City of Dallas",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
+      ref: { type: "raster", tileSize: 256, maxzoom: 16,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+    },
+    layers: [{ id: "base", type: "raster", source: "base" }] };
+}
+const narrow = window.innerWidth <= 700;
+const opts = { style: style(), bounds: [[-96.99, 32.63], [-96.56, 33.01]],
+  fitBoundsOptions: { padding: narrow ? { top: 150, bottom: 40, left: 10, right: 10 } : 40 }, attributionControl: { compact: true } };
+const before = new maplibregl.Map({ container: "before", ...opts, attributionControl: false });
+const after = new maplibregl.Map({ container: "after", ...opts });
+after.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+window.__maps = { before, after };
+
+function addZoning(map, color, label) {
+  map.addSource("z", { type: "geojson", data: DATA });
+  map.addLayer({ id: "fill", type: "fill", source: "z",
+    paint: { "fill-color": color, "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.85, 15, 0.65] } });
+  map.addLayer({ id: "line", type: "line", source: "z",
+    paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.2, 14, 1] } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+  map.addLayer({ id: "labels", type: "symbol", source: "z", minzoom: 13.5,
+    layout: { "text-field": label, "text-font": ["Noto Sans Regular"], "text-size": 11 },
+    paint: { "text-color": "#15191d", "text-halo-color": "rgba(255,255,255,0.85)", "text-halo-width": 1.4 } });
+}
+before.on("load", () => addZoning(before, oldColor, ["get", "old"]));
+after.on("load", () => addZoning(after, newColor,
+  ["case", ["==", ["get", "new"], "PD"], ["concat", "PD ", ["get", "pd"]], ["get", "new"]]));
+
+// keep the two cameras together
+let syncing = false;
+function sync(a, b) {
+  a.on("move", () => {
+    if (syncing) return;
+    syncing = true;
+    b.jumpTo({ center: a.getCenter(), zoom: a.getZoom(), bearing: a.getBearing(), pitch: a.getPitch() });
+    syncing = false;
+  });
+}
+sync(before, after); sync(after, before);
+
+// slider: the after map is clipped to the right of the handle; the after map takes the gestures
+const bar = document.getElementById("bar"), grip = document.getElementById("grip");
+const labL = document.getElementById("lab-l"), labR = document.getElementById("lab-r");
+let frac = 0.5;
+function setSplit(f) {
+  frac = Math.min(0.98, Math.max(0.02, f));
+  const pct = (frac * 100).toFixed(2) + "%";
+  document.getElementById("after").style.clipPath = `inset(0 0 0 ${pct})`;
+  bar.style.left = pct;
+  labL.style.right = `calc(${(100 - frac * 100).toFixed(2)}% + 14px)`;
+  labR.style.left = `calc(${pct} + 14px)`;
+}
+let dragging = false;
+grip.addEventListener("pointerdown", e => { dragging = true; grip.setPointerCapture(e.pointerId); e.preventDefault(); });
+grip.addEventListener("pointermove", e => { if (dragging) setSplit(e.clientX / window.innerWidth); });
+grip.addEventListener("pointerup", () => { dragging = false; });
+grip.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") setSplit(frac - 0.05);
+  if (e.key === "ArrowRight") setSplit(frac + 0.05);
+});
+// clip-path also clips hit-testing, so each half takes its own gestures and clicks
+const popup = new maplibregl.Popup({ maxWidth: "280px" });
+for (const map of [before, after]) {
+  map.on("click", e => {
+    const f = map.queryRenderedFeatures(e.point, { layers: ["fill"] })[0];
+    if (!f) return;
+    const p = f.properties;
+    const today = p.old === "PD" ? (p.long || `PD ${p.pd}`) : p.old;
+    const next = p.new === "PD" ? "stays a PD" : p.new;
+    const what = (NEW.find(d => d[0] === p.new) || [])[1] || "";
+    const meta = [what, p.name, p.ord ? `Ordinance ${p.ord}` : "", `${Number(p.acres).toLocaleString("en-US")} acres`]
+      .filter(Boolean).join(" · ");
+    popup.remove();
+    popup.setLngLat(e.lngLat).setHTML(`<div class="pop"><div class="chg">${today}<span>→</span>${next}</div>
+      <div class="meta">${meta}</div></div>`).addTo(map);
+  });
+  map.on("mousemove", e => {
+    map.getCanvas().style.cursor = map.queryRenderedFeatures(e.point, { layers: ["fill"] }).length ? "pointer" : "";
+  });
+}
+
+// legends with acreage
+fetch(DATA).then(r => r.json()).then(d => {
+  const oa = {}, na = {};
+  for (const f of d.features) {
+    const p = f.properties;
+    const fam = (OLD.find(o => o[2].includes(p.old)) || ["Other"])[0];
+    oa[fam] = (oa[fam] || 0) + p.acres; na[p.new] = (na[p.new] || 0) + p.acres;
+  }
+  const row = (color, label, acres, desc) => {
+    const r = document.createElement("div"); r.className = "row";
+    r.innerHTML = `<i style="background:${color}"></i><span><b></b> <small></small></span><em>${Math.round(acres).toLocaleString("en-US")} ac</em>`;
+    r.querySelector("b").textContent = label;
+    r.querySelector("small").textContent = desc || "";
+    return r;
+  };
+  const kl = document.getElementById("key-l"), kr = document.getElementById("key-r");
+  for (const [name, c] of OLD) if (oa[name] >= 1) kl.appendChild(row(c, name, oa[name]));
+  for (const [id, desc, c] of NEW) if (na[id] >= 1) kr.appendChild(row(c, id, na[id], desc));
+});
+</script>
