@@ -40,6 +40,12 @@
   h1 { margin: 0 0 4px; font-size: 0.98rem; font-weight: 700; letter-spacing: -0.015em; }
   .sub { margin: 0 0 8px; font-size: 0.73rem; color: var(--ink-2); line-height: 1.5; }
   .src { margin: 0; font-size: 0.66rem; color: var(--ink-3); line-height: 1.5; }
+  .view { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 0.7rem; color: var(--ink-3); }
+  .seg { display: flex; flex-shrink: 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .seg button { all: unset; cursor: pointer; padding: 3px 9px; color: var(--ink-2); white-space: nowrap; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .view label { display: flex; align-items: center; gap: 6px; flex: 1; }
+  .view input { flex: 1; min-width: 60px; accent-color: var(--ink); }
   h2 { margin: 0 0 6px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
   .row { display: grid; grid-template-columns: 13px 1fr auto; gap: 7px; align-items: center;
     font-size: 0.71rem; color: var(--ink-2); padding: 1.5px 0; }
@@ -81,6 +87,10 @@
   <p class="sub">The boundaries do not move. Every district gets a new name and new rules: R-7.5(A),
     the city's most common district, becomes R-2, where two homes and a backyard unit are allowed
     on a lot.</p>
+  <div class="view">
+    <div class="seg" id="basemap"><button data-b="map" class="on">Map</button><button data-b="sat">Satellite</button></div>
+    <label>Opacity <input id="opacity" type="range" min="0" max="100" value="100" aria-label="Zoning opacity"></label>
+  </div>
   <p class="src">City of Dallas base zoning, downloaded 14 November 2026 (3,827 areas). Draft code,
     November 2026. A projection, not an adopted map: the draft is open for comment and may change.
     Planned developments (grey) keep their own ordinances on both sides. ·
@@ -147,8 +157,15 @@ function style() {
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
       ref: { type: "raster", tileSize: 256, maxzoom: 16,
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      sat: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] },
+      roads: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"] },
+      places: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"] },
     },
-    layers: [{ id: "base", type: "raster", source: "base" }] };
+    layers: [{ id: "base", type: "raster", source: "base" },
+             { id: "sat", type: "raster", source: "sat", layout: { visibility: "none" } }] };
 }
 const narrow = window.innerWidth <= 700;
 const opts = { style: style(), bounds: [[-96.99, 32.63], [-96.56, 33.01]],
@@ -158,16 +175,38 @@ const after = new maplibregl.Map({ container: "after", ...opts });
 after.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 window.__maps = { before, after };
 
+// basemap and opacity, applied to both halves: the zoning layers scale by the slider;
+// satellite swaps in imagery with road and place labels
+let k = 1, sat = false;
+const fillOpacity = () => ["interpolate", ["linear"], ["zoom"], 10, 0.85 * k, 15, 0.65 * k];
+function applyView(map) {
+  if (!map.getLayer("fill")) return;
+  map.setPaintProperty("fill", "fill-opacity", fillOpacity());
+  map.setPaintProperty("line", "line-opacity", k);
+  for (const [id, on] of [["base", !sat], ["ref", !sat], ["sat", sat], ["roads", sat], ["places", sat]])
+    map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+}
+const applyBoth = () => { applyView(before); applyView(after); };
+document.getElementById("opacity").oninput = (e) => { k = e.target.value / 100; applyBoth(); };
+document.querySelectorAll("#basemap button").forEach(b => b.onclick = () => {
+  sat = b.dataset.b === "sat";
+  document.querySelectorAll("#basemap button").forEach(x => x.classList.toggle("on", x === b));
+  applyBoth();
+});
+
 function addZoning(map, color, label) {
   map.addSource("z", { type: "geojson", data: DATA });
   map.addLayer({ id: "fill", type: "fill", source: "z",
-    paint: { "fill-color": color, "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.85, 15, 0.65] } });
+    paint: { "fill-color": color, "fill-opacity": fillOpacity() } });
   map.addLayer({ id: "line", type: "line", source: "z",
     paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.2, 14, 1] } });
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.75 } });
+  map.addLayer({ id: "roads", type: "raster", source: "roads", layout: { visibility: "none" }, paint: { "raster-opacity": 0.6 } });
+  map.addLayer({ id: "places", type: "raster", source: "places", layout: { visibility: "none" } });
   map.addLayer({ id: "labels", type: "symbol", source: "z", minzoom: 13.5,
     layout: { "text-field": label, "text-font": ["Noto Sans Regular"], "text-size": 11 },
     paint: { "text-color": "#15191d", "text-halo-color": "rgba(255,255,255,0.85)", "text-halo-width": 1.4 } });
+  applyView(map);
 }
 before.on("load", () => addZoning(before, oldColor, ["get", "old"]));
 after.on("load", () => addZoning(after, newColor,
