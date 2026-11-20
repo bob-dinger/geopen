@@ -1,0 +1,250 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dallas’s planned developments</title>
+<meta name="description" content="Dallas has 1,004 planned developments covering 45,022 acres, each its own zoning ordinance. The 2000s added the most: 230.">
+<link rel="canonical" href="https://geopen.io/maps/dallas-pds.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Dallas’s planned developments">
+<meta property="og:description" content="1,004 planned developments, 45,022 acres, each with its own zoning rules. Here is when each was created.">
+<meta property="og:url" content="https://geopen.io/maps/dallas-pds.html">
+<meta property="og:image" content="https://geopen.io/maps/dallas-pds-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://geopen.io/maps/dallas-pds-card.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  :root {
+    --ground: #0b0d11; --panel: #151a21; --panel-2: #1f2731;
+    --rule: rgba(205,220,240,0.15);
+    --ink: #eef3f8; --ink-2: #a7b5c6; --ink-3: #74828f;
+    --signal: #ffb54d;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  body { overflow: hidden; }
+  #map { position: absolute; inset: 0; }
+  .mono { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+  .nums { font-variant-numeric: tabular-nums; }
+
+  /* DESKTOP: a panel floating over the map.
+     MOBILE: the same markup becomes a sheet pinned to the bottom, collapsed to
+     its header until tapped. Same DOM, no duplication, no JS branching. */
+  .panel { position: absolute; z-index: 6;
+    left: var(--pad); top: var(--pad); width: 320px;
+    max-height: calc(100% - var(--pad) * 2); overflow-y: auto;
+    background: rgba(12,16,21,0.94); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 15px 17px; backdrop-filter: blur(10px); }
+  .panel h1 { margin: 0 0 8px; font-size: 18px; line-height: 1.25;
+    letter-spacing: -0.015em; text-wrap: balance; }
+  .panel p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .panel p b { color: var(--ink); }
+  .grab { display: none; }
+
+  .lab { font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+    color: var(--ink-3); margin: 14px 0 6px; }
+  .keys { display: flex; flex-direction: column; gap: 3px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .key i { width: 20px; height: 11px; border-radius: 2px; flex: none; }
+  .key .n { margin-left: auto; color: var(--ink-3); }
+
+  #bases { position: absolute; z-index: 6; right: var(--pad); top: var(--pad);
+    display: flex; background: rgba(12,16,21,0.93); border: 1px solid var(--rule);
+    border-radius: 8px; overflow: hidden; backdrop-filter: blur(10px); }
+  #bases button { background: none; border: 0; border-right: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 12px; padding: 9px 13px; cursor: pointer;
+    font-family: inherit; }
+  #bases button:last-child { border-right: 0; }
+  #bases button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+
+  .src { position: absolute; z-index: 6; right: var(--pad); bottom: var(--pad);
+    max-width: 290px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5;
+    background: rgba(12,16,21,0.9); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 9px 12px; }
+  .src a { color: var(--ink-2); }
+
+  .maplibregl-popup-content { background: #151a21; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.45; }
+  .maplibregl-popup-tip { border-top-color: #151a21 !important;
+    border-bottom-color: #151a21 !important; }
+  .pop .big { color: var(--signal); font-size: 17px; font-weight: 600; }
+  .pop .sub { color: var(--ink-3); font-size: 11px; }
+
+  @media (max-width: 760px) {
+    :root { --pad: 10px; }
+    /* the panel becomes a bottom sheet; tapping the header expands it */
+    .panel { left: 0; right: 0; top: auto; bottom: 0; width: auto;
+      border-radius: 14px 14px 0 0; border-bottom: 0;
+      max-height: 62%; padding: 8px 16px calc(14px + env(safe-area-inset-bottom));
+      transition: max-height .22s ease; }
+    .panel:not(.open) { max-height: 74px; overflow: hidden; }
+    .grab { display: block; width: 38px; height: 4px; border-radius: 2px;
+      background: var(--ink-3); margin: 2px auto 9px; opacity: .55; }
+    .panel h1 { font-size: 16px; }
+    /* the source note would cover the sheet; it moves inside it on small screens */
+    .src { display: none; }
+    .src-inline { display: block !important; }
+    #bases { right: var(--pad); top: var(--pad); }
+    #bases button { padding: 10px 14px; }   /* 44px tap target */
+    .maplibregl-ctrl-bottom-right { bottom: 78px; }
+  }
+  .src-inline { display: none; font-size: 10.5px; color: var(--ink-3);
+    line-height: 1.5; margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--rule); }
+  .src-inline a { color: var(--ink-2); }
+  .maplibregl-ctrl-top-right { top: 46px; }
+  .key { cursor: pointer; }
+  .key.off { opacity: 0.35; }
+  .pop a { color: #8fc7ff; }
+</style>
+
+<div id="map"></div>
+<div id="bases"></div>
+
+<section class="panel" id="panel">
+  <div class="grab" aria-hidden="true"></div>
+  <h1>Dallas’s planned developments</h1>
+  <p>Dallas has <b>1,004</b> planned developments (PDs) covering <b>45,022 acres</b>, about 18% of the city’s zoned land. Each is its own zoning ordinance, negotiated for one site or neighborhood. The city added <b>154</b> in the 1980s, <b>220</b> in the 1990s and <b>230</b> in the 2000s, and is still adding them: <b>108</b> since 2020.</p>
+  <p>The year is when the PD was first created, from its ordinance’s legislative history; most have been amended since. PD 193 (Oak Lawn) is drawn by subdistrict. Under the draft development code, PDs stay in place as overlays, and where a PD is silent the new code applies.</p>
+
+  <div class="lab">Legend</div>
+  <div class="keys" id="keys"></div>
+
+  <div class="src-inline">
+  City of Dallas base zoning and PD 193 subdistricts, 14 Nov 2026; creation dates from the Dallas City Attorney’s codified articles, Dallas City Code ch. 51P (April 2026). · <a href="https://geopen.io/">geopen.io</a>
+  </div>
+</section>
+
+<div class="src">
+  City of Dallas base zoning and PD 193 subdistricts, 14 Nov 2026; creation dates from the Dallas City Attorney’s codified articles, Dallas City Code ch. 51P (April 2026). · <a href="https://geopen.io/">geopen.io</a>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
+const BASES = [
+  { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 16 },
+  { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5, maxzoom: 16 },
+  { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 19 },
+];
+let baseKey = "light";
+
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString());
+const usd = (v) => "$" + Math.round(v).toLocaleString();
+/* A GeoJSON source hands arrays back as JSON strings. Reading one directly
+   throws on every interaction and only shows up when something is clicked. */
+const arr = (v) => Array.isArray(v) ? v
+  : (typeof v === "string" && v.startsWith("[") ? JSON.parse(v) : []);
+
+document.getElementById("bases").innerHTML = BASES.map((b) =>
+  `<button type="button" data-base="${b.id}" aria-pressed="${b.id === baseKey}">${b.label}</button>`).join("");
+document.getElementById("bases").addEventListener("click", (e) => {
+  const bm = BASES.find((b) => b.id === (e.target.dataset && e.target.dataset.base));
+  if (bm) setBase(bm);
+});
+
+// the bottom sheet, mobile only — harmless on desktop where it is never collapsed
+const panel = document.getElementById("panel");
+panel.addEventListener("click", (e) => {
+  if (window.innerWidth > 760) return;
+  if (e.target.closest("a, button, input")) return;
+  panel.classList.toggle("open");
+});
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: { version: 8,
+    // required, or any symbol layer silently renders no text
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sources: {
+      base: { type: "raster", tileSize: 256, maxzoom: BASES[0].maxzoom, attribution: "© Esri",
+              tiles: [BASES[0].url] },
+      // seeded from a base that HAS a ref. A null here fails style validation
+      // and silently drops every layer on the map.
+      ref: { type: "raster", tileSize: 256, maxzoom: BASES.find((b) => b.ref).maxzoom,
+             tiles: [BASES.find((b) => b.ref).ref] },
+      data: { type: "geojson", data: "/data/dallas_pds.geojson" },
+    },
+    layers: [{ id: "base", type: "raster", source: "base",
+      paint: { "raster-opacity": BASES[0].opacity } }],
+  },
+  center: [-96.80, 32.80], zoom: 10.2, attributionControl: { compact: true },
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
+window.__map = map;      // make_map_cards.py waits on this to know when to shoot
+
+/* Esri's grey canvases stop at zoom 16 and answer deeper requests with a "Map data not yet available"
+   tile, so a source's maxzoom must match its base. A raster source's maxzoom cannot change in place,
+   so the source is rebuilt and its layers put back where they were. */
+function setRaster(id, url, maxzoom) {
+  const src = map.getSource(id);
+  if (src && src.maxzoom === maxzoom) { src.setTiles([url]); return; }
+  const all = map.getStyle().layers;
+  const mine = all.filter((l) => l.source === id);
+  const before = mine.map((l) => { const k = all.findIndex((x) => x.id === l.id);
+    return all.slice(k + 1).find((x) => x.source !== id)?.id; });
+  mine.forEach((l) => map.removeLayer(l.id));
+  map.removeSource(id);
+  map.addSource(id, { type: "raster", tileSize: 256, maxzoom, tiles: [url], ...(id === "base" ? { attribution: "© Esri" } : {}) });
+  mine.forEach((l, j) => map.addLayer(l, before[j]));
+}
+function setBase(bm) {
+  baseKey = bm.id;
+  setRaster("base", bm.url, bm.maxzoom);
+  map.setPaintProperty("base", "raster-opacity", bm.opacity);
+  if (bm.ref) setRaster("ref", bm.ref, bm.maxzoom);
+  if (map.getLayer("ref"))
+    map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
+  document.querySelectorAll("#bases button").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.base === bm.id)));
+}
+
+const DECADES = ["1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"], COLORS = ["#1a1238", "#2d1e5c", "#4a2f8a", "#6a46b8", "#8a65d6", "#4f9fd6", "#38b3a2", "#f2a541"];
+const article = (n) => `https://dallascityhall.com/departments/city-attorney/Articles/PDF/Article%20${n}.pdf`;
+const decade = ["case", ["has", "year"], ["concat", ["to-string", ["*", ["floor", ["/", ["get", "year"], 10]], 10]], "s"], "unknown"];
+const shown = new Set([...DECADES, "unknown"]);
+const filt = () => ["in", decade, ["literal", [...shown]]];
+
+function popupHTML(p) {
+  const where = p.sub ? (p.sub.startsWith("PDS") ? `PD Subdistrict ${p.sub.slice(4)}` : `${p.sub} subdistrict`) : "";
+  return `<div class="pop"><b>PD ${p.pd}</b>${where ? ` · ${esc(where)}` : ""}<br>` +
+    `<span class="sub">${esc(p.name)}</span><br>` +
+    `<span class="sub">${p.year ? `Created ${p.year}${p.ord ? `, Ord. ${p.ord}` : ""}` : "Creation date not found"} · ${p.acres} acres</span><br>` +
+    `<a href="${article(p.pd)}" target="_blank" rel="noopener">Read the ordinance</a></div>`;
+}
+
+map.on("load", () => {
+  map.addLayer({ id: "d-fill", type: "fill", source: "data", filter: filt(),
+    paint: { "fill-color": ["match", decade, ...DECADES.flatMap((d, i) => [d, COLORS[i]]), "#9aa3ad"],
+             "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.7, 15, 0.45] } });
+  map.addLayer({ id: "d-line", type: "line", source: "data", filter: filt(),
+    paint: { "line-color": "rgba(20,30,60,0.5)", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1.2] } });
+  map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
+  setBase(BASES[0]);
+
+  const pop = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: "280px" });
+  map.on("click", "d-fill", (e) => pop.setLngLat(e.lngLat).setHTML(popupHTML(e.features[0].properties)).addTo(map));
+  map.on("mouseenter", "d-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "d-fill", () => { map.getCanvas().style.cursor = ""; });
+
+  document.getElementById("keys").innerHTML = [["#1a1238", "1950s", "3 \u00b7 211 ac", "1950s"], ["#2d1e5c", "1960s", "19 \u00b7 483 ac", "1960s"], ["#4a2f8a", "1970s", "56 \u00b7 2,320 ac", "1970s"], ["#6a46b8", "1980s", "154 \u00b7 8,567 ac", "1980s"], ["#8a65d6", "1990s", "220 \u00b7 11,086 ac", "1990s"], ["#4f9fd6", "2000s", "230 \u00b7 13,671 ac", "2000s"], ["#38b3a2", "2010s", "199 \u00b7 6,226 ac", "2010s"], ["#f2a541", "2020s", "108 \u00b7 1,204 ac", "2020s"], ["#9aa3ad", "Date not found", "15 \u00b7 629 ac", "unknown"]].map(([c, label, count, id]) =>
+    `<div class="key" data-id="${id}"><i style="background:${c}"></i><span>${label}</span>` +
+    `<span class="n nums">${count}</span></div>`).join("") +
+    `<p class="sub" style="margin:6px 0 0;font-size:11px">Click a decade to hide or show it.</p>`;
+  document.querySelectorAll("#keys .key").forEach((k) => k.onclick = () => {
+    const id = k.dataset.id; shown.has(id) ? shown.delete(id) : shown.add(id);
+    k.classList.toggle("off", !shown.has(id));
+    map.setFilter("d-fill", filt()); map.setFilter("d-line", filt());
+  });
+});
+</script>
