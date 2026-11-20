@@ -1,0 +1,245 @@
+[
+ {
+  "id": "fig8",
+  "figure": 8,
+  "page": 20,
+  "title": "Existing land use",
+  "group": "Today",
+  "image": "/data/swmd_plan/fig8.webp",
+  "corners": [
+   [
+    -96.868269,
+    32.834494
+   ],
+   [
+    -96.812905,
+    32.832754
+   ],
+   [
+    -96.813339,
+    32.797259
+   ],
+   [
+    -96.868703,
+    32.798999
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig8_legend.webp"
+ },
+ {
+  "id": "fig9",
+  "figure": 9,
+  "page": 21,
+  "title": "Large lot ownership",
+  "group": "Today",
+  "image": "/data/swmd_plan/fig9.webp",
+  "corners": [
+   [
+    -96.868269,
+    32.834494
+   ],
+   [
+    -96.812905,
+    32.832754
+   ],
+   [
+    -96.813339,
+    32.797244
+   ],
+   [
+    -96.868703,
+    32.798984
+   ]
+  ],
+  "legend": null
+ },
+ {
+  "id": "fig4",
+  "figure": 4,
+  "page": 15,
+  "title": "Projects underway and planned",
+  "group": "Today",
+  "image": "/data/swmd_plan/fig4.webp",
+  "corners": [
+   [
+    -96.868269,
+    32.834494
+   ],
+   [
+    -96.812905,
+    32.832754
+   ],
+   [
+    -96.813339,
+    32.797244
+   ],
+   [
+    -96.868703,
+    32.798984
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig4_legend.webp"
+ },
+ {
+  "id": "fig45",
+  "figure": 45,
+  "page": 56,
+  "title": "The four hubs",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig45.webp",
+  "corners": [
+   [
+    -96.868231,
+    32.834646
+   ],
+   [
+    -96.812813,
+    32.832904
+   ],
+   [
+    -96.813247,
+    32.797348
+   ],
+   [
+    -96.868666,
+    32.79909
+   ]
+  ],
+  "legend": null
+ },
+ {
+  "id": "fig44",
+  "figure": 44,
+  "page": 55,
+  "title": "Growth areas",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig44.webp",
+  "corners": [
+   [
+    -96.86796,
+    32.834499
+   ],
+   [
+    -96.81256,
+    32.832758
+   ],
+   [
+    -96.812995,
+    32.797233
+   ],
+   [
+    -96.868395,
+    32.798974
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig44_legend.webp"
+ },
+ {
+  "id": "fig33",
+  "figure": 33,
+  "page": 46,
+  "title": "Framework plan",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig33.webp",
+  "corners": [
+   [
+    -96.866913,
+    32.832578
+   ],
+   [
+    -96.820728,
+    32.831127
+   ],
+   [
+    -96.821091,
+    32.801479
+   ],
+   [
+    -96.867276,
+    32.80293
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig33_legend.webp"
+ },
+ {
+  "id": "fig34",
+  "figure": 34,
+  "page": 47,
+  "title": "Street framework",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig34.webp",
+  "corners": [
+   [
+    -96.868214,
+    32.834507
+   ],
+   [
+    -96.812832,
+    32.832767
+   ],
+   [
+    -96.813267,
+    32.797242
+   ],
+   [
+    -96.868649,
+    32.798982
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig34_legend.webp"
+ },
+ {
+  "id": "fig57",
+  "figure": 57,
+  "page": 69,
+  "title": "Open space and parks",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig57.webp",
+  "corners": [
+   [
+    -96.866968,
+    32.832565
+   ],
+   [
+    -96.820801,
+    32.831114
+   ],
+   [
+    -96.821163,
+    32.801496
+   ],
+   [
+    -96.86733,
+    32.802947
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig57_legend.webp"
+ },
+ {
+  "id": "fig104",
+  "figure": 104,
+  "page": 98,
+  "title": "Bike and shared-use paths",
+  "group": "The plan",
+  "image": "/data/swmd_plan/fig104.webp",
+  "corners": [
+   [
+    -96.866968,
+    32.832565
+   ],
+   [
+    -96.820801,
+    32.831114
+   ],
+   [
+    -96.821163,
+    32.801496
+   ],
+   [
+    -96.86733,
+    32.802947
+   ]
+  ],
+  "legend": "/data/swmd_plan/fig104_legend.webp"
+ }
+]

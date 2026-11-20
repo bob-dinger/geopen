@@ -41,6 +41,16 @@
   .row i { width: 14px; height: 11px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.12); }
   .row i.hub { border: 1.5px dashed #d0262f; background: none; }
   .row b { color: var(--ink); font-weight: 600; }
+  .layers { margin: 0 0 10px; display: grid; gap: 1px; }
+  .layers h2 { margin: 6px 0 3px; }
+  .layers label { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: var(--ink-2);
+    padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+  .layers label:hover { background: rgba(20,24,28,0.05); }
+  .layers input { margin: 0; accent-color: var(--ink); }
+  .layers label.on { color: var(--ink); font-weight: 600; }
+  .layers em { font-style: normal; color: var(--ink-3); font-weight: 400; margin-left: auto; font-size: 0.66rem; }
+  #legend img { display: block; max-width: 100%; height: auto; margin: 2px 0 6px; border: 1px solid var(--rule); border-radius: 3px; }
+  #legend .fig { font-size: 0.66rem; color: var(--ink-3); margin: 0 0 8px; }
   .src { margin: 0; font-size: 0.66rem; color: var(--ink-3); line-height: 1.5; }
   a { color: #1d63b8; }
   @media (max-width: 560px) { .card { right: 14px; width: auto; max-height: 44vh; } }
@@ -52,15 +62,18 @@
   <h1>Southwestern Medical District master plan</h1>
   <p class="sub">The district's 2024 master plan, placed on the map so it can be compared with
     what stands there today. UT Southwestern, Parkland and Children's Health planned four hubs
-    for growth. Fade the plan or switch to satellite to see the buildings, lots and streets it
-    would replace.</p>
+    for growth. Pick a figure from the plan, then fade it or switch to satellite to see the
+    buildings, lots and streets underneath.</p>
 
   <div class="view">
     <div class="seg" id="basemap"><button data-b="map" class="on">Map</button><button data-b="sat">Satellite</button></div>
     <label>Plan <input id="opacity" type="range" min="0" max="100" value="85" aria-label="Plan opacity"></label>
   </div>
 
-  <div class="key">
+  <div class="layers" id="layers"></div>
+
+  <div id="legend"></div>
+  <div class="key" id="key47">
     <h2>The plan's hubs</h2>
     <div class="row"><i class="hub"></i><span><b>1 Butler</b> · <b>2 Bomar</b> · <b>3 Record Crossing</b> · <b>4 Cedar Springs</b></span></div>
     <h2 style="margin-top:8px">Land use in the plan</h2>
@@ -70,10 +83,10 @@
     <div class="row"><i style="background:#ece8f4"></i><span><b>Institutional, outside the hubs</b></span></div>
   </div>
 
-  <p class="src">Southwestern Medical District 2024 Master Plan, September 2024, Figure 47
-    (Overall Master Plan). Placed on the map by geopen.io: the figure was fitted to six street
-    intersections from OpenStreetMap, and those intersections land 8 to 46 m from where they
-    should (28 m on average). Treat block edges as approximate. ·
+  <p class="src">Southwestern Medical District 2024 Master Plan, September 2024. Placed on the map
+    by geopen.io: Figure 47 was fitted to six street intersections from OpenStreetMap, which land
+    8 to 46 m from where they should (28 m on average); the other figures share its base map and
+    were matched to it automatically. Treat block edges as approximate. ·
     <a href="https://swmeddistrict.org/wp-content/uploads/2025/01/southwestern-medical-district-2024-master-plan.pdf">the plan (PDF)</a> ·
     <a href="https://geopen.io/">geopen.io</a></p>
 </div>
@@ -117,12 +130,44 @@ window.__map = map;
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
 
+const PDF = "https://swmeddistrict.org/wp-content/uploads/2025/01/southwestern-medical-district-2024-master-plan.pdf";
+const FIG47 = { id: "plan", figure: 47, page: 59, title: "Overall master plan", group: "The plan" };
+let LAYERS = [FIG47], active = "plan";
 let k = 0.85, sat = false;
 function applyView() {
-  map.setPaintProperty("plan", "raster-opacity", k);
+  if (map.getLayer(active)) map.setPaintProperty(active, "raster-opacity", k);
   for (const [id, on] of [["base", !sat], ["ref", !sat], ["sat", sat], ["roads", sat], ["places", sat]])
     map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
 }
+// a figure's image is fetched only when it is first picked
+function show(id) {
+  const L = LAYERS.find((l) => l.id === id);
+  if (!map.getSource(id)) {
+    map.addSource(id, { type: "image", url: L.image, coordinates: L.corners });
+    map.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": k, "raster-fade-duration": 0 } }, "ref");
+  }
+  for (const l of LAYERS) if (map.getLayer(l.id)) map.setLayoutProperty(l.id, "visibility", l.id === id ? "visible" : "none");
+  active = id; applyView();
+  document.getElementById("key47").style.display = id === "plan" ? "" : "none";
+  const link = `<a href="${PDF}#page=${L.page}" target="_blank" rel="noopener">Figure ${L.figure}, page ${L.page - 2} of the plan</a>`;
+  document.getElementById("legend").innerHTML = id === "plan" ? "" :
+    (L.legend ? `<img src="${L.legend}" alt="Legend for figure ${L.figure}">` : "") + `<p class="fig">${link}</p>`;
+  document.querySelectorAll("#layers label").forEach((x) => x.classList.toggle("on", x.dataset.id === id));
+}
+function buildList() {
+  const groups = ["Today", "The plan"];
+  document.getElementById("layers").innerHTML = groups.map((g) => `<h2>${g}</h2>` +
+    LAYERS.filter((l) => l.group === g).map((l) =>
+      `<label data-id="${l.id}"><input type="radio" name="fig" value="${l.id}"${l.id === active ? " checked" : ""}>` +
+      `${l.title}<em>Fig. ${l.figure}</em></label>`).join("")).join("");
+  document.querySelectorAll("#layers input").forEach((r) => r.onchange = () => show(r.value));
+  document.querySelector(`#layers label[data-id="${active}"]`).classList.add("on");
+}
+buildList();
+fetch("/data/swmd_plan/layers.json").then((r) => r.json()).then((extra) => {
+  LAYERS = [...extra.filter((l) => l.group === "Today"), FIG47, ...extra.filter((l) => l.group !== "Today")];
+  buildList();
+});
 document.getElementById("opacity").oninput = (e) => { k = e.target.value / 100; applyView(); };
 document.querySelectorAll("#basemap button").forEach(b => b.onclick = () => {
   sat = b.dataset.b === "sat";
