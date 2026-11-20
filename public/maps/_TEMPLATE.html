@@ -154,11 +154,11 @@
 const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
 const BASES = [
   { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5, maxzoom: 16 },
   { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 16 },
   { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 19 },
 ];
 let baseKey = "dark";
 
@@ -192,11 +192,11 @@ const map = new maplibregl.Map({
     // required, or any symbol layer silently renders no text
     glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sources: {
-      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+      base: { type: "raster", tileSize: 256, maxzoom: BASES[0].maxzoom, attribution: "© Esri",
               tiles: [BASES[0].url] },
       // seeded from a base that HAS a ref. A null here fails style validation
       // and silently drops every layer on the map.
-      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+      ref: { type: "raster", tileSize: 256, maxzoom: BASES.find((b) => b.ref).maxzoom,
              tiles: [BASES.find((b) => b.ref).ref] },
       data: { type: "geojson", data: "/data/NAME.geojson" },
     },
@@ -209,11 +209,26 @@ map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-ri
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
 window.__map = map;      // make_map_cards.py waits on this to know when to shoot
 
+/* Esri's grey canvases stop at zoom 16 and answer deeper requests with a "Map data not yet available"
+   tile, so a source's maxzoom must match its base. A raster source's maxzoom cannot change in place,
+   so the source is rebuilt and its layers put back where they were. */
+function setRaster(id, url, maxzoom) {
+  const src = map.getSource(id);
+  if (src && src.maxzoom === maxzoom) { src.setTiles([url]); return; }
+  const all = map.getStyle().layers;
+  const mine = all.filter((l) => l.source === id);
+  const before = mine.map((l) => { const k = all.findIndex((x) => x.id === l.id);
+    return all.slice(k + 1).find((x) => x.source !== id)?.id; });
+  mine.forEach((l) => map.removeLayer(l.id));
+  map.removeSource(id);
+  map.addSource(id, { type: "raster", tileSize: 256, maxzoom, tiles: [url], ...(id === "base" ? { attribution: "© Esri" } : {}) });
+  mine.forEach((l, j) => map.addLayer(l, before[j]));
+}
 function setBase(bm) {
   baseKey = bm.id;
-  map.getSource("base").setTiles([bm.url]);
+  setRaster("base", bm.url, bm.maxzoom);
   map.setPaintProperty("base", "raster-opacity", bm.opacity);
-  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (bm.ref) setRaster("ref", bm.ref, bm.maxzoom);
   if (map.getLayer("ref"))
     map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
   document.querySelectorAll("#bases button").forEach((b) =>

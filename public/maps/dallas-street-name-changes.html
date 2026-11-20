@@ -99,7 +99,7 @@
   .maplibregl-ctrl-top-right { top: 46px; }
   .pick { margin-top: 10px; font-size: 13px; line-height: 1.5; }
   .pick b { display: block; font-size: 15px; }
-  .pick .sw { display: inline-block; width: 18px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+  .sw { display: inline-block; width: 18px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
 </style>
 
 <div id="map"></div>
@@ -109,7 +109,7 @@
   <div class="grab" aria-hidden="true"></div>
   <h1>Where central Dallas streets change their names</h1>
   <p>Inside the central loop, a street changes its name <b>88</b> times without turning: keep driving straight and the sign says something else. <b>63</b> of those are on arterials and collectors, among them Turtle Creek into Cedar Springs into Bowen, Maple into Routh, Gaston into Pacific and Young into Canton.</p>
-  <p>Click a point to light up both streets. A change is counted where one name ends and another begins at an angle within 35° of straight. Short connector segments are followed through, so Maple meets Routh across Woodall Rodgers. Prefix changes (N to S Haskell), alleys, freeways and ramps are not counted. A few points are angled T-junctions where the next street happens to line up.</p>
+  <p>Click a point, or either coloured stub, to light up both streets. A change is counted where one name ends and another begins at an angle within 35° of straight. Short connector segments are followed through, so Maple meets Routh across Woodall Rodgers. Prefix changes (N to S Haskell), alleys, freeways and ramps are not counted. A few points are angled T-junctions where the next street happens to line up.</p>
   <div id="pick" class="pick"></div>
 
   <div class="lab">Legend</div>
@@ -129,11 +129,11 @@
 const E = "https://server.arcgisonline.com/ArcGIS/rest/services";
 const BASES = [
   { id: "light", label: "Light", url: `${E}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+    ref: `${E}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 16 },
   { id: "dark", label: "Dark", url: `${E}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5 },
+    ref: `${E}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, opacity: 0.5, maxzoom: 16 },
   { id: "sat", label: "Satellite", url: `${E}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
-    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1 },
+    ref: `${E}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, opacity: 1, maxzoom: 19 },
 ];
 let baseKey = "light";
 
@@ -167,11 +167,11 @@ const map = new maplibregl.Map({
     // required, or any symbol layer silently renders no text
     glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sources: {
-      base: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© Esri",
+      base: { type: "raster", tileSize: 256, maxzoom: BASES[0].maxzoom, attribution: "© Esri",
               tiles: [BASES[0].url] },
       // seeded from a base that HAS a ref. A null here fails style validation
       // and silently drops every layer on the map.
-      ref: { type: "raster", tileSize: 256, maxzoom: 19,
+      ref: { type: "raster", tileSize: 256, maxzoom: BASES.find((b) => b.ref).maxzoom,
              tiles: [BASES.find((b) => b.ref).ref] },
       data: { type: "geojson", data: "/data/dallas_street_name_changes.geojson" },
     },
@@ -184,11 +184,26 @@ map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-ri
 map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-right");
 window.__map = map;      // make_map_cards.py waits on this to know when to shoot
 
+/* Esri's grey canvases stop at zoom 16 and answer deeper requests with a "Map data not yet available"
+   tile, so a source's maxzoom must match its base. A raster source's maxzoom cannot change in place,
+   so the source is rebuilt and its layers put back where they were. */
+function setRaster(id, url, maxzoom) {
+  const src = map.getSource(id);
+  if (src && src.maxzoom === maxzoom) { src.setTiles([url]); return; }
+  const all = map.getStyle().layers;
+  const mine = all.filter((l) => l.source === id);
+  const before = mine.map((l) => { const k = all.findIndex((x) => x.id === l.id);
+    return all.slice(k + 1).find((x) => x.source !== id)?.id; });
+  mine.forEach((l) => map.removeLayer(l.id));
+  map.removeSource(id);
+  map.addSource(id, { type: "raster", tileSize: 256, maxzoom, tiles: [url], ...(id === "base" ? { attribution: "© Esri" } : {}) });
+  mine.forEach((l, j) => map.addLayer(l, before[j]));
+}
 function setBase(bm) {
   baseKey = bm.id;
-  map.getSource("base").setTiles([bm.url]);
+  setRaster("base", bm.url, bm.maxzoom);
   map.setPaintProperty("base", "raster-opacity", bm.opacity);
-  if (bm.ref) map.getSource("ref").setTiles([bm.ref]);
+  if (bm.ref) setRaster("ref", bm.ref, bm.maxzoom);
   if (map.getLayer("ref"))
     map.setLayoutProperty("ref", "visibility", bm.ref ? "visible" : "none");
   document.querySelectorAll("#bases button").forEach((b) =>
@@ -207,7 +222,9 @@ function pick(p) {
     `<span class="sw" style="background:${CA}"></span>${esc(a)}<br><span class="sw" style="background:${CB}"></span>${esc(b)}`;
 }
 function popupHTML(p) {
-  return `<div class="pop"><b>${esc(p.label)}</b>` + (p.at ? `<br><span class="sub">near ${esc(p.at)}</span>` : "") + `</div>`;
+  const [a, b] = p.label.split(" ↔ ");
+  const name = p.side ? `<span class="sw" style="background:${p.side === "a" ? CA : CB}"></span>${esc(p.side === "a" ? a : b)}<br>` : "";
+  return `<div class="pop">${name}<b>${esc(p.label)}</b>` + (p.at ? `<br><span class="sub">near ${esc(p.at)}</span>` : "") + `</div>`;
 }
 
 map.on("load", () => {
@@ -218,6 +235,12 @@ map.on("load", () => {
     paint: { "line-color": "#ffffff", "line-width": 8, "line-opacity": 0.9 }, layout: { "line-cap": "round", "line-join": "round" } });
   map.addLayer({ id: "hl", type: "line", source: "data", filter: none,
     paint: { "line-color": CA, "line-width": 4.5 }, layout: { "line-cap": "round", "line-join": "round" } });
+  map.addLayer({ id: "stub", type: "line", source: "data", filter: ["==", ["get", "kind"], "stub"],
+    paint: { "line-color": ["match", ["get", "side"], "a", CA, CB],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 12, 2.5, 16, 5] },
+    layout: { "line-cap": "round" } });
+  map.addLayer({ id: "stub-hit", type: "line", source: "data", filter: ["==", ["get", "kind"], "stub"],
+    paint: { "line-color": "#000", "line-opacity": 0, "line-width": 16 } });
   map.addLayer({ id: "pts", type: "circle", source: "data", filter: ["==", ["get", "kind"], "change"],
     paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, ["match", ["get", "tier"], "major", 5, 3],
                                                                     16, ["match", ["get", "tier"], "major", 9, 6]],
@@ -231,11 +254,14 @@ map.on("load", () => {
   setBase(BASES[0]);
 
   const pop = new maplibregl.Popup({ closeButton: false, closeOnClick: false, maxWidth: "260px", offset: 10 });
-  map.on("click", "pts", (e) => { pick(e.features[0].properties); sync(); });
-  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    map.on("mousemove", "pts", (e) => { map.getCanvas().style.cursor = "pointer";
-      pop.setLngLat(e.features[0].geometry.coordinates).setHTML(popupHTML(e.features[0].properties)).addTo(map); });
-    map.on("mouseleave", "pts", () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+  // a point and its two stubs open the same change; the stubs let a reader pick the right one where points crowd
+  for (const l of ["pts", "stub-hit"]) {
+    map.on("click", l, (e) => { pick(e.features[0].properties); sync(); });
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      map.on("mousemove", l, (e) => { map.getCanvas().style.cursor = "pointer";
+        pop.setLngLat(e.lngLat).setHTML(popupHTML(e.features[0].properties)).addTo(map); });
+      map.on("mouseleave", l, () => { map.getCanvas().style.cursor = ""; pop.remove(); });
+    }
   }
   document.getElementById("keys").innerHTML = [["#7a3fd0", "Major street (arterial or collector)", 63, 12], ["#9aa3ad", "Local street", 25, 8]].map(([c, label, n, r]) =>
     `<div class="key"><i style="background:${c};width:${r}px;height:${r}px;border-radius:50%"></i><span>${label}</span>` +
