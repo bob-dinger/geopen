@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who builds and funds DFW</title>
+<meta name="description" content="The developers, investors and lenders behind Dallas–Fort Worth real estate: how big each says it is, how many people it employs, and what it invests in. Every figure labelled by what it measures, with its source.">
+<link rel="canonical" href="https://geopen.io/maps/dfw-real-estate-firms.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="geopen.io">
+<meta property="og:title" content="Who builds and funds DFW">
+<meta property="og:description" content="73 DFW developers, investors and lenders: size, headcount and what they invest in, each figure labelled by what it actually measures.">
+<meta property="og:url" content="https://geopen.io/maps/dfw-real-estate-firms.html">
+<meta property="og:image" content="https://geopen.io/maps/dfw-real-estate-firms-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb; --surface-2: #f3f2ee; --rule: #e2e0da; --grid: #ecebe6;
+    --text-1: #0b0b0b; --text-2: #52514e; --text-3: #7b7a75;
+    --s-managed: #2a78d6; --s-deals: #eb6834; --s-owned: #1baf7a; --s-bank: #8f8e88;
+    --cell: #2a78d6; --accent: #1d63b8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface: #1a1a19; --surface-2: #232321; --rule: #34332f; --grid: #2a2a27;
+      --text-1: #f0efec; --text-2: #c3c2b7; --text-3: #8f8e88;
+      --s-managed: #3987e5; --s-deals: #d95926; --s-owned: #199e70; --s-bank: #7a7974;
+      --cell: #3987e5; --accent: #8fc7ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #232321; --rule: #34332f; --grid: #2a2a27;
+    --text-1: #f0efec; --text-2: #c3c2b7; --text-3: #8f8e88;
+    --s-managed: #3987e5; --s-deals: #d95926; --s-owned: #199e70; --s-bank: #7a7974;
+    --cell: #3987e5; --accent: #8fc7ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface); color: var(--text-1); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 40px 0 10px; }
+  h1 { margin: 0 0 10px; font-size: 32px; line-height: 1.15; letter-spacing: -0.015em; }
+  .lede { margin: 0 0 8px; max-width: 760px; font-size: 17px; color: var(--text-2); }
+  .stats { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .stats div b { display: block; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stats div span { font-size: 13px; color: var(--text-3); }
+  .filters { position: sticky; top: 0; z-index: 5; background: var(--surface); border-bottom: 1px solid var(--rule);
+    padding: 10px 0; margin-top: 18px; }
+  .filters .wrap { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-2); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips button { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--rule);
+    background: var(--surface); color: var(--text-1); cursor: pointer; }
+  .chips button.on { background: var(--text-1); color: var(--surface); border-color: var(--text-1); }
+  select { font: inherit; font-size: 13px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--rule); background: var(--surface); color: var(--text-1); }
+  section.chart { padding: 34px 0 6px; }
+  section.chart h2 { margin: 0 0 4px; font-size: 21px; letter-spacing: -0.01em; }
+  section.chart .sub { margin: 0 0 14px; color: var(--text-2); max-width: 760px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--text-2); margin: 0 0 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .legend i.ring { background: none !important; border: 2px solid var(--text-3); }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--text-2); font-size: 12px; }
+  svg .axis path, svg .axis line { stroke: var(--rule); }
+  svg .axis text { fill: var(--text-3); font-size: 11px; }
+  svg .grid line { stroke: var(--grid); }
+  svg .label { fill: var(--text-1); font-size: 12.5px; }
+  .missing { font-size: 13px; color: var(--text-3); margin: 10px 0 0; max-width: 900px; }
+  #tip { position: fixed; z-index: 20; pointer-events: none; max-width: 320px; background: var(--surface); color: var(--text-1);
+    border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.14); opacity: 0; transition: opacity .1s; }
+  #tip b { display: block; font-size: 14px; }
+  #tip .k { color: var(--text-3); }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 600; color: var(--text-2); position: sticky; top: 0; background: var(--surface); cursor: pointer; white-space: nowrap; }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .note { font-size: 13px; color: var(--text-3); padding: 26px 0 50px; max-width: 820px; }
+  @media (max-width: 640px) { h1 { font-size: 25px; } .stats { gap: 18px; } .filters { position: static; } }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Who builds and funds DFW</h1>
+  <p class="lede">The developers, investors and lenders behind Dallas–Fort Worth real estate: how big each one says it
+    is, how many people it employs, and what it puts money into. Firms describe their size in different ways, and the
+    ways are not interchangeable, so every figure here is labelled by what it measures.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="filters" role="group" aria-label="Filters"><div class="wrap">
+  <span>Firm type</span><div class="chips" id="types"></div>
+  <span>Invests in</span><select id="asset" aria-label="Asset type"><option value="">Any asset type</option></select>
+</div></div>
+
+<main class="wrap">
+  <section class="chart">
+    <h2>How big each firm says it is</h2>
+    <p class="sub">Dollar figures on a log scale, so a $30 million fund and an $80 billion manager fit on one line.
+      Colour says what the number counts. Money managed today and deals done over a firm's whole life are different
+      things; a bank's balance sheet is different again.</p>
+    <div class="legend" id="legend1"></div>
+    <div id="dots"></div>
+    <p class="missing" id="missing"></p>
+  </section>
+
+  <section class="chart">
+    <h2>Size against headcount</h2>
+    <p class="sub">Firms with both a dollar figure and an employee count. Fund managers run billions with a few dozen
+      people; developers and lenders that operate property or branches employ hundreds or thousands. Hollow dots are
+      headcounts known only as a range.</p>
+    <div class="legend" id="legend2"></div>
+    <div id="scatter"></div>
+  </section>
+
+  <section class="chart">
+    <h2>What they invest in</h2>
+    <p class="sub">One row per firm, largest first; a filled cell means the firm says it invests in, develops or lends
+      on that kind of property.</p>
+    <div id="matrix"></div>
+  </section>
+
+  <section class="chart">
+    <h2>Every firm, with sources</h2>
+    <p class="sub">Click a column to sort.</p>
+    <div class="tablewrap"><table id="table"></table></div>
+  </section>
+
+  <p class="note">Researched November 2026 from company websites, SEC adviser filings (Form ADV), bank call reports
+    and 10-Ks, press releases and trade press. Figures are what each firm or filing reports, with the year; none are
+    estimates by geopen. Some firms publish no dollar figure at all, and some count only one arm of a larger group
+    (noted where known). A starting list, not a census: if a figure is wrong or a firm is missing, it can be
+    corrected. · <a href="/data/dfw_re_firms.json">download the data</a> · <a href="https://geopen.io/">geopen.io</a></p>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const KINDS = [
+  ["managed", "Money managed now (AUM, fund size)"],
+  ["deals", "Deals done over the firm's life"],
+  ["owned", "Portfolio or pipeline value"],
+  ["bank", "Bank or lender balance sheet"],
+];
+const KIND_LABEL = Object.fromEntries(KINDS);
+const TYPES = ["Developer", "Developer-investor", "Investor / fund manager", "REIT", "Lender"];
+const ASSETS = ["multifamily", "single-family / build-to-rent", "office", "industrial / logistics", "retail", "hospitality",
+  "mixed-use", "land / master-planned", "senior housing", "student housing", "medical office / life science", "data centers",
+  "self-storage", "debt / lending"];
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const color = (k) => css(`--s-${k}`);
+const money = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(v >= 1e10 ? 0 : 1)}B` : `$${Math.round(v / 1e6)}M`;
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tip = document.getElementById("tip");
+function showTip(e, html) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(e.clientX + 14, innerWidth - w - 10) + "px";
+  tip.style.top = (e.clientY + h + 20 > innerHeight ? e.clientY - h - 12 : e.clientY + 14) + "px";
+}
+const hideTip = () => tip.style.opacity = 0;
+function firmTip(f) {
+  return `<b>${esc(f.name)}</b><span class="k">${esc(f.type)}${f.city ? ` · ${esc(f.city)}` : ""}${f.founded ? ` · founded ${f.founded}` : ""}</span><br>` +
+    (f.usd ? `${money(f.usd)} <span class="k">${esc(f.metric)}${f.as_of ? `, ${esc(f.as_of)}` : ""}</span><br>` : `<span class="k">No published dollar figure</span><br>`) +
+    (f.employees ? `${f.employees_est ? "≈" : ""}${f.employees.toLocaleString()} employees <span class="k">${esc(f.employees_scope || "")}</span><br>` : "") +
+    (f.invests_in.length ? `<span class="k">Invests in:</span> ${esc(f.invests_in.join(", "))}<br>` : "") +
+    (f.notes ? `<span class="k">${esc(f.notes).slice(0, 260)}${f.notes.length > 260 ? "…" : ""}</span>` : "");
+}
+
+let ALL = [], type = "all", asset = "";
+const keep = (f) => (type === "all" || f.type === type) && (!asset || f.invests_in.includes(asset));
+
+function legend(id, withRing) {
+  document.getElementById(id).innerHTML = KINDS.map(([k, l]) => `<span><i style="background:${color(k)}"></i>${l}</span>`).join("") +
+    (withRing ? `<span><i class="ring"></i>Headcount known only as a range</span>` : "");
+}
+
+function drawDots(rows) {
+  const el = d3.select("#dots"); el.selectAll("*").remove();
+  const data = rows.filter((f) => f.usd).sort((a, b) => b.usd - a.usd);
+  const W = el.node().clientWidth, narrow = W < 600, row = 24, m = { t: 24, r: narrow ? 52 : 70, b: 10, l: Math.min(230, W * (narrow ? 0.5 : 0.42)) };
+  const H = m.t + m.b + data.length * row;
+  const svg = el.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Firm size by dollar figure");
+  const x = d3.scaleLog().domain([2e7, 1.2e11]).range([m.l, W - m.r]);
+  const ticks = narrow ? [1e8, 1e9, 1e10, 1e11] : [3e7, 1e8, 3e8, 1e9, 3e9, 1e10, 3e10, 1e11];
+  svg.append("g").attr("class", "grid").selectAll("line").data(ticks).join("line")
+    .attr("x1", x).attr("x2", x).attr("y1", m.t - 6).attr("y2", H - m.b);
+  svg.append("g").attr("class", "axis").attr("transform", `translate(0,${m.t - 6})`)
+    .call(d3.axisTop(x).tickValues(ticks).tickFormat(money).tickSize(0)).call((g) => g.select(".domain").remove());
+  const g = svg.append("g").selectAll("g").data(data).join("g").attr("transform", (d, i) => `translate(0,${m.t + i * row + row / 2})`);
+  g.append("text").attr("class", "label").attr("x", m.l - 12).attr("dy", "0.35em").attr("text-anchor", "end")
+    .attr("font-size", narrow ? 11 : null).text((d) => d.name);
+  g.append("line").attr("x1", m.l).attr("x2", (d) => x(d.usd)).attr("stroke", "var(--grid)").attr("stroke-width", 2);
+  g.append("circle").attr("cx", (d) => x(d.usd)).attr("r", 6).attr("fill", (d) => color(d.kind))
+    .attr("stroke", "var(--surface)").attr("stroke-width", 2);
+  g.append("text").attr("x", (d) => x(d.usd) + 11).attr("dy", "0.35em").text((d) => money(d.usd));
+  g.append("rect").attr("x", 0).attr("y", -row / 2).attr("width", W).attr("height", row).attr("fill", "transparent")
+    .on("mousemove", (e, d) => showTip(e, firmTip(d))).on("mouseleave", hideTip);
+  const none = rows.filter((f) => !f.usd).map((f) => f.name).sort();
+  document.getElementById("missing").textContent = none.length ?
+    `No published dollar figure (${none.length}): ${none.join(", ")}.` : "";
+}
+
+function drawScatter(rows) {
+  const el = d3.select("#scatter"); el.selectAll("*").remove();
+  const data = rows.filter((f) => f.usd && f.employees);
+  const W = el.node().clientWidth, H = Math.max(320, Math.min(460, W * 0.55)), m = { t: 12, r: 24, b: 44, l: 64 };
+  const svg = el.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Dollar figure against employees");
+  const x = d3.scaleLog().domain([5, 12000]).range([m.l, W - m.r]);
+  const y = d3.scaleLog().domain([2e7, 1.2e11]).range([H - m.b, m.t]);
+  const xt = [10, 30, 100, 300, 1000, 3000, 10000], yt = [1e8, 1e9, 1e10, 1e11];
+  svg.append("g").attr("class", "grid").call((g) => {
+    g.selectAll("line.v").data(xt).join("line").attr("x1", x).attr("x2", x).attr("y1", m.t).attr("y2", H - m.b);
+    g.selectAll("line.h").data(yt).join("line").attr("y1", y).attr("y2", y).attr("x1", m.l).attr("x2", W - m.r);
+  });
+  svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`)
+    .call(d3.axisBottom(x).tickValues(xt).tickFormat(d3.format(",")).tickSize(0)).call((g) => g.select(".domain").remove());
+  svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`)
+    .call(d3.axisLeft(y).tickValues(yt).tickFormat(money).tickSize(0)).call((g) => g.select(".domain").remove());
+  svg.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", H - 8).attr("text-anchor", "middle").text("Employees (log scale)");
+  const dots = svg.append("g").selectAll("g").data(data).join("g").attr("transform", (d) => `translate(${x(d.employees)},${y(d.usd)})`);
+  dots.append("circle").attr("r", 7)
+    .attr("fill", (d) => d.employees_est ? "var(--surface)" : color(d.kind))
+    .attr("stroke", (d) => d.employees_est ? color(d.kind) : "var(--surface)").attr("stroke-width", 2);
+  dots.append("circle").attr("r", 14).attr("fill", "transparent")
+    .on("mousemove", (e, d) => showTip(e, firmTip(d))).on("mouseleave", hideTip);
+  // name the extremes rather than every dot
+  const named = new Set([...data].sort((a, b) => b.usd - a.usd).slice(0, 4).concat(
+    [...data].sort((a, b) => a.employees - b.employees).slice(0, 2)).map((d) => d.name));
+  dots.filter((d) => named.has(d.name)).append("text").attr("x", 11).attr("dy", "0.35em").attr("class", "label").text((d) => d.name)
+    .attr("text-anchor", (d) => x(d.employees) > W * 0.75 ? "end" : "start").attr("x", (d) => x(d.employees) > W * 0.75 ? -11 : 11);
+}
+
+function drawMatrix(rows) {
+  const el = d3.select("#matrix"); el.selectAll("*").remove();
+  const data = [...rows].sort((a, b) => (b.usd || 0) - (a.usd || 0) || a.name.localeCompare(b.name));
+  const W = el.node().clientWidth, m = { t: 170, r: 10, b: 10, l: Math.min(220, W * 0.38) };
+  const cw = Math.max(16, Math.min(44, (W - m.l - m.r) / ASSETS.length)), row = 20;
+  const H = m.t + m.b + data.length * row;
+  const svg = el.append("svg").attr("viewBox", `0 0 ${Math.max(W, m.l + cw * ASSETS.length + m.r)} ${H}`).attr("role", "img").attr("aria-label", "Asset types by firm");
+  svg.append("g").selectAll("text").data(ASSETS).join("text")
+    .attr("transform", (d, i) => `translate(${m.l + i * cw + cw / 2 + 4},${m.t - 8}) rotate(-50)`).attr("font-size", 11.5).text((d) => d);
+  const g = svg.append("g").selectAll("g").data(data).join("g").attr("transform", (d, i) => `translate(0,${m.t + i * row})`);
+  g.append("text").attr("class", "label").attr("x", m.l - 10).attr("y", row / 2).attr("dy", "0.35em").attr("text-anchor", "end").attr("font-size", 12).text((d) => d.name);
+  g.selectAll("rect").data((d) => ASSETS.map((a) => ({ f: d, a, on: d.invests_in.includes(a) }))).join("rect")
+    .attr("x", (c, i) => m.l + i * cw + 1).attr("y", 1).attr("width", cw - 2).attr("height", row - 2).attr("rx", 3)
+    .attr("fill", (c) => c.on ? "var(--cell)" : "var(--surface-2)")
+    .on("mousemove", (e, c) => showTip(e, `<b>${esc(c.f.name)}</b>${c.on ? "Invests in" : "Does not list"} ${esc(c.a)}`)).on("mouseleave", hideTip);
+}
+
+const COLS = [
+  ["Firm", (f) => f.name, (f) => f.website ? `<a href="${esc(f.website)}" target="_blank" rel="noopener">${esc(f.name)}</a>` : esc(f.name)],
+  ["Type", (f) => f.type, (f) => esc(f.type)],
+  ["Dollar figure", (f) => f.usd || 0, (f) => f.usd ? money(f.usd) : "—", "n"],
+  ["What it counts", (f) => f.metric || "", (f) => f.usd ? `${esc(f.metric)}${f.as_of ? `, ${esc(f.as_of)}` : ""}${f.scale_source ? ` · <a href="${esc(f.scale_source)}" target="_blank" rel="noopener">source</a>` : ""}` : ""],
+  ["Employees", (f) => f.employees || 0, (f) => f.employees ? `${f.employees_est ? "≈" : ""}${f.employees.toLocaleString()}${f.employees_source ? ` · <a href="${esc(f.employees_source)}" target="_blank" rel="noopener">source</a>` : ""}` : "—", "n"],
+  ["Invests in", (f) => f.invests_in.join(", "), (f) => esc(f.invests_in.join(", "))],
+  ["HQ", (f) => f.city || "", (f) => esc(f.city || "")],
+];
+let sortCol = 2, sortDir = -1;
+function drawTable(rows) {
+  const t = document.getElementById("table");
+  const data = [...rows].sort((a, b) => { const va = COLS[sortCol][1](a), vb = COLS[sortCol][1](b); return (va > vb ? 1 : va < vb ? -1 : 0) * sortDir; });
+  t.innerHTML = `<thead><tr>${COLS.map((c, i) => `<th data-i="${i}">${c[0]}${i === sortCol ? (sortDir < 0 ? " ↓" : " ↑") : ""}</th>`).join("")}</tr></thead>` +
+    `<tbody>${data.map((f) => `<tr>${COLS.map((c) => `<td class="${c[3] || ""}">${c[2](f)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+  t.querySelectorAll("th").forEach((th) => th.onclick = () => { const i = +th.dataset.i; sortDir = i === sortCol ? -sortDir : (i === 2 || i === 4 ? -1 : 1); sortCol = i; drawTable(ALL.filter(keep)); });
+}
+
+function draw() {
+  const rows = ALL.filter(keep);
+  legend("legend1"); legend("legend2", true);
+  drawDots(rows); drawScatter(rows); drawMatrix(rows); drawTable(rows);
+}
+
+d3.json("/data/dfw_re_firms.json").then(({ firms }) => {
+  ALL = firms;
+  const managed = firms.filter((f) => f.kind === "managed").reduce((n, f) => n + f.usd, 0);
+  document.getElementById("stats").innerHTML =
+    `<div><b>${firms.length}</b><span>firms researched</span></div>` +
+    `<div><b>${firms.filter((f) => f.usd).length}</b><span>publish a dollar figure</span></div>` +
+    `<div><b>${firms.filter((f) => f.employees).length}</b><span>with a headcount</span></div>` +
+    `<div><b>${firms.filter((f) => f.kind === "managed").length}</b><span>report money managed now</span></div>`;
+  document.getElementById("types").innerHTML = `<button type="button" class="on" data-t="all">All</button>` +
+    TYPES.map((t) => `<button type="button" data-t="${t}">${t} <span style="opacity:.6">${firms.filter((f) => f.type === t).length}</span></button>`).join("");
+  document.querySelectorAll("#types button").forEach((b) => b.onclick = () => {
+    type = b.dataset.t; document.querySelectorAll("#types button").forEach((x) => x.classList.toggle("on", x === b)); draw();
+  });
+  const sel = document.getElementById("asset");
+  sel.innerHTML += ASSETS.map((a) => `<option value="${a}">${a} (${firms.filter((f) => f.invests_in.includes(a)).length})</option>`).join("");
+  sel.onchange = () => { asset = sel.value; draw(); };
+  draw();
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 150); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  window.__ready = true;
+});
+</script>
+</body>
+</html>
