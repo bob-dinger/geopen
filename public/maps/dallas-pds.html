@@ -100,6 +100,31 @@
   .key { cursor: pointer; }
   .key.off { opacity: 0.35; }
   .pop a { color: #8fc7ff; }
+  .pop button.read { margin-top: 6px; font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 4px; border: 0;
+    background: #4f9fd6; color: #fff; cursor: pointer; }
+  .panel.wide { width: 470px; }
+  #reader { position: relative; }
+  #reader .head { position: sticky; top: -15px; z-index: 2; margin: -15px -17px 0; padding: 15px 17px 6px;
+    background: rgba(12,16,21,0.98); border-bottom: 1px solid var(--rule); }
+  #reader .close { all: unset; cursor: pointer; position: absolute; top: 9px; right: 13px; width: 28px; height: 28px;
+    display: grid; place-items: center; font-size: 20px; color: var(--ink-2); border-radius: 4px; }
+  #reader .close:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
+  #reader h2 { margin: 0 30px 2px 0; font-size: 17px; }
+  #reader .meta { font-size: 12px; color: var(--ink-3); margin: 0 0 8px; line-height: 1.45; }
+  #reader .meta a { color: #8fc7ff; }
+  #reader .tabs { display: flex; gap: 4px; margin: 0 0 8px; }
+  #reader .tabs button { font: inherit; font-size: 12px; padding: 4px 9px; border-radius: 4px; border: 1px solid var(--rule);
+    background: none; color: var(--ink-2); cursor: pointer; }
+  #reader .tabs button.on { background: var(--ink); color: #111; }
+  #reader .tools { display: flex; gap: 6px; margin: 0 0 8px; }
+  #reader select, #reader input { font: inherit; font-size: 12px; padding: 5px 7px; border-radius: 4px; border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.06); color: inherit; min-width: 0; }
+  #reader select { flex: 1 1 55%; } #reader input { flex: 1 1 45%; }
+  #reader .count { font-size: 11px; color: var(--ink-3); margin: -4px 0 6px; min-height: 14px; }
+  #reader .body h4 { margin: 14px 0 4px; font-size: 13px; color: var(--ink); }
+  #reader .body .t { white-space: pre-wrap; font-size: 12px; line-height: 1.55; color: var(--ink-2); }
+  #reader mark { background: #f2a541; color: #111; border-radius: 2px; }
+  #reader mark.cur { background: #ffd166; outline: 2px solid #ffd166; }
 </style>
 
 <div id="map"></div>
@@ -107,6 +132,7 @@
 
 <section class="panel" id="panel">
   <div class="grab" aria-hidden="true"></div>
+ <div id="main">
   <h1>Dallas’s planned developments</h1>
   <p>Dallas has <b>1,004</b> planned developments (PDs) covering <b>45,022 acres</b>, about 18% of the city’s zoned land. Each is its own zoning ordinance, negotiated for one site or neighborhood. The city added <b>154</b> in the 1980s, <b>220</b> in the 1990s and <b>230</b> in the 2000s, and is still adding them: <b>108</b> since 2020.</p>
   <p>The year is when the PD was first created, from its ordinance’s legislative history; most have been amended since. PD 193 (Oak Lawn) is drawn by subdistrict. Under the draft development code, PDs stay in place as overlays, and where a PD is silent the new code applies.</p>
@@ -117,6 +143,8 @@
   <div class="src-inline">
   City of Dallas base zoning and PD 193 subdistricts, 14 Nov 2026; creation dates from the Dallas City Attorney’s codified articles, Dallas City Code ch. 51P (April 2026). · <a href="https://geopen.io/">geopen.io</a>
   </div>
+ </div>
+ <div id="reader" hidden></div>
 </section>
 
 <div class="src">
@@ -220,8 +248,81 @@ function popupHTML(p) {
   return `<div class="pop"><b>PD ${p.pd}</b>${where ? ` · ${esc(where)}` : ""}<br>` +
     `<span class="sub">${esc(p.name)}</span><br>` +
     `<span class="sub">${p.year ? `Created ${p.year}${p.ord ? `, Ord. ${p.ord}` : ""}` : "Creation date not found"} · ${p.acres} acres</span><br>` +
-    `<a href="${article(p.pd)}" target="_blank" rel="noopener">Read the ordinance</a></div>`;
+    `<button class="read" type="button" data-pd="${p.pd}" data-sub="${esc(p.sub || "")}">Read the text</button></div>`;
 }
+
+// the in-map reader: one JSON file per PD, fetched on demand
+const panelEl = document.getElementById("panel"), mainEl = document.getElementById("main"), readerEl = document.getElementById("reader");
+const texts = new Map();
+let hits = [], hit = -1;
+// scroll within the panel only: scrollIntoView would also scroll the page and shove the map out of place
+function scrollPanelTo(el, where) {
+  const r = el.getBoundingClientRect(), pr = panelEl.getBoundingClientRect();
+  const head = readerEl.querySelector(".head")?.offsetHeight ?? 0;
+  panelEl.scrollTop += r.top - pr.top - (where === "center" ? (pr.height + head) / 2 : head + 8);
+}
+function closeReader() { readerEl.hidden = true; readerEl.innerHTML = ""; mainEl.hidden = false; panelEl.classList.remove("wide"); panelEl.scrollTop = 0; }
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !readerEl.hidden) closeReader(); });
+async function openReader(pd, sub) {
+  mainEl.hidden = true; readerEl.hidden = false; panelEl.classList.add("wide", "open"); panelEl.scrollTop = 0;
+  readerEl.innerHTML = `<button class="close" type="button" aria-label="Back to the map key">&times;</button><h2>PD ${pd}</h2><p class="meta">Loading the ordinance…</p>`;
+  readerEl.querySelector(".close").onclick = closeReader;
+  let d = texts.get(pd);
+  if (!d) {
+    try { d = await (await fetch(`/data/pd_text/pd${pd}.json`)).json(); texts.set(pd, d); }
+    catch { readerEl.querySelector(".meta").textContent = "The text for this PD could not be loaded."; return; }
+  }
+  const pds = /^PDS /.test(sub) ? sub.slice(4) : null;
+  const views = pds && d.subdistricts[pds] ? [[`PD Subdistrict ${pds}`, d.subdistricts[pds]], [`Article ${pd} (whole PD)`, d.sections]] : [[`Article ${pd}`, d.sections]];
+  readerEl.innerHTML = `<div class="head"><button class="close" type="button" aria-label="Back to the map key">&times;</button>` +
+    `<h2>PD ${pd}${sub ? ` · ${esc(sub)}` : ""}</h2>` +
+    `<p class="meta">${esc(d.name)}<br>${esc(d.source)} · <a href="${article(pd)}" target="_blank" rel="noopener">city PDF</a></p>` +
+    (views.length > 1 ? `<div class="tabs">${views.map(([t], i) => `<button type="button" data-v="${i}"${i ? "" : ' class="on"'}>${esc(t)}</button>`).join("")}</div>` : "") +
+    `<div class="tools"><select aria-label="Jump to section"></select><input type="search" placeholder="Find in text" aria-label="Find in text"></div>` +
+    `<div class="count"></div></div><div class="body"></div>`;
+  readerEl.querySelector(".close").onclick = closeReader;
+  const sel = readerEl.querySelector("select"), find = readerEl.querySelector("input"), body = readerEl.querySelector(".body"), count = readerEl.querySelector(".count");
+  const show = (secs) => {
+    sel.innerHTML = secs.map((s, i) => `<option value="${i}">${esc(s.id === "preamble" ? "Heading" : s.id)} · ${esc(s.title)}</option>`).join("");
+    body.innerHTML = secs.map((s, i) => `<h4 id="sec-${i}">${s.id === "preamble" ? "" : `Sec. ${esc(s.id)}. `}${esc(s.title)}</h4><div class="t">${esc(s.text)}</div>`).join("");
+    hits = []; hit = -1; count.textContent = ""; if (find.value) search();
+  };
+  const search = () => {
+    body.querySelectorAll("mark").forEach((m) => m.replaceWith(m.textContent)); body.normalize();
+    const q = find.value.trim(); hits = []; hit = -1;
+    if (q.length < 2) { count.textContent = ""; return; }
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    body.querySelectorAll(".t, h4").forEach((el) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const n of nodes) {
+        if (!re.test(n.data)) continue; re.lastIndex = 0;
+        const frag = document.createDocumentFragment(); let last = 0;
+        n.data.replace(re, (m, off) => { frag.append(n.data.slice(last, off)); const mk = document.createElement("mark"); mk.textContent = m; frag.append(mk); hits.push(mk); last = off + m.length; return m; });
+        frag.append(n.data.slice(last)); n.replaceWith(frag);
+      }
+    });
+    count.textContent = hits.length ? `${hits.length} match${hits.length === 1 ? "" : "es"}. Press Enter for the next one.` : "No matches.";
+    next();
+  };
+  const next = () => {
+    if (!hits.length) return;
+    hits[hit]?.classList.remove("cur"); hit = (hit + 1) % hits.length; hits[hit].classList.add("cur");
+    scrollPanelTo(hits[hit], "center");
+    count.textContent = `${hit + 1} of ${hits.length}. Press Enter for the next one.`;
+  };
+  let timer; find.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(search, 250); });
+  find.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); next(); } });
+  sel.onchange = () => scrollPanelTo(document.getElementById(`sec-${sel.value}`), "start");
+  readerEl.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => {
+    readerEl.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("on", x === b)); show(views[+b.dataset.v][1]); panelEl.scrollTop = 0;
+  });
+  show(views[0][1]);
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button.read");
+  if (b) { document.querySelector(".maplibregl-popup")?.remove(); openReader(+b.dataset.pd, b.dataset.sub || null); }
+});
 
 map.on("load", () => {
   map.addLayer({ id: "d-fill", type: "fill", source: "data", filter: filt(),
@@ -232,8 +333,12 @@ map.on("load", () => {
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.7 } });
   setBase(BASES[0]);
 
-  const pop = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: "280px" });
-  map.on("click", "d-fill", (e) => pop.setLngLat(e.lngLat).setHTML(popupHTML(e.features[0].properties)).addTo(map));
+  // one popup, moved from PD to PD; closeOnClick would close it on the very click that moves it
+  const pop = new maplibregl.Popup({ closeButton: true, closeOnClick: false, maxWidth: "280px" });
+  map.on("click", (e) => {
+    const f = map.queryRenderedFeatures(e.point, { layers: ["d-fill"] })[0];
+    if (f) pop.setLngLat(e.lngLat).setHTML(popupHTML(f.properties)).addTo(map); else pop.remove();
+  });
   map.on("mouseenter", "d-fill", () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", "d-fill", () => { map.getCanvas().style.cursor = ""; });
 
