@@ -13,6 +13,8 @@ export default defineNuxtConfig({
     supabaseUrl: process.env.SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL,
     // Server-only. Never exposed to the client — geopen is read-only in public.
     supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // Server-only. Pays for the PD question box (server/api/pd/ask.post.ts).
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://geopen.io',
       siteName: 'geopen.io',
@@ -28,6 +30,8 @@ export default defineNuxtConfig({
       '/d/**': { swr: 600 },
       '/api/datasets': { swr: 300 },
       '/api/stats': { swr: 3600 },
+      // live data the Texas Atlas copy of texas-fire-watch fetches from maps.thetexasatlas.com
+      '/api/drought/**': { cors: true },
     },
   },
 
