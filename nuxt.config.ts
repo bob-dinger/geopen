@@ -30,6 +30,10 @@ export default defineNuxtConfig({
       '/d/**': { swr: 600 },
       '/api/datasets': { swr: 300 },
       '/api/stats': { swr: 3600 },
+      // map pages moved to maps.thetexasatlas.com (20 Nov 2026). Static files are served before server
+      // middleware, so the forward has to be a route rule; the Atlas server turns /maps/<slug>.html into /<slug>
+      // and serves the same card images
+      '/maps/**': { redirect: { to: 'https://maps.thetexasatlas.com/maps/**', statusCode: 301 } },
       // APIs the map pages on maps.thetexasatlas.com still call here (they need this app's database)
       '/api/drought/**': { cors: true },
       '/api/places': { cors: true },
