@@ -60,6 +60,11 @@
   #detail .pop .desc { max-height: none; }
   #detail .pop table { margin: 6px 0 10px; }
   #detail .pop td { padding: 1px 12px 1px 0; }
+  #detail figure { margin: 4px 0 10px; }
+  #detail figure img { display: block; width: 100%; max-height: 210px; object-fit: cover; border-radius: 3px;
+    background: rgba(255,255,255,0.05); }
+  #detail figcaption { font-size: 0.64rem; color: var(--ink-3); margin-top: 3px; }
+  #detail figcaption a { color: var(--ink-3); }
   .close { all: unset; cursor: pointer; position: absolute; top: -4px; right: -6px; width: 28px; height: 28px;
     display: grid; place-items: center; font-size: 20px; line-height: 1; color: var(--ink-2); border-radius: 4px; }
   .close:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
@@ -267,11 +272,16 @@ function onPick(e) {
   ].join(" · ");
   const news = j("links").filter(l => /^https?:\/\//.test(l.url || ""))
     .map(l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title || l.publisher || "Article")}</a>${l.publisher || l.date ? ` <span>${esc([l.publisher, l.date].filter(Boolean).join(", "))}</span>` : ""}</li>`).join("");
+  const img = (() => { try { return typeof p.image === "string" ? JSON.parse(p.image) : p.image; } catch { return null; } })();
+  const fig = img && img.url ? `<figure><a href="${esc(img.page || img.url)}" target="_blank" rel="noopener">` +
+    `<img src="${esc(img.url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').remove()"></a>` +
+    `<figcaption>${esc(img.kind === "photo" ? "Photo" : "Rendering")}: <a href="${esc(img.page || img.url)}" target="_blank" rel="noopener">${esc((img.credit || "source").replace(/^(rendering|photo)\s*:\s*/i, ""))}</a></figcaption></figure>` : "";
   const zc = j("zoning_cases")[0];
   const desc = p.description || (zc ? zc.request : "");
   detail.innerHTML = `<button class="close" type="button" aria-label="Back to the overview" title="Back to the overview">&times;</button><div class="pop">
     <b class="t">${esc(p.name)}</b><div class="addr">${esc(p.address)}</div>
     <span class="st" style="background:${COLOR[grp]}">${LABEL[grp]}</span><span class="ty">${esc(p.type)}</span>
+    ${fig}
     <table>${rows}</table>
     ${desc ? `<div class="desc">${esc(desc)}</div>` : ""}
     ${p.latest_status ? `<div class="latest">Latest: ${esc(p.latest_status)}</div>` : ""}
