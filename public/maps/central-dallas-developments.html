@@ -41,6 +41,10 @@
   .key i { width: 12px; height: 10px; border-radius: 2px; justify-self: center; }
   .key i.dot { width: 8px; height: 8px; border-radius: 50%; }
   .key em { font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .view { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 0.7rem; color: var(--ink-3); }
+  .seg { display: flex; flex-shrink: 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .seg button { all: unset; cursor: pointer; padding: 3px 9px; color: var(--ink-2); white-space: nowrap; }
+  .seg button.on { background: var(--ink); color: var(--panel-2); }
   .hint { font-size: 0.66rem; color: var(--ink-3); margin: -4px 0 10px; }
   .note { margin: 0 0 9px; font-size: 0.72rem; color: var(--ink-2); line-height: 1.6; }
   .note b { color: var(--ink); }
@@ -75,6 +79,10 @@
   <h1>Uptown and Oak Lawn developments</h1>
   <p class="sub">New buildings in Uptown, Oak Lawn, Turtle Creek, Victory Park, Knox–Henderson
     and the Design District: opened since 2023, under construction, or in the pipeline.</p>
+
+  <div class="view">
+    <div class="seg" id="basemap"><button data-b="map" class="on">Map</button><button data-b="sat">Satellite</button></div>
+  </div>
 
   <div class="stat">
     <div><b id="n-done">–</b><span>opened since 2023</span></div>
@@ -123,8 +131,17 @@ const map = new maplibregl.Map({
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"] },
       ref: { type: "raster", tileSize: 256, maxzoom: 16,
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"] },
+      sat: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] },
+      roads: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"] },
+      places: { type: "raster", tileSize: 256, maxzoom: 19,
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"] },
     },
-    layers: [{ id: "base", type: "raster", source: "base" }],
+    layers: [
+      { id: "base", type: "raster", source: "base" },
+      { id: "sat", type: "raster", source: "sat", layout: { visibility: "none" } },
+    ],
   },
   bounds: [[-96.846, 32.776], [-96.771, 32.837]],
   fitBoundsOptions: { padding: { top: 30, bottom: 30, left: window.innerWidth > 560 ? 380 : 20, right: 30 } },
@@ -139,11 +156,27 @@ const unconf = () => ["all", filt("site"), ["boolean", ["get", "unconfirmed"], f
 const solid = () => ["all", filt("site"), ["!", ["boolean", ["get", "unconfirmed"], false]]];
 const zoningDots = () => ["all", filt("marker"), ["==", groupExpr, "zoning"]];
 const fillColor = ["match", groupExpr, ...STATUSES.flatMap(s => [s[0], s[2]]), "#999"];
+let sat = false;
+function applyView() {
+  if (!map.getLayer("places")) return;
+  for (const [id, on] of [["base", !sat], ["ref", !sat], ["sat", sat], ["roads", sat], ["places", sat]])
+    map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  map.setPaintProperty("area", "line-color", sat ? "#ffffff" : "#3f454c");
+  map.setPaintProperty("area", "line-opacity", sat ? 0.8 : 0.6);
+}
+document.querySelectorAll("#basemap button").forEach(b => b.onclick = () => {
+  sat = b.dataset.b === "sat";
+  document.querySelectorAll("#basemap button").forEach(x => x.classList.toggle("on", x === b));
+  applyView();
+});
 map.on("load", async () => {
   map.addSource("area", { type: "geojson", data: AREA });
   map.addLayer({ id: "area", type: "line", source: "area",
     paint: { "line-color": "#3f454c", "line-width": 1.2, "line-dasharray": [3, 2], "line-opacity": 0.6 } });
   map.addLayer({ id: "ref", type: "raster", source: "ref", paint: { "raster-opacity": 0.8 } });
+  map.addLayer({ id: "roads", type: "raster", source: "roads", layout: { visibility: "none" }, paint: { "raster-opacity": 0.6 } });
+  map.addLayer({ id: "places", type: "raster", source: "places", layout: { visibility: "none" } });
+  applyView();
   const data = await (await fetch(DATA)).json();
   const markers = data.features.filter(f => f.properties.kind === "marker");
   const n = s => markers.filter(f => f.properties.status === s && f.properties.type !== "Zoning case").length;
