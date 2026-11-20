@@ -55,7 +55,14 @@
     font-family: system-ui, sans-serif; font-size: 0.76rem; line-height: 1.5; }
   .maplibregl-popup-tip { border-top-color: var(--panel-2) !important; }
   .maplibregl-popup-close-button { color: var(--ink-2); }
-  .pop b.t { display: block; font-size: 0.86rem; margin-bottom: 1px; padding-right: 12px; }
+  .pop b.t { display: block; font-size: 1rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 2px; padding-right: 30px; }
+  #detail { position: relative; font-size: 0.76rem; line-height: 1.5; }
+  #detail .pop .desc { max-height: none; }
+  #detail .pop table { margin: 6px 0 10px; }
+  #detail .pop td { padding: 1px 12px 1px 0; }
+  .close { all: unset; cursor: pointer; position: absolute; top: -4px; right: -6px; width: 28px; height: 28px;
+    display: grid; place-items: center; font-size: 20px; line-height: 1; color: var(--ink-2); border-radius: 4px; }
+  .close:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
   .pop .addr { color: var(--ink-3); font-size: 0.7rem; margin-bottom: 6px; }
   .pop .st { display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 1px 6px;
     border-radius: 3px; margin: 0 4px 6px 0; color: #fff; }
@@ -75,7 +82,8 @@
 
 <div id="map"></div>
 
-<div class="card">
+<div class="card" id="card">
+ <div id="main">
   <h1>Uptown and Oak Lawn developments</h1>
   <p class="sub">New buildings in Uptown, Oak Lawn, Turtle Creek, Victory Park, Knox–Henderson
     and the Design District: opened since 2023, under construction, or in the pipeline.</p>
@@ -105,6 +113,8 @@
     fit-outs excluded. ·
     <a href="https://geopen.io/data/central_dallas_developments.geojson">download the data</a> ·
     <a href="https://geopen.io/">geopen.io</a></p>
+ </div>
+ <div id="detail" hidden></div>
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -200,6 +210,13 @@ map.on("load", async () => {
   map.addLayer({ id: "site-line-dash", type: "line", source: "d", filter: unconf(),
     paint: { "line-color": fillColor, "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1.5, 17, 3],
              "line-dasharray": [2, 1.5] } });
+  map.addLayer({ id: "sel-halo", type: "line", source: "d", filter: ["==", ["get", "name"], ""],
+    paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 4.5, 17, 7] } });
+  map.addLayer({ id: "sel", type: "line", source: "d", filter: ["==", ["get", "name"], ""],
+    paint: { "line-color": "#15191d", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 2, 17, 3] } });
+  map.addLayer({ id: "sel-dot", type: "circle", source: "d", filter: ["==", ["get", "name"], ""],
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 6, 17, 10], "circle-color": "rgba(0,0,0,0)",
+             "circle-stroke-color": "#15191d", "circle-stroke-width": 2.5 } });
   // zoning cases are placed from a written location, not a parcel, so they stay dots
   map.addLayer({ id: "dev", type: "circle", source: "d", filter: zoningDots(),
     paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 3, 17, 6],
@@ -222,7 +239,16 @@ for (const [id, label, color] of STATUSES) {
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const money = v => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${Math.round(v / 1e6)}M` : `$${Math.round(v / 1e3)}K`;
-const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "310px" });
+const card = document.getElementById("card"), mainPane = document.getElementById("main"), detail = document.getElementById("detail");
+function select(name, kind) {
+  const site = name && kind !== "zoning" ? ["all", ["==", ["get", "name"], name], ["==", ["get", "kind"], "site"]] : ["==", ["get", "name"], ""];
+  map.setFilter("sel", site); map.setFilter("sel-halo", site);
+  map.setFilter("sel-dot", name && kind === "zoning" ? ["all", ["==", ["get", "name"], name], ["==", ["get", "kind"], "marker"]] : ["==", ["get", "name"], ""]);
+}
+function showMain() {
+  detail.hidden = true; detail.innerHTML = ""; mainPane.hidden = false; card.scrollTop = 0; select(null);
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !detail.hidden) showMain(); });
 function onPick(e) {
   const p = e.features[0].properties;
   const j = k => { try { return JSON.parse(p[k] || "[]"); } catch { return []; } };
@@ -243,7 +269,7 @@ function onPick(e) {
     .map(l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title || l.publisher || "Article")}</a>${l.publisher || l.date ? ` <span>${esc([l.publisher, l.date].filter(Boolean).join(", "))}</span>` : ""}</li>`).join("");
   const zc = j("zoning_cases")[0];
   const desc = p.description || (zc ? zc.request : "");
-  popup.setLngLat(e.lngLat).setHTML(`<div class="pop">
+  detail.innerHTML = `<button class="close" type="button" aria-label="Back to the overview" title="Back to the overview">&times;</button><div class="pop">
     <b class="t">${esc(p.name)}</b><div class="addr">${esc(p.address)}</div>
     <span class="st" style="background:${COLOR[grp]}">${LABEL[grp]}</span><span class="ty">${esc(p.type)}</span>
     <table>${rows}</table>
@@ -251,7 +277,10 @@ function onPick(e) {
     ${p.latest_status ? `<div class="latest">Latest: ${esc(p.latest_status)}</div>` : ""}
     ${news ? `<ul class="news">${news}</ul>` : ""}
     ${links ? `<div>${links}</div>` : ""}
-    <div class="basis">Status from: ${esc(p.status_basis)}</div></div>`).addTo(map);
+    <div class="basis">Status from: ${esc(p.status_basis)}</div></div>`;
+  detail.querySelector(".close").onclick = showMain;
+  mainPane.hidden = true; detail.hidden = false; card.scrollTop = 0;
+  select(p.name, grp === "zoning" ? "zoning" : "site");
 }
 map.on("click", (e) => {
   const f = map.queryRenderedFeatures(e.point, { layers: ["dev", "site-fill"] });
