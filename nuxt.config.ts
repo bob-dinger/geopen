@@ -30,8 +30,11 @@ export default defineNuxtConfig({
       '/d/**': { swr: 600 },
       '/api/datasets': { swr: 300 },
       '/api/stats': { swr: 3600 },
-      // live data the Texas Atlas copy of texas-fire-watch fetches from maps.thetexasatlas.com
+      // APIs the map pages on maps.thetexasatlas.com still call here (they need this app's database)
       '/api/drought/**': { cors: true },
+      '/api/places': { cors: true },
+      '/api/places/**': { cors: true },
+      '/api/pd/**': { cors: true },
     },
   },
 
